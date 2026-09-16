@@ -14,7 +14,8 @@ const SOUND_EFFECTS = {
     bigSale: new Audio("sounds/bigSale.mp3"),
     sell: new Audio("sounds/sell.mp3"),
     keep: new Audio("sounds/keep.mp3"),
-    achievement: new Audio("sounds/achievement.mp3")
+    achievement: new Audio("sounds/achievement.mp3"),
+    
 };
 
 // Timestamps to handle debouncing per sound key

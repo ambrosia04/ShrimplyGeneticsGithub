@@ -68,20 +68,26 @@
 
                 <!-- AQUARIUM PANEL -->
                 <div class="panel aquarium-panel" style="flex-grow: 1;">
-                    <div class="panel-title">
-                        <h2><img src="emoji/herb.png" alt="Aquarium" class="ui-emoji"> Aquarium</h2>
-
-                        <button id="switchAquariumBtn" class="secondary-button hidden"
-                            style="margin-left: auto; margin-right: 10px;">
-                            <img src="emoji/star.png" alt="Star" class="ui-emoji"> View Favorites
-                        </button>
+                    <div class="panel-title"
+                        style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 4px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <img src="emoji/herb.png" alt="Aquarium" class="ui-emoji"
+                                style="width: 24px !important; height: 24px !important; max-width: 24px !important; max-height: 24px !important;">
+                            <span id="singleTankTitle"
+                                style="font-size: 22px; font-weight: bold; color: var(--text); letter-spacing: -0.2px;">Aquarium</span>
+                            <select id="tankSelectDropdown" class="secondary-button hidden"
+                                style="font-size: 20px; font-weight: bold; padding: 6px 14px; cursor: pointer; border-radius: 10px; border: 1.5px solid var(--border);">
+                                <option value="tank1">Tank 1</option>
+                            </select>
+                        </div>
 
                         <button id="shrimpListBtn" class="secondary-button hidden"
-                            style="margin-left: auto; margin-right: 15px;">
+                            style="margin-left: auto; margin-right: 12px; padding: 8px 14px; font-size: 13px;">
                             <img src="emoji/list.png" alt="List" class="ui-emoji"> List of Shrimp
                         </button>
 
-                        <div class="tank-status" id="tankStatus">0 / 50</div>
+                        <div class="tank-status" id="tankStatus" style="font-size: 14px; padding: 8px 14px;">0 / 100
+                        </div>
                     </div>
 
                     <div id="aquarium" class="aquarium">
@@ -92,8 +98,10 @@
                         <div class="bubble bubble4"></div>
 
                         <!-- Plant background assets -->
-                        <img id="aquariumPlantLeft" src="plants/planbg1.png" class="plant plant-left" alt="Aquarium Plant">
-                        <img id="aquariumPlantRight" src="plants/planbg2.png" class="plant plant-right" alt="Aquarium Plant">
+                        <img id="aquariumPlantLeft" src="plants/planbg1.png" class="plant plant-left"
+                            alt="Aquarium Plant">
+                        <img id="aquariumPlantRight" src="plants/planbg2.png" class="plant plant-right"
+                            alt="Aquarium Plant">
 
                         <!-- Plant Upgrade Overlays -->
                         <div id="aquariumFloater" class="plant-floater hidden"></div>
@@ -101,11 +109,14 @@
                         <img id="aquariumPregnancyMoss" class="plant-upgrade hidden" alt="Pregnancy Moss">
                         <img id="aquariumBabyPlant" class="plant-upgrade hidden" alt="Baby Boost Plant">
                         <img id="aquariumGrowthPlant" class="plant-upgrade hidden" alt="Growth Plant">
-                        
+
                         <!-- Marimo Moss Balls -->
-                        <img id="aquariumMarimo1" src="plants/marimo.png" class="marimo-ball hidden" alt="Marimo Moss Ball 1">
-                        <img id="aquariumMarimo2" src="plants/marimo.png" class="marimo-ball hidden" alt="Marimo Moss Ball 2">
-                        <img id="aquariumMarimo3" src="plants/marimo.png" class="marimo-ball hidden" alt="Marimo Moss Ball 3">
+                        <img id="aquariumMarimo1" src="plants/marimo.png" class="marimo-ball hidden"
+                            alt="Marimo Moss Ball 1">
+                        <img id="aquariumMarimo2" src="plants/marimo.png" class="marimo-ball hidden"
+                            alt="Marimo Moss Ball 2">
+                        <img id="aquariumMarimo3" src="plants/marimo.png" class="marimo-ball hidden"
+                            alt="Marimo Moss Ball 3">
 
                         <div id="shrimpLayer"></div>
                         <div class="sand"></div>
@@ -115,10 +126,13 @@
                         <div class="aquarium-help">Click a shrimp to inspect it.</div>
                         <div class="aquarium-sell-controls">
                             <button id="sellModeButton" class="secondary-button">
-                                <img src="emoji/cart.png" alt="Sell Mode" class="ui-emoji"> Sell Mode: OFF
+                                <img src="emoji/shrimp.png" alt="Select Mode" class="ui-emoji"> Select Mode: OFF
+                            </button>
+                            <button id="moveSelectedButton" class="primary-button hidden" disabled>
+                                <img src="emoji/herb.png" alt="Move" class="ui-emoji"> Move Selected (0)
                             </button>
                             <button id="sellSelectedButton" class="danger-button hidden" disabled>
-                                Sell Selected (0)
+                                <img src="emoji/dollar.png" alt="Sell" class="ui-emoji"> Sell Selected (0)
                             </button>
                         </div>
                     </div>
@@ -203,7 +217,8 @@
             <div id="tab-shop" class="tab-content">
                 <div class="panel">
                     <h2><img src="emoji/cart.png" alt="Tank" class="ui-emoji"> Shrimp Shop</h2>
-                    <p class="small-text">Common strains are available for purchase. Their hidden genetics may contain surprises.</p>
+                    <p class="small-text">Common strains are available for purchase. Their hidden genetics may contain
+                        surprises.</p>
                     <div id="shrimpShop" class="shop-grid"></div>
                 </div>
 
@@ -236,9 +251,11 @@
             <div id="tab-genetics" class="tab-content">
                 <div class="panel">
                     <h2><img src="emoji/dna.png" alt="Genetics" class="ui-emoji"> Genetic Research</h2>
-                    <p>Genetics are hidden from you while breeding. As you discover shrimp, more of their lineage becomes visible.</p>
+                    <p>Genetics are hidden from you while breeding. As you discover shrimp, more of their lineage
+                        becomes visible.</p>
                     <div class="genetics-warning">
-                        <img src="emoji/warning.png" alt="Warning" class="ui-emoji"> The displayed lineage is your research knowledge, not the shrimp's complete hidden genome.
+                        <img src="emoji/warning.png" alt="Warning" class="ui-emoji"> The displayed lineage is your
+                        research knowledge, not the shrimp's complete hidden genome.
                     </div>
                     <div id="geneticsTree"></div>
                 </div>
@@ -248,7 +265,8 @@
             <div id="tab-achievements" class="tab-content">
                 <div class="panel">
                     <h2><img src="emoji/trophy.png" alt="Achievements" class="ui-emoji"> Achievements</h2>
-                    <p class="small-text">Discover unique secrets, rare lineages, and complete processing milestones to unlock achievements.</p>
+                    <p class="small-text">Discover unique secrets, rare lineages, and complete processing milestones to
+                        unlock achievements.</p>
                     <div id="achievementsList" class="achievements-list"></div>
                 </div>
             </div>
@@ -267,7 +285,8 @@
                             <button id="bgmToggleBtn" class="primary-button" style="width: 100px;">Mute</button>
                             <input type="range" id="bgmVolumeSlider" min="0" max="1" step="0.05" value="0.5"
                                 style="flex-grow: 1; cursor: pointer;">
-                            <span id="bgmVolumeLabel" style="width: 45px; font-weight: bold; text-align: right;">50%</span>
+                            <span id="bgmVolumeLabel"
+                                style="width: 45px; font-weight: bold; text-align: right;">50%</span>
                         </div>
                     </div>
 
@@ -280,7 +299,8 @@
                             <button id="sfxToggleBtn" class="primary-button" style="width: 100px;">Mute</button>
                             <input type="range" id="sfxVolumeSlider" min="0" max="1" step="0.05" value="0.5"
                                 style="flex-grow: 1; cursor: pointer;">
-                            <span id="sfxVolumeLabel" style="width: 45px; font-weight: bold; text-align: right;">50%</span>
+                            <span id="sfxVolumeLabel"
+                                style="width: 45px; font-weight: bold; text-align: right;">50%</span>
                         </div>
                     </div>
 
@@ -296,12 +316,14 @@
                     </div>
 
                     <!-- SAVE FILE BACKUP & RESTORE SECTION -->
-                    <div class="settings-row" style="margin-bottom: 25px; border-top: 1px solid var(--border); padding-top: 20px;">
+                    <div class="settings-row"
+                        style="margin-bottom: 25px; border-top: 1px solid var(--border); padding-top: 20px;">
                         <label style="display: block; font-weight: bold; margin-bottom: 6px;">
                             <img src="emoji/save.png" alt="Backup" class="ui-emoji"> Save File Management
                         </label>
                         <p class="small-text" style="margin-top: 0; margin-bottom: 12px;">
-                            Download your save file to your computer so you never lose your progress if you clear your browser cache.
+                            Download your save file to your computer so you never lose your progress if you clear your
+                            browser cache.
                         </p>
                         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                             <button id="exportSaveBtn" class="primary-button">
@@ -311,12 +333,14 @@
                                 <img src="emoji/book.png" alt="Import" class="ui-emoji"> Import Save File
                             </button>
                             <!-- Hidden File Input for loading JSON files -->
-                            <input type="file" id="importSaveFileInput" accept=".json,application/json" style="display: none;" aria-label="file">
+                            <input type="file" id="importSaveFileInput" accept=".json,application/json"
+                                style="display: none;" aria-label="file">
                         </div>
                     </div>
 
                     <!-- Reset Game Section -->
-                    <div class="settings-row" style="margin-top: 20px; display: flex; justify-content: flex-end; border-top: 1px solid var(--border); padding-top: 20px;">
+                    <div class="settings-row"
+                        style="margin-top: 20px; display: flex; justify-content: flex-end; border-top: 1px solid var(--border); padding-top: 20px;">
                         <button id="resetButton" class="danger-button">Reset Game</button>
                     </div>
                 </div>
@@ -363,7 +387,7 @@
     <script src="js/shrimp.js"></script>
     <script src="js/achievement.js"></script>
     <script src="js/helpModal.js"></script>
-    
+
     <!-- 2. Minigame Overlays & Modules -->
     <script src="js/minigames/minigamesModals.js"></script>
     <script src="js/minigames/minigameFood.js"></script>
@@ -373,4 +397,5 @@
     <!-- 3. Main Game Engine (runs last) -->
     <script src="game.js" defer></script>
 </body>
+
 </html>

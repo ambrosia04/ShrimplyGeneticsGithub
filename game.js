@@ -39,8 +39,11 @@ const GAME = {
     juvenileAgeMinutes: 60,
     dayLengthMinutes: 1440,
     startingMoney: 100,
-    startingCapacity: 50
+    tankCapacity: 100, // 100 per tank x 10 tanks = 1000 total
+    totalTanks: 10
 };
+
+const ALL_TANKS = ["tank1", "tank2", "tank3", "tank4", "tank5", "tank6", "tank7", "tank8", "tank9", "tank10"];
 
 /* =========================================================
    SHOP
@@ -106,13 +109,27 @@ const SHOP_PLANTS = {
 ========================================================= */
 
 const TANK_UPGRADES = [
-    { capacity: 50, price: 0, name: "Starter Tank" },
-    { capacity: 100, price: 600, name: "Small Upgrade" },
-    { capacity: 200, price: 2500, name: "Medium Upgrade" },
-    { capacity: 300, price: 5000, name: "Large Upgrade" },
-    { capacity: 500, price: 9000, name: "Breeder Tank" },
-    { capacity: 7000, price: 15000, name: "Commercial Breeder" }
+    { unlockedTanks: 1, price: 0, name: "Starter Aquarium (Tank 1)" },
+    { unlockedTanks: 2, price: 500, name: "Second Aquarium (Tank 2)" },
+    { unlockedTanks: 3, price: 1500, name: "Third Aquarium (Tank 3)" },
+    { unlockedTanks: 4, price: 3500, name: "Fourth Aquarium (Tank 4)" },
+    { unlockedTanks: 5, price: 7000, name: "Fifth Aquarium (Tank 5)" },
+    { unlockedTanks: 6, price: 12000, name: "Sixth Aquarium (Tank 6)" },
+    { unlockedTanks: 7, price: 18000, name: "Seventh Aquarium (Tank 7)" },
+    { unlockedTanks: 8, price: 26000, name: "Eighth Aquarium (Tank 8)" },
+    { unlockedTanks: 9, price: 36000, name: "Ninth Aquarium (Tank 9)" },
+    { unlockedTanks: 10, price: 50000, name: "Master Breeder (Tank 10)" }
 ];
+
+function getUnlockedTanks() {
+    if (!game) return ["tank1"];
+    const count = Math.min(10, Math.max(1, (game.tankUpgradeLevel || 0) + 1));
+    const list = [];
+    for (let i = 1; i <= count; i++) {
+        list.push(`tank${i}`);
+    }
+    return list;
+}
 
 /* =========================================================
    SPEED UPGRADES CONFIGURATION
@@ -138,8 +155,8 @@ let lastRenderedMoney = null;
 let gamePlaying = false;
 let activeCullFemaleId = null;
 
-function isShrimpInTank(shrimp, tank = "main") {
-    return (shrimp.tank || "main") === tank;
+function isShrimpInTank(shrimp, tank = "tank1") {
+    return (shrimp.tank || "tank1") === tank;
 }
 
 function hasLiveShrimp(species, tank = null, adultOnly = false) {
@@ -237,7 +254,6 @@ function loadGame() {
         if (!game.unlockedSpeeds) game.unlockedSpeeds = [1];
         if (game.favoritesTankUnlocked === undefined) game.favoritesTankUnlocked = false;
         if (game.favoritesTankLevel === undefined) game.favoritesTankLevel = 0;
-        if (game.activeAquarium === undefined) game.activeAquarium = "main";
         if (game.purchaseGenderHistory === undefined) game.purchaseGenderHistory = [];
 
         if (!game.shortcuts) {
@@ -257,12 +273,53 @@ function loadGame() {
             if (!s.hiddenGenes || !s.hiddenGenes.allele1) {
                 s.hiddenGenes = generateHiddenGenes(s.species);
             }
-            if (!s.tank) {
-                s.tank = "main";
-            }
             if (isAdult(s) && s.sex === "female" && s.species !== "galaxySulawesi" && !s.pregnant && !s.resting && !s.readyToBirth && !s.saddle) {
                 s.saddle = true;
             }
+        }
+
+        /* =========================================================
+           SAFE BACKWARD COMPATIBLE MULTI-TANK MIGRATION
+        ========================================================= */
+        // 1. Separate Favorites shrimp so they remain untouched
+        const favoriteShrimp = game.shrimp.filter(s => s.tank === "favorites");
+        const generalShrimp = game.shrimp.filter(s => s.tank !== "favorites");
+
+        // 2. Map old upgrade tiers [50, 100, 200, 300, 500, 7000] to new tank levels
+        const oldUpgradeToNewLevel = {
+            0: 0, // Starter Tank (50 cap) -> Tank 1 (100 cap)
+            1: 0, // Small Upgrade (100 cap) -> Tank 1 (100 cap)
+            2: 1, // Medium Upgrade (200 cap) -> Tank 1 & 2 (200 cap)
+            3: 2, // Large Upgrade (300 cap) -> Tanks 1-3 (300 cap)
+            4: 4, // Breeder Tank (500 cap) -> Tanks 1-5 (500 cap)
+            5: 9  // Commercial Breeder (7000 cap) -> Master Breeder Tanks 1-10 (1000 cap)
+        };
+
+        // Calculate minimum tanks needed to safely hold all existing general shrimp
+        const tanksNeededForShrimp = Math.max(1, Math.ceil(generalShrimp.length / GAME.tankCapacity));
+        const minLevelForShrimp = Math.min(9, tanksNeededForShrimp - 1);
+
+        // Perform one-time tier conversion for legacy saves
+        if (game.saveVersion === undefined || game.saveVersion < 2) {
+            const oldLevel = game.tankUpgradeLevel || 0;
+            const convertedLevel = oldUpgradeToNewLevel[oldLevel] !== undefined ? oldUpgradeToNewLevel[oldLevel] : oldLevel;
+            game.tankUpgradeLevel = Math.min(9, Math.max(convertedLevel, minLevelForShrimp));
+            game.saveVersion = 2;
+        } else {
+            game.tankUpgradeLevel = Math.min(9, Math.max(game.tankUpgradeLevel || 0, minLevelForShrimp));
+        }
+
+        const totalUnlockedTanks = Math.min(10, Math.max(1, (game.tankUpgradeLevel || 0) + 1));
+
+        // 3. Distribute general shrimp in order across unlocked tanks (100 per tank)
+        generalShrimp.forEach((s, index) => {
+            const tankIndex = Math.min(totalUnlockedTanks, Math.floor(index / GAME.tankCapacity) + 1);
+            s.tank = `tank${tankIndex}`;
+        });
+
+        // 4. Ensure active aquarium selection is valid
+        if (!game.activeAquarium || game.activeAquarium === "main" || (!getUnlockedTanks().includes(game.activeAquarium) && game.activeAquarium !== "favorites")) {
+            game.activeAquarium = "tank1";
         }
 
         applyOfflineProgress();
@@ -391,69 +448,39 @@ function isShortcutsBlocked() {
     return false;
 }
 
+/* =========================================================
+   GAME TIME & BACKGROUND CATCHUP ENGINE
+========================================================= */
+
 function applyOfflineProgress() {
-    if (!game.lastRealTime) return;
+    if (!game || !game.lastRealTime) return;
 
     const now = Date.now();
-    let elapsedSeconds = Math.floor((now - game.lastRealTime) / 1000);
-    // Support up to 7 days of offline time
+    let elapsedSeconds = (now - game.lastRealTime) / 1000;
+    // Cap offline time at 7 days max
     elapsedSeconds = Math.min(elapsedSeconds, 7 * 24 * 60 * 60);
 
     if (elapsedSeconds <= 0) return;
 
-    const elapsedMinutes = elapsedSeconds / 60;
-    
-    // Simulate progression in discrete 1-minute steps (capped at 10,080 minutes / 7 days)
-    const totalSteps = Math.floor(elapsedMinutes);
-    const stepSize = 1; // 1 minute per step
+    // Convert to in-game minutes including current speed multiplier
+    const totalInGameMinutes = (elapsedSeconds / 60) * GAME.speed;
 
-    for (let step = 0; step < totalSteps; step++) {
-        // Bamboo income during offline
-        const adultBambooCount = countLiveShrimp("bambooShrimp", null, true);
-        if (adultBambooCount > 0) {
-            game.money += 2 * stepSize * adultBambooCount;
-        }
+    // Step in small 1-minute slices so breeding checks and growth trigger accurately
+    const stepSize = 1; // 1 in-game minute per step
+    let remainingMinutes = totalInGameMinutes;
 
-        // Advance individual shrimp maturation, pregnancies, and resting states
-        for (const shrimp of game.shrimp) {
-            if (shrimp.dead) continue;
-
-            const wasAdult = isAdult(shrimp);
-            shrimp.ageMinutes += stepSize;
-
-            if (!wasAdult && isAdult(shrimp)) {
-                if (shrimp.sex === "female" && shrimp.species !== "galaxySulawesi") {
-                    shrimp.saddle = true;
-                }
-            }
-
-            if (shrimp.pregnant) {
-                shrimp.pregnancyRemaining -= stepSize;
-                if (shrimp.pregnancyRemaining <= 0) {
-                    prepareBirth(shrimp);
-                }
-            }
-
-            if (shrimp.resting) {
-                shrimp.restRemaining -= stepSize;
-                if (shrimp.restRemaining <= 0) {
-                    shrimp.resting = false;
-                    if (shrimp.sex === "female" && shrimp.species !== "galaxySulawesi") {
-                        shrimp.saddle = true;
-                    }
-                }
-            }
-        }
-
-        // Breeding check occurs every breeding interval (default: 60 minutes)
-        if (step > 0 && step % Math.round(GAME.breedingInterval / 60) === 0) {
-            breedingCheck();
-        }
+    while (remainingMinutes > 0) {
+        const chunk = Math.min(remainingMinutes, stepSize);
+        advanceGameMinuteFraction(chunk);
+        remainingMinutes -= chunk;
     }
 
     game.lastRealTime = now;
-    addLog(`Your aquarium processed ${formatDuration(elapsedMinutes)} of offline growth.`);
+    if (elapsedSeconds >= 60) {
+        addLog(`Your aquariums processed ${formatDuration(elapsedSeconds / 60)} of growth.`);
+    }
 }
+
 
 /* =========================================================
    SHRIMP CREATION
@@ -465,12 +492,13 @@ function addShrimp(
     adult = false,
     parentIds = [],
     hiddenGenes = null,
-    tank = "main"
+    tank = null
 ) {
     if (!SHRIMP[species]) return null;
 
     const id = game.nextShrimpId++;
     const genes = hiddenGenes || generateHiddenGenes(species);
+    const targetTank = tank || (game ? game.activeAquarium : "tank1") || "tank1";
 
     const shrimp = {
         id,
@@ -496,7 +524,7 @@ function addShrimp(
         dead: false,
         readyToBirth: false,
         pendingBabies: [],
-        tank: tank || "main"
+        tank: targetTank
     };
 
     game.shrimp.push(shrimp);
@@ -574,12 +602,17 @@ function sameBreedingFamily(a, b) {
     return false;
 }
 
-function getTankCapacity(tank = "main") {
-    if (!game) return 50;
-    const baseCap = (tank === "favorites") ? (game.favoritesTankLevel * 10) : game.capacity;
+function getTankCapacity(tank = "tank1") {
+    if (!game) return GAME.tankCapacity;
+    if (tank === "favorites") {
+        const favCap = (game.favoritesTankLevel || 0) * 10;
+        const vampireCount = countLiveShrimp("vampireShrimp", "favorites", true);
+        return favCap + (vampireCount * 5);
+    }
     const vampireCount = countLiveShrimp("vampireShrimp", tank, true);
-    return baseCap + (vampireCount * 5);
+    return GAME.tankCapacity + (vampireCount * 5);
 }
+
 
 function canDescendFrom(target, source) {
     if (target === source) return true;
@@ -626,11 +659,14 @@ function determinePhenotype(a1, a2) {
 ========================================================= */
 
 function breedingCheck() {
-    runBreedingCheckForTank("main");
+    ALL_TANKS.forEach(tank => {
+        runBreedingCheckForTank(tank);
+    });
     if (game.favoritesTankUnlocked) {
         runBreedingCheckForTank("favorites");
     }
 }
+
 
 function runBreedingCheckForTank(tank) {
     const mCount = game.shrimp.filter(
@@ -960,16 +996,11 @@ const MAX_DELTA_TICK_SECONDS = 5;
 
 function handleCatchupProgress() {
     if (!game || !gamePlaying || !game.lastRealTime) return;
-    const now = Date.now();
-    const elapsedSeconds = (now - game.lastRealTime) / 1000;
-
-    if (elapsedSeconds > MAX_DELTA_TICK_SECONDS) {
-        applyOfflineProgress();
-        render();
-    }
+    applyOfflineProgress();
+    render();
 }
 
-// Catch up whenever window regains focus or visibility
+// Catch up whenever tab/window regains focus or visibility
 document.addEventListener("visibilitychange", () => {
     if (!document.hidden) {
         handleCatchupProgress();
@@ -980,25 +1011,31 @@ window.addEventListener("focus", () => {
     handleCatchupProgress();
 });
 
+
 function gameLoop() {
     const now = Date.now();
     if (!game) return;
 
     if (gamePlaying) {
-        let deltaSeconds = (now - game.lastRealTime) / 1000;
+        const deltaSeconds = (now - game.lastRealTime) / 1000;
 
-        // If time jump is larger than 5s (minimized, slept, throttled), catch up via offline simulation
-        if (deltaSeconds > MAX_DELTA_TICK_SECONDS) {
-            applyOfflineProgress();
-        } else if (deltaSeconds > 0) {
-            advanceGameMinuteFraction((deltaSeconds / 60) * GAME.speed);
+        if (deltaSeconds > 0) {
+            // If jump is more than 3 seconds (throttled/tabbed out), run slice catch-up
+            if (deltaSeconds > 3) {
+                applyOfflineProgress();
+            } else {
+                advanceGameMinuteFraction((deltaSeconds / 60) * GAME.speed);
+                game.lastRealTime = now;
+            }
         }
         render();
+    } else {
+        game.lastRealTime = now;
     }
 
-    game.lastRealTime = Date.now();
     requestAnimationFrame(gameLoop);
 }
+
 
 function advanceGameMinuteFraction(minutes) {
     game.minutes += minutes;
@@ -1288,9 +1325,9 @@ function countPlantEffects(effectName) {
 ========================================================= */
 
 function buyNextTankUpgrade() {
-    const nextIndex = game.tankUpgradeLevel + 1;
+    const nextIndex = (game.tankUpgradeLevel || 0) + 1;
     if (nextIndex >= TANK_UPGRADES.length) {
-        addLog("Your tank is already at maximum capacity.");
+        addLog("You have unlocked all 10 available tanks!");
         return;
     }
 
@@ -1302,10 +1339,12 @@ function buyNextTankUpgrade() {
 
     game.money -= upgrade.price;
     playSellSound();
-    game.capacity = upgrade.capacity;
-    game.tankUpgradeLevel = nextIndex;
 
-    addLog(`Tank upgraded to ${upgrade.capacity} shrimp.`);
+    game.tankUpgradeLevel = nextIndex;
+    addLog(`Unlocked ${upgrade.name}! You now own ${upgrade.unlockedTanks} tanks.`);
+
+    lastRenderedMoney = null;
+    render();
     renderShop();
 }
 
@@ -1585,7 +1624,7 @@ function createShrimpElement(shrimp) {
     image.className = "shrimp-img";
     image.alt = data.name;
     image.src = `shrimp/${getShrimpImagePrefix(shrimp)}${globalShrimpFrame}.png`;
-    
+
     image.onerror = function () {
         image.style.display = "none";
         if (!bodyWrapper.querySelector(".css-shrimp")) {
@@ -1696,7 +1735,7 @@ function updateShrimpElement(element, shrimp) {
 }
 
 /* =========================================================
-   SELL MODE CONTROL LOGIC
+   SELECT MODE & BULK MOVE / SELL CONTROLS
 ========================================================= */
 
 function toggleSellMode() {
@@ -1710,20 +1749,127 @@ function toggleSellMode() {
 
 function updateSellModeUI() {
     const btn = document.getElementById("sellModeButton");
+    const moveBtn = document.getElementById("moveSelectedButton");
     const sellBtn = document.getElementById("sellSelectedButton");
-    if (!btn || !sellBtn) return;
+    if (!btn) return;
+
+    const count = (game.selectedForSaleIds || []).length;
 
     if (game.sellModeActive) {
-        btn.innerHTML = `<img src="emoji/cart.png" alt="Cart" class="ui-emoji"> Sell Mode : ON`;
+        btn.innerHTML = `<img src="emoji/shrimp.png" alt="Select Mode" class="ui-emoji"> Select Mode : ON`;
         btn.classList.add("active");
-        sellBtn.classList.remove("hidden");
-        sellBtn.textContent = `Sell Selected (${game.selectedForSaleIds.length})`;
-        sellBtn.disabled = game.selectedForSaleIds.length === 0;
+
+        if (moveBtn) {
+            moveBtn.classList.remove("hidden");
+            moveBtn.innerHTML = `<img src="emoji/herb.png" alt="Move" class="ui-emoji"> Move Selected (${count})`;
+            moveBtn.disabled = count === 0;
+        }
+
+        if (sellBtn) {
+            sellBtn.classList.remove("hidden");
+            sellBtn.innerHTML = `<img src="emoji/dollar.png" alt="Sell" class="ui-emoji"> Sell Selected (${count})`;
+            sellBtn.disabled = count === 0;
+        }
     } else {
-        btn.innerHTML = `<img src="emoji/cart.png" alt="Cart" class="ui-emoji"> Sell Mode : OFF`;
+        btn.innerHTML = `<img src="emoji/shrimp.png" alt="Select Mode" class="ui-emoji"> Select Mode : OFF`;
         btn.classList.remove("active");
-        sellBtn.classList.add("hidden");
+        if (moveBtn) moveBtn.classList.add("hidden");
+        if (sellBtn) sellBtn.classList.add("hidden");
     }
+}
+
+function showMoveSelectedModal() {
+    const selectedCount = (game.selectedForSaleIds || []).length;
+    if (selectedCount === 0) return;
+
+    const currentTank = game.activeAquarium || "tank1";
+    const unlockedTanks = getUnlockedTanks();
+    const modal = document.getElementById("shrimpModal");
+    const content = document.getElementById("modalContent");
+    if (!modal || !content) return;
+
+    let destinationTanks = [...unlockedTanks];
+    if (game.favoritesTankUnlocked) {
+        destinationTanks.push("favorites");
+    }
+
+    content.innerHTML = `
+        <h2><img src="emoji/herb.png" alt="Move" class="ui-emoji"> Move ${selectedCount} Selected Shrimp</h2>
+        <p class="small-text">Select which aquarium tank you would like to transfer your selected shrimp to.</p>
+        <div class="cull-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
+            ${destinationTanks.map(tankId => {
+                const isCurrent = tankId === currentTank;
+                const tankCount = game.shrimp.filter(s => (s.tank || "tank1") === tankId && !s.dead).length;
+                const tankCap = getTankCapacity(tankId);
+                const remainingSpace = Math.max(0, tankCap - tankCount);
+                const canFitAll = remainingSpace >= selectedCount;
+                const isFull = remainingSpace === 0;
+
+                let badge = `<span style="color: var(--success); font-weight: bold;">Space: +${remainingSpace}</span>`;
+                if (isCurrent) badge = `<span style="color: var(--muted); font-weight: bold;">(Current Tank)</span>`;
+                else if (isFull) badge = `<span style="color: var(--danger); font-weight: bold;">(Full: 0 space)</span>`;
+                else if (!canFitAll) badge = `<span style="color: var(--danger); font-weight: bold;">(Only ${remainingSpace} can fit)</span>`;
+
+                return `
+                    <div class="cull-row" style="justify-content: space-between; padding: 12px 16px;">
+                        <div>
+                            <strong>${formatTankName(tankId)}</strong>
+                            <div class="small-text">Population: ${tankCount} / ${tankCap} • ${badge}</div>
+                        </div>
+                        <button class="primary-button" 
+                            style="${isCurrent || isFull ? 'opacity: 0.4; cursor: not-allowed;' : ''}" 
+                            ${isCurrent || isFull ? 'disabled' : ''} 
+                            onclick="executeMoveSelected('${tankId}')">
+                            Move Here
+                        </button>
+                    </div>
+                `;
+            }).join("")}
+        </div>
+    `;
+
+    modal.classList.remove("hidden");
+}
+
+function executeMoveSelected(targetTank) {
+    const currentTank = game.activeAquarium || "tank1";
+    if (targetTank === currentTank) return;
+
+    const selectedShrimp = game.shrimp.filter(s => game.selectedForSaleIds.includes(s.id) && !s.dead);
+    if (selectedShrimp.length === 0) return;
+
+    const targetCap = getTankCapacity(targetTank);
+    const targetCurrentCount = game.shrimp.filter(s => (s.tank || "tank1") === targetTank && !s.dead).length;
+    const availableSpace = targetCap - targetCurrentCount;
+
+    if (availableSpace <= 0) {
+        alert(`${formatTankName(targetTank)} is already full!`);
+        return;
+    }
+
+    const moveCount = Math.min(selectedShrimp.length, availableSpace);
+    const willFitAll = selectedShrimp.length <= availableSpace;
+
+    let confirmMsg = `Are you sure you want to move ${moveCount} shrimp from ${formatTankName(currentTank)} to ${formatTankName(targetTank)}?`;
+    if (!willFitAll) {
+        confirmMsg = `${formatTankName(targetTank)} only has room for ${availableSpace} more shrimp.\n\nMove the first ${moveCount} shrimp and leave the rest in this tank?`;
+    }
+
+    if (!confirm(confirmMsg)) return;
+
+    for (let i = 0; i < moveCount; i++) {
+        selectedShrimp[i].tank = targetTank;
+    }
+
+    addLog(`Transferred ${moveCount} shrimp to ${formatTankName(targetTank)}.`);
+    playKeepSound();
+
+    game.selectedForSaleIds = [];
+    game.selectedShrimpId = null;
+
+    closeModal();
+    updateSellModeUI();
+    render();
 }
 
 function sellSelectedShrimp() {
@@ -1794,7 +1940,11 @@ function selectShrimp(id) {
     if (shrimp.readyToBirth) {
         game.selectedShrimpId = id;
         renderSelectedShrimp();
-        FOOD_PREP.cullFilters = { allele: "all", type: "all", gender: "all" };
+        if (!FOOD_PREP.cullFilters) {
+            FOOD_PREP.cullFilters = { allele: "all", type: "all", gender: "all", targetTank: shrimp.tank || "tank1" };
+        } else {
+            FOOD_PREP.cullFilters.targetTank = shrimp.tank || "tank1";
+        }
         showCullModal(shrimp);
         renderMovableShrimpList();
         return;
@@ -1823,38 +1973,43 @@ function selectShrimp(id) {
     }
 }
 
-function toggleFavoriteShrimp(id) {
-    const shrimp = game.shrimp.find(s => Number(s.id) === Number(id));
+function moveShrimpToTank(shrimpId, targetTank) {
+    const shrimp = game.shrimp.find(s => Number(s.id) === Number(shrimpId));
     if (!shrimp) return;
 
-    const currentTank = shrimp.tank || "main";
-    if (currentTank === "favorites") {
-        const mainCount = game.shrimp.filter(s => (s.tank || "main") === "main").length;
-        if (mainCount >= game.capacity) {
-            addLog("Main aquarium is full! Cannot return shrimp to main tank.");
-            playBtnSound();
-            return;
-        }
-        shrimp.tank = "main";
-        addLog(`${displayName(shrimp)} moved back to the main aquarium.`);
-        playKeepSound();
-    } else {
-        const favCapacity = game.favoritesTankLevel * 10;
-        const favCount = game.shrimp.filter(s => s.tank === "favorites").length;
-        if (favCount >= favCapacity) {
-            addLog("Favorites tank is full! Upgrade it or remove other favorites.");
-            playBtnSound();
-            return;
-        }
-        shrimp.tank = "favorites";
-        addLog(`${displayName(shrimp)} moved to the favorites tank.`);
-        playKeepSound();
+    const currentTank = shrimp.tank || "tank1";
+    if (currentTank === targetTank) return;
+
+    const targetCap = getTankCapacity(targetTank);
+    const targetCount = game.shrimp.filter(s => (s.tank || "tank1") === targetTank && !s.dead).length;
+
+    if (targetCount >= targetCap) {
+        addLog(`Cannot transfer: ${formatTankName(targetTank)} is full (${targetCount}/${targetCap})!`);
+        playBtnSound();
+        return;
     }
 
+    shrimp.tank = targetTank;
+    addLog(`Transferred ${displayName(shrimp)} to ${formatTankName(targetTank)}.`);
+    playKeepSound();
+
+    // Deselect shrimp once moved to another tank
     game.selectedShrimpId = null;
+    lastSelectedId = null;
     lastSidebarState = "";
+
+    const listBody = document.querySelector("#movableShrimpList .movable-body");
+    if (listBody) delete listBody.dataset.cache;
+
     render();
 }
+
+function formatTankName(tankId) {
+    if (tankId === "favorites") return "Favorites Tank";
+    const num = tankId.replace("tank", "");
+    return `Tank ${num}`;
+}
+
 
 window.openCullModalFromSidebar = function (id) {
     const shrimp = game.shrimp.find(s => Number(s.id) === Number(id));
@@ -2027,8 +2182,12 @@ function showCullModal(female) {
         content.appendChild(noticeBox);
     }
 
+    // Ensure cullFilters state exists and retains selections
     if (!FOOD_PREP.cullFilters) {
-        FOOD_PREP.cullFilters = { allele: "all", type: "all", gender: "all" };
+        FOOD_PREP.cullFilters = { allele: "all", type: "all", gender: "all", targetTank: female.tank || "tank1" };
+    }
+    if (!FOOD_PREP.cullFilters.targetTank) {
+        FOOD_PREP.cullFilters.targetTank = female.tank || "tank1";
     }
 
     const presentAlleles = new Set();
@@ -2081,12 +2240,52 @@ function showCullModal(female) {
 
     const filtersContainer = document.createElement("div");
     filtersContainer.style.display = "flex";
-    filtersContainer.style.gap = "10px";
+    filtersContainer.style.gap = "8px";
     filtersContainer.style.alignItems = "center";
+    filtersContainer.style.flexWrap = "wrap";
 
+    // 1. Destination Tank Dropdown (shown if player has more than 1 tank or unlocked favorites)
+    const unlockedTanks = getUnlockedTanks();
+    if (unlockedTanks.length > 1 || game.favoritesTankUnlocked) {
+        const tankSelect = document.createElement("select");
+        tankSelect.className = "secondary-button";
+        tankSelect.style.padding = "6px 10px";
+        tankSelect.style.fontSize = "13px";
+        tankSelect.style.cursor = "pointer";
+        tankSelect.style.borderRadius = "8px";
+        tankSelect.style.border = "1.5px solid var(--border)";
+
+        unlockedTanks.forEach(t => {
+            const count = game.shrimp.filter(s => (s.tank || "tank1") === t && !s.dead).length;
+            const cap = getTankCapacity(t); // dynamically includes +5 per Vampire Shrimp
+            const opt = document.createElement("option");
+            opt.value = t;
+            opt.textContent = `Dest: ${formatTankName(t)} (${count}/${cap})`;
+            if (FOOD_PREP.cullFilters.targetTank === t) opt.selected = true;
+            tankSelect.appendChild(opt);
+        });
+
+        if (game.favoritesTankUnlocked) {
+            const favCount = game.shrimp.filter(s => s.tank === "favorites" && !s.dead).length;
+            const favCap = getTankCapacity("favorites");
+            const opt = document.createElement("option");
+            opt.value = "favorites";
+            opt.textContent = `Dest: ★ Favorites (${favCount}/${favCap})`;
+            if (FOOD_PREP.cullFilters.targetTank === "favorites") opt.selected = true;
+            tankSelect.appendChild(opt);
+        }
+
+        tankSelect.addEventListener("change", () => {
+            FOOD_PREP.cullFilters.targetTank = tankSelect.value;
+            showCullModal(female);
+        });
+        filtersContainer.appendChild(tankSelect);
+    }
+
+    // 2. Allele Filter Dropdown
     const alleleSelect = document.createElement("select");
     alleleSelect.className = "secondary-button";
-    alleleSelect.style.padding = "6px 12px";
+    alleleSelect.style.padding = "6px 10px";
     alleleSelect.style.fontSize = "13px";
     alleleSelect.style.cursor = "pointer";
     alleleSelect.style.borderRadius = "8px";
@@ -2111,9 +2310,10 @@ function showCullModal(female) {
     });
     filtersContainer.appendChild(alleleSelect);
 
+    // 3. Type Filter Dropdown
     const typeSelect = document.createElement("select");
     typeSelect.className = "secondary-button";
-    typeSelect.style.padding = "6px 12px";
+    typeSelect.style.padding = "6px 10px";
     typeSelect.style.fontSize = "13px";
     typeSelect.style.cursor = "pointer";
     typeSelect.style.borderRadius = "8px";
@@ -2138,9 +2338,10 @@ function showCullModal(female) {
     });
     filtersContainer.appendChild(typeSelect);
 
+    // 4. Gender Filter Dropdown
     const genderSelect = document.createElement("select");
     genderSelect.className = "secondary-button";
-    genderSelect.style.padding = "6px 12px";
+    genderSelect.style.padding = "6px 10px";
     genderSelect.style.fontSize = "13px";
     genderSelect.style.cursor = "pointer";
     genderSelect.style.borderRadius = "8px";
@@ -2302,10 +2503,7 @@ window.cullImageError = function (img, color) {
 };
 
 function finishCullStep(female) {
-    if (FOOD_PREP.cullFilters) {
-        FOOD_PREP.cullFilters = { allele: "all", type: "all", gender: "all" };
-    }
-
+    // Keep user's active filter selections intact between individual keeps/sells
     if (female.pendingBabies.length === 0) {
         completeFemaleBirth(female);
         closeModal();
@@ -2321,12 +2519,13 @@ window.cullKeepAll = function (femaleId) {
     if (!female || !female.pendingBabies) return;
 
     let fitCount = 0;
-    const motherTank = female.tank || "main";
+    // Use selected destination tank from dropdown if available, else female's current tank
+    const motherTank = (FOOD_PREP.cullFilters && FOOD_PREP.cullFilters.targetTank) ? FOOD_PREP.cullFilters.targetTank : (female.tank || "tank1");
     const capacityLimit = getTankCapacity(motherTank);
     const matchingBabies = female.pendingBabies.filter(baby => matchesCullFilters(baby));
 
     while (matchingBabies.length > 0) {
-        const currentCount = game.shrimp.filter(s => (s.tank || "main") === motherTank).length;
+        const currentCount = game.shrimp.filter(s => (s.tank || "tank1") === motherTank && !s.dead).length;
         if (currentCount >= capacityLimit) {
             const firstRemaining = matchingBabies[0];
             const originalIdx = female.pendingBabies.indexOf(firstRemaining);
@@ -2356,20 +2555,21 @@ window.cullKeepAll = function (femaleId) {
     }
 
     if (fitCount > 0) {
-        addLog(`Kept ${fitCount} filtered babies in the ${motherTank === "favorites" ? "favorites" : "main"} tank.`);
+        addLog(`Kept ${fitCount} filtered babies in ${formatTankName(motherTank)}.`);
     }
     playKeepSound();
     finishCullStep(female);
 };
+
 
 window.cullKeep = function (femaleId, idx) {
     const female = game.shrimp.find(s => Number(s.id) === Number(femaleId));
     if (!female || !female.pendingBabies || !female.pendingBabies[idx]) return;
 
     const baby = female.pendingBabies[idx];
-    const motherTank = female.tank || "main";
+    const motherTank = (FOOD_PREP.cullFilters && FOOD_PREP.cullFilters.targetTank) ? FOOD_PREP.cullFilters.targetTank : (female.tank || "tank1");
     const capacityLimit = getTankCapacity(motherTank);
-    const currentCount = game.shrimp.filter(s => (s.tank || "main") === motherTank).length;
+    const currentCount = game.shrimp.filter(s => (s.tank || "tank1") === motherTank && !s.dead).length;
 
     if (currentCount >= capacityLimit) {
         game.pendingKeepBaby = baby;
@@ -2848,6 +3048,36 @@ function initialize() {
     updateSpeedButtons();
     updateHelpModalShortcuts();
 
+    // Setup Tank Dropdown Switcher
+    const tankDropdown = document.getElementById("tankSelectDropdown");
+    if (tankDropdown) {
+        const onTankSelect = (newTank) => {
+            if (!newTank) return;
+            game.activeAquarium = newTank;
+            game.selectedShrimpId = null;
+
+            if (game.sellModeActive) {
+                game.selectedForSaleIds = [];
+                updateSellModeUI();
+            }
+
+            const listBody = document.querySelector("#movableShrimpList .movable-body");
+            if (listBody) delete listBody.dataset.cache;
+
+            lastSelectedId = null;
+            lastSidebarState = "";
+
+            playBtnSound();
+            saveGame();
+            render();
+            tankDropdown.blur();
+        };
+
+        tankDropdown.addEventListener("change", (e) => {
+            onTankSelect(e.target.value);
+        });
+    }
+
     document.addEventListener("keydown", (e) => {
         if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable) {
             return;
@@ -3193,8 +3423,7 @@ function initialize() {
             document.body.style.overflow = "";
             gamePlaying = true;
             game.lastRealTime = Date.now();
-            
-            // Check & trigger offline-earned achievements with full popup + sound
+
             if (typeof checkAchievements === "function") {
                 checkAchievements();
             }
@@ -3438,6 +3667,14 @@ function initialize() {
         });
     }
 
+    const moveSelectedBtn = document.getElementById("moveSelectedButton");
+    if (moveSelectedBtn) {
+        moveSelectedBtn.addEventListener("click", () => {
+            playBtnSound();
+            showMoveSelectedModal();
+        });
+    }
+
     const sellSelectedBtn = document.getElementById("sellSelectedButton");
     if (sellSelectedBtn) {
         sellSelectedBtn.addEventListener("click", () => {
@@ -3592,7 +3829,6 @@ function initialize() {
         });
     }
 
-    // Immediate pointerdown response (zero click-release lag)
     const chopBtn = document.getElementById("chopBtn");
     if (chopBtn) {
         chopBtn.addEventListener("pointerdown", (e) => {
@@ -3670,7 +3906,6 @@ function initialize() {
         });
     }
 
-    // Export Save File Button
     const exportSaveBtn = document.getElementById("exportSaveBtn");
     if (exportSaveBtn) {
         exportSaveBtn.addEventListener("click", () => {
@@ -3679,7 +3914,6 @@ function initialize() {
         });
     }
 
-    // Import Save File Button (Triggers Hidden File Input)
     const importSaveBtn = document.getElementById("importSaveBtn");
     const importSaveFileInput = document.getElementById("importSaveFileInput");
     if (importSaveBtn && importSaveFileInput) {
@@ -3701,7 +3935,6 @@ function initialize() {
         });
     }
 
-    // Auto-save and warn before closing tab
     window.addEventListener("beforeunload", (event) => {
         if (game && gamePlaying) {
             saveGame();
@@ -3727,7 +3960,7 @@ function exportSaveFile() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(game, null, 2));
     const downloadAnchor = document.createElement("a");
     const dateStr = new Date().toISOString().slice(0, 10);
-    
+
     downloadAnchor.setAttribute("href", dataStr);
     downloadAnchor.setAttribute("download", `shrimply_genetics_save_${dateStr}.json`);
     document.body.appendChild(downloadAnchor);

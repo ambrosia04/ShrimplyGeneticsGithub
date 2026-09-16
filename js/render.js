@@ -24,63 +24,111 @@ function render() {
 }
 
 function renderHeader() {
+  const currentTank = game.activeAquarium || "tank1";
+  const unlockedTanks = getUnlockedTanks();
+  const tankDropdown = document.getElementById("tankSelectDropdown");
+  const singleTankTitle = document.getElementById("singleTankTitle");
   const listBtn = document.getElementById("shrimpListBtn");
-  toggleVisible(listBtn, game.tankUpgradeLevel >= 1, "inline-block");
 
-  const switchBtn = document.getElementById("switchAquariumBtn");
-  if (switchBtn) {
-    toggleVisible(switchBtn, game.favoritesTankUnlocked, "inline-block");
-    if (game.favoritesTankUnlocked) {
-      switchBtn.innerHTML =
-        game.activeAquarium === "main"
-          ? `${icon("star")} View Favorites`
-          : `${icon("herb")} View Main`;
+  const hasMultipleTanks = unlockedTanks.length > 1 || Boolean(game.favoritesTankUnlocked);
+
+  // Show List of Shrimp button only when multiple tanks exist
+  if (listBtn) {
+    toggleVisible(listBtn, hasMultipleTanks, "inline-block");
+    if (!hasMultipleTanks) {
+      const movableWin = document.getElementById("movableShrimpList");
+      if (movableWin && !movableWin.classList.contains("hidden")) {
+        movableWin.classList.add("hidden");
+      }
     }
   }
 
-  const aqTitle = document.querySelector(".aquarium-panel h2");
-  if (aqTitle) {
-    aqTitle.innerHTML =
-      game.activeAquarium === "main"
-        ? `${icon("herb")} Main Aquarium`
-        : `${icon("star")} Favorites Tank`;
+  if (tankDropdown) {
+    if (!hasMultipleTanks) {
+      tankDropdown.classList.add("hidden");
+      if (singleTankTitle) singleTankTitle.classList.remove("hidden");
+    } else {
+      tankDropdown.classList.remove("hidden");
+      if (singleTankTitle) singleTankTitle.classList.add("hidden");
+
+      const favKey = game.favoritesTankUnlocked ? "+fav" : "";
+      const optionsSignature = unlockedTanks.join(",") + favKey;
+
+      if (tankDropdown.dataset.signature !== optionsSignature) {
+        tankDropdown.dataset.signature = optionsSignature;
+
+        let optionsHTML = unlockedTanks.map((t) => {
+          const selected = (t === currentTank) ? "selected" : "";
+          return `<option value="${t}" ${selected}>${formatTankName(t)}</option>`;
+        }).join("");
+
+        if (game.favoritesTankUnlocked) {
+          const favSelected = (currentTank === "favorites") ? "selected" : "";
+          optionsHTML += `<option value="favorites" ${favSelected}>★ Favorites Tank</option>`;
+        }
+
+        tankDropdown.innerHTML = optionsHTML;
+      }
+
+      if (document.activeElement !== tankDropdown && tankDropdown.value !== currentTank) {
+        tankDropdown.value = currentTank;
+      }
+    }
   }
 
-  const mainCount = game.shrimp.filter(
-    (s) => (s.tank || "main") === "main",
+  // Calculate live count and capacity for active tank
+  const activeCount = game.shrimp.filter(
+    (s) => (s.tank || "tank1") === currentTank && !s.dead
   ).length;
-  const favCount = game.shrimp.filter((s) => s.tank === "favorites").length;
-  const activeCount =
-    game.activeAquarium === "favorites" ? favCount : mainCount;
-  const activeCapacity = getTankCapacity(game.activeAquarium);
+  const activeCapacity = getTankCapacity(currentTank);
 
   document.getElementById("money").textContent = "$" + Math.floor(game.money);
-  document.getElementById("population").textContent =
-    `${activeCount} / ${activeCapacity}`;
+  document.getElementById("population").textContent = `${activeCount} / ${activeCapacity}`;
   document.getElementById("day").textContent = getDay();
   document.getElementById("clock").textContent = formatClock();
-  document.getElementById("tankStatus").textContent =
-    `${activeCount} / ${activeCapacity}`;
+  document.getElementById("tankStatus").textContent = `${activeCount} / ${activeCapacity}`;
 
   const minigameBtn = document.getElementById("playMinigameBtn");
-  toggleVisible(
-    minigameBtn,
-    game.unlockedSpeeds.includes("game"),
-    "inline-block",
-  );
+  toggleVisible(minigameBtn, game.unlockedSpeeds.includes("game"), "inline-block");
 
   const minigame2Btn = document.getElementById("playMinigame2Btn");
-  toggleVisible(
-    minigame2Btn,
-    game.unlockedSpeeds.includes("game2"),
-    "inline-block",
-  );
+  toggleVisible(minigame2Btn, game.unlockedSpeeds.includes("game2"), "inline-block");
 }
 
+function renderTankInfo() {
+  const currentTank = game.activeAquarium || "tank1";
+  const tankShrimp = game.shrimp.filter((s) => (s.tank || "tank1") === currentTank && !s.dead);
+  const males = tankShrimp.filter((s) => s.sex === "male").length;
+  const females = tankShrimp.filter((s) => s.sex === "female").length;
+  const juveniles = tankShrimp.filter((s) => lifeStage(s) !== "Adult").length;
+  const pregnant = tankShrimp.filter((s) => s.pregnant).length;
+
+  document.getElementById("capacityInfo").textContent = getTankCapacity(currentTank);
+  document.getElementById("maleCount").textContent = males;
+  document.getElementById("femaleCount").textContent = females;
+  document.getElementById("juvenileCount").textContent = juveniles;
+  document.getElementById("pregnantCount").textContent = pregnant;
+  document.getElementById("plantCount").textContent = game.plants.length;
+}
+
+
 function renderAquarium() {
+  const currentTank = game.activeAquarium || "tank1";
+  const layer = document.getElementById("shrimpLayer");
+  if (!layer) return;
+
+  const totalInGame = game.shrimp.length;
+  const inThisTank = game.shrimp.filter(s => (s.tank || "tank1") === currentTank && !s.dead).length;
+
+  // Log once when tank changes
+  if (layer.dataset.activeTank !== currentTank) {
+    console.log(`DEBUG: renderAquarium switched view to '${currentTank}'. Total shrimp: ${totalInGame}, In this tank: ${inThisTank}`);
+    layer.dataset.activeTank = currentTank;
+  }
+
   const sellControls = document.querySelector(".aquarium-sell-controls");
   if (sellControls) {
-    if (game.activeAquarium === "favorites") {
+    if (currentTank === "favorites") {
       sellControls.style.display = "none";
       if (game.sellModeActive) {
         game.sellModeActive = false;
@@ -150,10 +198,7 @@ function renderAquarium() {
       const minWidth = 144;
       const shrinkStep = 20;
       const maxUpgradeIndex = 5;
-      const remainingSteps = Math.max(
-        0,
-        maxUpgradeIndex - game.tankUpgradeLevel,
-      );
+      const remainingSteps = Math.max(0, maxUpgradeIndex - game.tankUpgradeLevel);
       const targetWidth = minWidth + remainingSteps * shrinkStep;
 
       babyPlant.style.width = targetWidth + "px";
@@ -172,10 +217,7 @@ function renderAquarium() {
       const minWidth = 144;
       const shrinkStep = 20;
       const maxUpgradeIndex = 5;
-      const remainingSteps = Math.max(
-        0,
-        maxUpgradeIndex - game.tankUpgradeLevel,
-      );
+      const remainingSteps = Math.max(0, maxUpgradeIndex - game.tankUpgradeLevel);
       const targetWidth = minWidth + remainingSteps * shrinkStep;
 
       growthPlant.style.width = targetWidth + "px";
@@ -203,16 +245,17 @@ function renderAquarium() {
     }
   }
 
-  const layer = document.getElementById("shrimpLayer");
   const existing = new Map();
 
   layer.querySelectorAll(".shrimp").forEach((element) => {
     existing.set(Number(element.dataset.id), element);
   });
 
+  // Strict check against active aquarium
   for (const shrimp of game.shrimp) {
-    const sTank = shrimp.tank || "main";
-    if (sTank !== game.activeAquarium) {
+    const sTank = shrimp.tank || "tank1";
+
+    if (sTank !== currentTank || shrimp.dead) {
       const el = existing.get(shrimp.id);
       if (el) {
         el.remove();
@@ -231,6 +274,7 @@ function renderAquarium() {
     existing.delete(shrimp.id);
   }
 
+  // Remove any leftover elements from other tanks
   for (const element of existing.values()) {
     element.remove();
   }
@@ -243,10 +287,15 @@ function renderMovableShrimpList() {
   const body = movable.querySelector(".movable-body");
   if (!body) return;
 
+  const currentAquarium = game.activeAquarium || "tank1";
   const sortState = game.shrimpListSort || "HighValue";
   const selectedId = game.selectedShrimpId || "none";
-  const currentAquarium = game.activeAquarium || "main";
-  const sellModeKey = game.sellModeActive ? "sell_" + (game.selectedForSaleIds || []).join(",") : "noSell";
+  const sellModeKey = game.sellModeActive ? "sel_" + (game.selectedForSaleIds || []).join(",") : "noSel";
+
+  const tankShrimp = game.shrimp.filter(
+    (s) => (s.tank || "tank1") === currentAquarium && !s.dead
+  );
+
   const shrimpIdString =
     currentAquarium +
     "|" +
@@ -256,7 +305,7 @@ function renderMovableShrimpList() {
     "|" +
     sellModeKey +
     "|" +
-    game.shrimp
+    tankShrimp
       .map(
         (s) =>
           s.id +
@@ -267,22 +316,21 @@ function renderMovableShrimpList() {
           "_" +
           (s.readyToBirth ? "r" : "o") +
           "_" +
-          (s.tank || "main"),
+          (s.tank || "tank1")
       )
       .join("|");
+
   if (body.dataset.cache === shrimpIdString) return;
   body.dataset.cache = shrimpIdString;
 
   body.innerHTML = "";
 
-  if (game.shrimp.length === 0) {
-    body.innerHTML = `<div class="empty-selection">No shrimp in the tank.</div>`;
+  if (tankShrimp.length === 0) {
+    body.innerHTML = `<div class="empty-selection" style="padding: 20px; text-align: center;">No shrimp in ${formatTankName(currentAquarium)}.</div>`;
     return;
   }
 
-  let sortedList = [...game.shrimp].filter(
-    (s) => (s.tank || "main") === game.activeAquarium,
-  );
+  let sortedList = [...tankShrimp];
   const getShrimpValue = (s) => getShrimpSellValue(s);
 
   const getStatusPriority = (s) => {
@@ -438,25 +486,25 @@ function renderSelectedShrimp() {
     lastSelectedId = null;
     lastSidebarState = "empty";
     container.innerHTML = `
-            <div class="empty-selection">
-                Click a shrimp in the aquarium to inspect it.
-            </div>
-        `;
+        <div class="empty-selection">
+            Click a shrimp in the aquarium to inspect it.
+        </div>
+    `;
     return;
   }
 
   const shrimp = game.shrimp.find(
-    (s) => Number(s.id) === Number(game.selectedShrimpId),
+    (s) => Number(s.id) === Number(game.selectedShrimpId) && !s.dead
   );
 
   if (!shrimp) {
     lastSelectedId = null;
     lastSidebarState = "empty";
     container.innerHTML = `
-            <div class="empty-selection">
-                No shrimp selected.
-            </div>
-        `;
+        <div class="empty-selection">
+            No shrimp selected.
+        </div>
+    `;
     return;
   }
 
@@ -478,177 +526,186 @@ function renderSelectedShrimp() {
     let pregnancyHTML = "";
 
     if (currentState === "readyToBirth") {
-      pregnancyHTML =
-        `
-                <div class="panel" style="margin-top: 10px; margin-bottom: 10px;">
-                    <strong>` +
-        icon("exclamation") +
-        ` Ready to give birth</strong>
-                    <p style="margin: 5px 0 0 0; font-size: 13px;">
-                        She is ready to release her offspring. Click "Give Birth / Cull" below to choose which babies to keep or sell.
-                    </p>
-                </div>
-            `;
+      pregnancyHTML = `
+            <div class="panel" style="margin-top: 10px; margin-bottom: 10px;">
+                <strong>${icon("exclamation")} Ready to give birth</strong>
+                <p style="margin: 5px 0 0 0; font-size: 13px;">
+                    She is ready to release her offspring. Click "Give Birth / Cull" below to choose which babies to keep or sell.
+                </p>
+            </div>
+      `;
     } else if (currentState === "pregnant") {
-      pregnancyHTML =
-        `
-                <div class="panel" style="margin-top: 10px; margin-bottom: 10px;">
-                    <strong>` +
-        icon("berried") +
-        ` Berried</strong>
-                    <p style="margin: 5px 0 0 0; font-size: 13px;">
-                        Time remaining: <span id="sidebarPregTimer">...</span>
-                    </p>
-                    <div class="progress-bar">
-                        <div id="sidebarPregProgress" class="progress-fill" style="width: 0%;"></div>
-                    </div>
+      pregnancyHTML = `
+            <div class="panel" style="margin-top: 10px; margin-bottom: 10px;">
+                <strong>${icon("berried")} Berried</strong>
+                <p style="margin: 5px 0 0 0; font-size: 13px;">
+                    Time remaining: <span id="sidebarPregTimer">...</span>
+                </p>
+                <div class="progress-bar">
+                    <div id="sidebarPregProgress" class="progress-fill" style="width: 0%;"></div>
                 </div>
-            `;
+            </div>
+      `;
     } else if (currentState === "resting") {
-      pregnancyHTML =
-        `
-                <div class="panel" style="margin-top: 10px; margin-bottom: 10px;">
-                    <strong>` +
-        icon("sleep") +
-        ` Resting</strong>
-                    <p style="margin: 5px 0 0 0; font-size: 13px;">
-                        Resting for: <span id="sidebarRestTimer">...</span>
-                    </p>
-                </div>
-            `;
+      pregnancyHTML = `
+            <div class="panel" style="margin-top: 10px; margin-bottom: 10px;">
+                <strong>${icon("sleep")} Resting</strong>
+                <p style="margin: 5px 0 0 0; font-size: 13px;">
+                    Resting for: <span id="sidebarRestTimer">...</span>
+                </p>
+            </div>
+      `;
     } else if (currentState === "saddled") {
-      pregnancyHTML =
-        `
-                <div class="panel" style="margin-top: 10px; margin-bottom: 10px;">
-                    <strong>` +
-        icon("egg") +
-        ` Saddled</strong>
-                    <p style="margin: 5px 0 0 0; font-size: 13px;">
-                        She is ready to be bred during the next breeding check.
-                    </p>
-                </div>
-            `;
+      pregnancyHTML = `
+            <div class="panel" style="margin-top: 10px; margin-bottom: 10px;">
+                <strong>${icon("egg")} Saddled</strong>
+                <p style="margin: 5px 0 0 0; font-size: 13px;">
+                    She is ready to be bred during the next breeding check.
+                </p>
+            </div>
+      `;
     }
 
     const isSpawning = shrimp.readyToBirth;
-    const isFav = shrimp.tank === "favorites";
-    const sellDisabledAttr = isSpawning || isFav ? "disabled" : "";
-    const sellStyle =
-      isSpawning || isFav
-        ? "width: 100%; opacity: 0.5; cursor: not-allowed;"
-        : "width: 100%;";
+    const sellDisabledAttr = isSpawning ? "disabled" : "";
+    const sellStyle = isSpawning
+      ? "width: 100%; opacity: 0.5; cursor: not-allowed;"
+      : "width: 100%;";
 
     let val = getShrimpSellValue(shrimp);
-    if (isAdult(shrimp)) val *= 1.5;
-    if (shrimp.pregnant) val *= 1.5;
-    val = Math.max(1, Math.round(val));
 
     let controlButtonsHTML = "";
     if (currentState === "readyToBirth") {
-      controlButtonsHTML =
-        `
-                <button id="sidebarCullBtn" class="primary-button" style="width: 100%; margin-bottom: 8px;">
-                    ` +
-        icon("baby") +
-        ` Give Birth / Cull
-                </button>
-            `;
+      controlButtonsHTML = `
+            <button id="sidebarCullBtn" class="primary-button" style="width: 100%; margin-bottom: 8px;">
+                ${icon("baby")} Give Birth / Cull
+            </button>
+      `;
     } else if (currentState === "pregnant") {
-      controlButtonsHTML =
-        `
-                <button class="primary-button" style="width: 100%; margin-bottom: 8px;" disabled>
-                    ` +
-        icon("baby") +
-        ` Give Birth / Cull (Berried)
-                </button>
-            `;
+      controlButtonsHTML = `
+            <button class="primary-button" style="width: 100%; margin-bottom: 8px;" disabled>
+                ${icon("baby")} Give Birth / Cull (Berried)
+            </button>
+      `;
     }
 
-    let starHTML = "";
-    if (game.favoritesTankUnlocked) {
-      const starChar = isFav ? "★" : "☆";
-      const starColor = isFav ? "#f1c40f" : "var(--muted)";
-      starHTML = `
-                <button id="sidebarFavoriteBtn" style="background: transparent; border: none; font-size: 26px; cursor: pointer; color: ${starColor}; float: right; padding: 0; line-height: 1; margin-top: -5px;" title="Transfer to Favorites Tank">
-                    ${starChar}
-                </button>
-            `;
+    // Build multi-tank move dropdown ONLY if player owns more than 1 tank
+    const currentShrimpTank = shrimp.tank || "tank1";
+    const unlockedTanks = getUnlockedTanks();
+    const hasMultipleTanks = unlockedTanks.length > 1 || Boolean(game.favoritesTankUnlocked);
+
+    let transferHTML = "";
+    let locationHTML = "";
+
+    if (hasMultipleTanks) {
+      locationHTML = `
+          <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--muted);">
+              Location: <strong>${formatTankName(currentShrimpTank)}</strong>
+          </p>
+      `;
+
+      let tankOptions = unlockedTanks.map((t) => {
+        const count = game.shrimp.filter((s) => (s.tank || "tank1") === t && !s.dead).length;
+        const cap = getTankCapacity(t);
+        const selected = (t === currentShrimpTank) ? "selected" : "";
+        return `<option value="${t}" ${selected}>${formatTankName(t)} (${count}/${cap})</option>`;
+      }).join("");
+
+      if (game.favoritesTankUnlocked) {
+        const favCount = game.shrimp.filter((s) => s.tank === "favorites" && !s.dead).length;
+        const favCap = getTankCapacity("favorites");
+        const favSelected = (currentShrimpTank === "favorites") ? "selected" : "";
+        tankOptions += `<option value="favorites" ${favSelected}>★ Favorites (${favCount}/${favCap})</option>`;
+      }
+
+      transferHTML = `
+          <div class="panel" style="margin-top: 10px; margin-bottom: 10px;">
+              <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: var(--muted);">Move to Tank:</label>
+              <select id="sidebarMoveTankSelect" class="secondary-button" style="width: 100%; font-size: 13px; padding: 6px 8px; cursor: pointer;">
+                  ${tankOptions}
+              </select>
+          </div>
+      `;
     }
 
-    let sellButtonHTML = "";
-    if (!isFav) {
-      sellButtonHTML = `
-                <button id="sidebarSellBtn" class="danger-button" style="${sellStyle}" ${sellDisabledAttr}>
-                    Sell ($${val})
-                </button>
-            `;
-    }
+    const sellButtonHTML = `
+        <button id="sidebarSellBtn" class="danger-button" style="${sellStyle}" ${sellDisabledAttr}>
+            Sell ($${val})
+        </button>
+    `;
 
     const imgPrefix = getShrimpImagePrefix(shrimp);
     const nameToDisplay = displayName(shrimp);
 
     const newHTML = `
-            <div class="selected-card-layout">
-                <div class="selected-card">
-                    <div class="selected-image">
-                        <img id="selectedShrimpSidebarImg" src="shrimp/${imgPrefix}1.png" alt="${data.name}" style="width: 100%; height: 100%; object-fit: contain; cursor: zoom-in;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                        <div class="css-shrimp" style="--shrimp-color:${data.color}; display: none;"></div>
-                    </div>
-                    <div>
-                        ${starHTML}
-                        <h3>${nameToDisplay}</h3>
-                        <p style="margin: 2px 0 0 0; font-size: 13px;">
-                            Rarity: <span class="rarity-${data.rarity}">${capitalize(data.rarity)}</span>
-                        </p>
-                    </div>
+        <div class="selected-card-layout">
+            <div class="selected-card">
+                <div class="selected-image">
+                    <img id="selectedShrimpSidebarImg" src="shrimp/${imgPrefix}1.png" alt="${data.name}" style="width: 100%; height: 100%; object-fit: contain; cursor: zoom-in;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="css-shrimp" style="--shrimp-color:${data.color}; display: none;"></div>
                 </div>
-
-                <div class="detail-list" style="margin-top: 10px;">
-                    <div class="detail-item">
-                        <span>Sex</span>
-                        <strong>${capitalize(shrimp.sex)}</strong>
-                    </div>
-                    <div class="detail-item">
-                        <span>Life Stage</span>
-                        <strong id="sidebarStageText">Adult</strong>
-                    </div>
-                    <div class="detail-item">
-                        <span>Age</span>
-                        <strong id="sidebarAgeText">0 min</strong>
-                    </div>
-                    <div class="detail-item">
-                        <span>Pattern</span>
-                        <strong>${capitalize(shrimp.pattern)}</strong>
-                    </div>
-                </div>
-
-                ${pregnancyHTML}
-
-                <div class="panel" style="margin-top: 10px; margin-bottom: 10px;">
-                    <h3 style="margin: 0 0 8px 0; font-size: 15px;"><img src="emoji/dna.png" alt="DNA" class="ui-emoji"> Genetics Profile</h3>
-                    <p style="margin: 4px 0; font-size: 13px;">
-                        <strong>Allele 1:</strong> ${SHRRIMP_SAFE(shrimp.hiddenGenes.allele1).name}
+                <div>
+                    <h3>${nameToDisplay}</h3>
+                    <p style="margin: 2px 0 0 0; font-size: 13px;">
+                        Rarity: <span class="rarity-${data.rarity}">${capitalize(data.rarity)}</span>
                     </p>
-                    <p style="margin: 4px 0; font-size: 13px;">
-                        <strong>Allele 2:</strong> ${SHRRIMP_SAFE(shrimp.hiddenGenes.allele2).name}
-                    </p>
-                    <p style="margin: 4px 0; font-size: 13px;">
-                        <strong>Pattern:</strong> ${capitalize(shrimp.pattern)}
-                    </p>
-                </div>
-
-                <div class="control-row" style="margin-top: 10px; display: flex; flex-direction: column;">
-                    ${controlButtonsHTML}
-                    ${sellButtonHTML}
+                    ${locationHTML}
                 </div>
             </div>
-        `;
 
-    if (container.innerHTML !== newHTML) {
-      container.innerHTML = newHTML;
+            <div class="detail-list" style="margin-top: 10px;">
+                <div class="detail-item">
+                    <span>Sex</span>
+                    <strong>${capitalize(shrimp.sex)}</strong>
+                </div>
+                <div class="detail-item">
+                    <span>Life Stage</span>
+                    <strong id="sidebarStageText">${lifeStage(shrimp)}</strong>
+                </div>
+                <div class="detail-item">
+                    <span>Age</span>
+                    <strong id="sidebarAgeText">${Math.floor(shrimp.ageMinutes)} min</strong>
+                </div>
+                <div class="detail-item">
+                    <span>Pattern</span>
+                    <strong>${capitalize(shrimp.pattern)}</strong>
+                </div>
+            </div>
+
+            ${pregnancyHTML}
+            ${transferHTML}
+
+            <div class="panel" style="margin-top: 10px; margin-bottom: 10px;">
+                <h3 style="margin: 0 0 8px 0; font-size: 15px;"><img src="emoji/dna.png" alt="DNA" class="ui-emoji"> Genetics Profile</h3>
+                <p style="margin: 4px 0; font-size: 13px;">
+                    <strong>Allele 1:</strong> ${SHRRIMP_SAFE(shrimp.hiddenGenes.allele1).name}
+                </p>
+                <p style="margin: 4px 0; font-size: 13px;">
+                    <strong>Allele 2:</strong> ${SHRRIMP_SAFE(shrimp.hiddenGenes.allele2).name}
+                </p>
+                <p style="margin: 4px 0; font-size: 13px;">
+                    <strong>Pattern:</strong> ${capitalize(shrimp.pattern)}
+                </p>
+            </div>
+
+            <div class="control-row" style="margin-top: 10px; display: flex; flex-direction: column;">
+                ${controlButtonsHTML}
+                ${sellButtonHTML}
+            </div>
+        </div>
+    `;
+
+    container.innerHTML = newHTML;
+
+    const moveSelect = container.querySelector("#sidebarMoveTankSelect");
+    if (moveSelect) {
+      moveSelect.onchange = function () {
+        moveShrimpToTank(shrimp.id, this.value);
+      };
     }
   }
 
+  // Update real-time progress bars and timers without wiping DOM
   if (currentState === "pregnant") {
     const timerEl = container.querySelector("#sidebarPregTimer");
     const progressEl = container.querySelector("#sidebarPregProgress");
@@ -656,8 +713,7 @@ function renderSelectedShrimp() {
       timerEl.textContent = formatDuration(shrimp.pregnancyRemaining);
     }
     if (progressEl) {
-      const progress =
-        100 * (1 - shrimp.pregnancyRemaining / shrimp.pregnancyTotal);
+      const progress = 100 * (1 - shrimp.pregnancyRemaining / shrimp.pregnancyTotal);
       progressEl.style.width = `${progress}%`;
     }
   } else if (currentState === "resting") {
@@ -672,6 +728,7 @@ function renderSelectedShrimp() {
   if (ageEl) ageEl.textContent = `${Math.floor(shrimp.ageMinutes)} min`;
   if (stageEl) stageEl.textContent = lifeStage(shrimp);
 }
+
 
 function renderGenetics() {
   const container = document.getElementById("geneticsTree");
@@ -926,24 +983,26 @@ function renderTankShop() {
   container.style.gridTemplateColumns = "repeat(2, 1fr)";
   container.style.gap = "12px";
 
-  const mainUpgrade = TANK_UPGRADES[game.tankUpgradeLevel + 1];
+  // 1. Main Tank Expansion Card
+  const nextLevel = (game.tankUpgradeLevel || 0) + 1;
+  const mainUpgrade = TANK_UPGRADES[nextLevel];
   const mainCard = document.createElement("div");
   mainCard.className = "shop-card";
 
   if (!mainUpgrade) {
     mainCard.innerHTML = `
-            <h3>Main Tank</h3>
-            <strong>Maximum main capacity reached!</strong>
-            <p>Current Capacity: ${game.capacity} shrimp</p>
-        `;
+        <h3><img src="emoji/herb.png" alt="Herb" class="ui-emoji"> Tank Expansion</h3>
+        <strong>All 10 Tanks Unlocked!</strong>
+        <p class="small-text">You own the maximum capacity of 10 aquariums (1,000 shrimp capacity).</p>
+    `;
   } else {
     const canAffordMain = game.money >= mainUpgrade.price;
     mainCard.innerHTML = `
-            <h3><img src="emoji/herb.png" alt="Herb" class="ui-emoji"> Main Tank: ${mainUpgrade.name}</h3>
-            <p>Increase main capacity to <strong>${mainUpgrade.capacity}</strong> shrimp.</p>
-            <div class="shop-price">$${mainUpgrade.price}</div>
-            <button class="shop-button" id="buyMainUpgradeBtn" ${!canAffordMain ? "disabled" : ""}>Upgrade</button>
-        `;
+        <h3><img src="emoji/herb.png" alt="herb" class="ui-emoji"> ${mainUpgrade.name}</h3>
+        <p class="small-text">Unlock an additional separate tank holding up to <strong>100</strong> shrimp.</p>
+        <div class="shop-price">$${mainUpgrade.price}</div>
+        <button class="shop-button" id="buyMainUpgradeBtn" ${!canAffordMain ? "disabled" : ""}>Unlock Tank</button>
+    `;
   }
   container.appendChild(mainCard);
 
@@ -954,6 +1013,7 @@ function renderTankShop() {
     });
   }
 
+  // 2. Favorites Tank Upgrade Card
   const favCard = document.createElement("div");
   favCard.className = "shop-card";
 
@@ -962,10 +1022,10 @@ function renderTankShop() {
 
   if (!favUpgrade) {
     favCard.innerHTML = `
-            <h3>Favorites Tank</h3>
-            <strong>Maximum favorites capacity reached!</strong>
-            <p>Current Capacity: ${game.favoritesTankLevel * 10} shrimp</p>
-        `;
+        <h3>Favorites Tank</h3>
+        <strong>Maximum favorites capacity reached!</strong>
+        <p>Current Capacity: ${game.favoritesTankLevel * 10} shrimp</p>
+    `;
   } else {
     const canAffordFav = game.money >= favUpgrade.price;
     const headerText =
@@ -978,13 +1038,13 @@ function renderTankShop() {
         : `Increase favorites capacity to <strong>${favUpgrade.capacity}</strong> shrimp.`;
 
     favCard.innerHTML = `
-            <h3>${headerText}</h3>
-            <p>${descText}</p>
-            <div class="shop-price">$${favUpgrade.price}</div>
-            <button class="shop-button" id="buyFavUpgradeBtn" ${!canAffordFav ? "disabled" : ""}>
-                ${game.favoritesTankLevel === 0 ? "Purchase" : "Upgrade"}
-            </button>
-        `;
+        <h3>${headerText}</h3>
+        <p>${descText}</p>
+        <div class="shop-price">$${favUpgrade.price}</div>
+        <button class="shop-button" id="buyFavUpgradeBtn" ${!canAffordFav ? "disabled" : ""}>
+            ${game.favoritesTankLevel === 0 ? "Purchase" : "Upgrade"}
+        </button>
+    `;
   }
   container.appendChild(favCard);
 
