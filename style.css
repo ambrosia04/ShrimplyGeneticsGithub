@@ -1,0 +1,1975 @@
+/* =========================================================
+   1. GLOBAL & BASE STYLES
+========================================================= */
+
+* {
+    box-sizing: border-box;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+input, textarea {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+img {
+    -webkit-user-drag: none;
+}
+
+:root {
+    --background: #eef7f5;
+    --panel: #ffffff;
+    --text: #243238;
+    --muted: #718087;
+    --primary: #4a9fba;
+    --primary-dark: #347f98;
+    --border: #d7e5e5;
+    --danger: #d95c5c;
+    --success: #52a56c;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--background);
+    color: var(--text);
+}
+
+/* Universal utility classes */
+.hidden {
+    display: none !important;
+}
+
+.small-text {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+button {
+    font-family: inherit;
+}
+
+.primary-button,
+.secondary-button,
+.danger-button,
+.shop-button,
+.speed-button {
+    border: none;
+    border-radius: 9px;
+    padding: 9px 13px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.primary-button,
+.shop-button {
+    background: var(--primary);
+    color: white;
+}
+
+.primary-button:hover,
+.shop-button:hover {
+    background: var(--primary-dark);
+}
+
+.secondary-button {
+    background: #e7eeee;
+    color: var(--text);
+}
+
+.danger-button {
+    background: var(--danger);
+    color: white;
+}
+
+.speed-button {
+    background: #e4eeee;
+}
+
+.speed-button.active {
+    background: var(--primary);
+    color: white;
+}
+
+button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+/* Rarity Color Class Utilities */
+.rarity-common { color: #4d875b; }
+.rarity-uncommon { color: #4e76a7; }
+.rarity-rare { color: #8658b5; }
+.rarity-epic { color: #d47b32; }
+.rarity-wild { color: #6c6c6c; }
+.rarity-legendary {
+    color: #f1c40f;
+    text-shadow: 0 0 2px rgba(241, 196, 15, 0.3);
+}
+
+/* =========================================================
+   2. UNIVERSAL INLINE EMOJI & ICON FIXES
+========================================================= */
+
+.ui-emoji {
+    width: 18px !important;
+    height: 18px !important;
+    max-width: 18px !important;
+    max-height: 18px !important;
+    vertical-align: -2px !important;
+    object-fit: contain !important;
+    display: inline-block !important;
+    pointer-events: none;
+}
+
+.stats .stat img,
+.topbar .stat img,
+.header-save-controls button img,
+#helpBtn img,
+.aquarium-sell-controls button img,
+.aquarium-footer button img,
+#sellModeButton img,
+#sellSelectedButton img,
+.controls-panel button img,
+#selectedShrimp img.ui-emoji,
+.selected-card-layout img.ui-emoji,
+.detail-item img,
+.panel h2 img,
+.panel h3 img {
+    width: 18px !important;
+    height: 18px !important;
+    max-width: 18px !important;
+    max-height: 18px !important;
+    vertical-align: -2px !important;
+    object-fit: contain !important;
+    display: inline-block !important;
+    margin-right: 4px;
+}
+
+.tab-button img {
+    width: 16px !important;
+    height: 16px !important;
+    max-width: 16px !important;
+    max-height: 16px !important;
+    vertical-align: -2px !important;
+    object-fit: contain !important;
+    display: inline-block !important;
+    margin-right: 4px;
+}
+
+/* =========================================================
+   3. HEADER & MAIN LAYOUT
+========================================================= */
+
+.topbar {
+    min-height: 70px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 25px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.logo span {
+    margin-left: 5px;
+}
+
+.header-save-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-save-controls button {
+    padding: 8px 16px;
+    font-size: 13px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.stats {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.stat {
+    background: #edf7f8;
+    border: 1px solid #d8e9eb;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+#helpBtn:hover {
+    background: #d8edf0 !important;
+}
+
+.game-layout {
+    max-width: 1500px;
+    margin: auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: minmax(500px, 1.5fr) minmax(400px, 1fr);
+    gap: 20px;
+}
+
+.left-column,
+.right-column {
+    min-width: 0;
+}
+
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 18px;
+    box-shadow: 0 4px 15px rgba(50, 90, 100, 0.05);
+}
+
+.panel h2 {
+    margin-top: 0;
+}
+
+.control-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+/* =========================================================
+   4. AQUARIUM VIEWPORT & SCENERY
+========================================================= */
+
+.left-column-grid {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    margin-bottom: 18px;
+}
+
+.aquarium-panel {
+    padding: 15px;
+    margin-bottom: 0 !important;
+}
+
+.panel-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.panel-title h2 {
+    margin: 5px 0 15px;
+}
+
+.tank-status {
+    background: #e8f5f5;
+    padding: 7px 12px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.aquarium {
+    position: relative;
+    width: 100%;
+    height: 620px;
+    overflow: hidden;
+    border-radius: 14px;
+    border: 8px solid #adc9ce;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,.35), transparent 8%),
+        linear-gradient(to bottom, #9ddae5 0%, #74c6d6 45%, #4eabbf 100%);
+    box-shadow:
+        inset 0 0 40px rgba(0, 90, 120, 0.2),
+        0 8px 20px rgba(40, 90, 100, 0.15);
+}
+
+.water-surface {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 15px;
+    background: rgba(255,255,255,.25);
+}
+
+/* Bubbles */
+.bubble {
+    position: absolute;
+    bottom: 50px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.55);
+    animation: bubbleRise 6s linear infinite;
+}
+
+.bubble1 { left: 15%; animation-delay: 0s; }
+.bubble2 { left: 38%; animation-delay: 2s; }
+.bubble3 { left: 68%; animation-delay: 4s; }
+.bubble4 { left: 85%; animation-delay: 1s; }
+
+@keyframes bubbleRise {
+    0% { transform: translateY(0); opacity: 0; }
+    15% { opacity: 1; }
+    100% { transform: translateY(-550px); opacity: 0; }
+}
+
+/* Background Plants & Sand */
+.plant {
+    position: absolute;
+    bottom: 35px;
+    font-size: 90px;
+    opacity: .75;
+    pointer-events: none;
+}
+
+.plant-left { left: 5%; }
+.plant-right { right: 5%; }
+
+.sand {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 40px;
+    background-image: url('plants/sand.png');
+    background-repeat: repeat-x;
+    background-position: bottom;
+    background-size: auto 100%;
+    pointer-events: none;
+}
+
+/* Aquarium Plant Upgrades */
+.plant-floater {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background-image: url('plants/berriedPlant.png');
+    background-repeat: repeat-x;
+    background-size: auto 100%;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0.85;
+}
+
+.plant-upgrade {
+    position: absolute;
+    z-index: 6;
+    pointer-events: none;
+    opacity: 0.85;
+    object-fit: contain;
+}
+
+#aquariumBreedingMoss { left: 20%; bottom: 40px; width: 160px; height: auto; }
+#aquariumPregnancyMoss { right: 25%; bottom: 40px; width: 160px; height: auto; }
+#aquariumBabyPlant { left: 0; top: 100px; }
+#aquariumGrowthPlant { right: 0; top: 100px; }
+
+/* Drifting Marimo Moss Ball */
+.marimo-ball {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    z-index: 6;
+    pointer-events: none;
+    transition: transform 0.1s linear;
+    user-select: none;
+}
+
+/* Footer Controls */
+.aquarium-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+}
+
+.aquarium-help {
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.aquarium-sell-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.aquarium-sell-controls button {
+    padding: 6px 12px;
+    font-size: 13px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    border: none;
+}
+
+/* =========================================================
+   5. SHRIMP SPRITES & IN-TANK VISUALS
+========================================================= */
+
+#shrimpLayer {
+    position: absolute;
+    inset: 0;
+}
+
+.shrimp {
+    position: absolute;
+    width: 70px;
+    height: 45px;
+    cursor: pointer;
+    z-index: 10;
+    user-select: none;
+    transition: filter .2s;
+}
+
+.shrimp:hover {
+    filter: brightness(1.2) drop-shadow(0 0 5px white);
+}
+
+.shrimp-body-wrapper {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    transition: transform .2s;
+}
+
+.shrimp-body-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    position: relative;
+    z-index: 2;
+}
+
+/* Fallback CSS-rendered shrimp */
+.css-shrimp {
+    position: absolute;
+    left: 15px;
+    top: 13px;
+    width: 38px;
+    height: 16px;
+    border-radius: 70% 30% 60% 40%;
+    background: var(--shrimp-color, #e63946);
+    transform: rotate(-8deg);
+}
+
+.css-shrimp::before {
+    content: "";
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--shrimp-color, #e63946);
+    left: -5px;
+    top: 1px;
+}
+
+.css-shrimp::after {
+    content: "≈";
+    position: absolute;
+    right: -12px;
+    top: -8px;
+    color: var(--shrimp-color, #e63946);
+    font-size: 25px;
+}
+
+.shrimp-name-tag {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: -15px;
+    white-space: nowrap;
+    font-size: 9px;
+    background: rgba(255,255,255,.8);
+    padding: 2px 4px;
+    border-radius: 4px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.shrimp:hover .shrimp-name-tag {
+    opacity: 1;
+}
+
+/* Size Scales & Life Stages */
+.baby-shrimp { transform: scale(.50); }
+.juvenile-shrimp { transform: scale(.75); }
+.shrimp.bamboo-shrimp { transform: scale(1.6); }
+.shrimp.bamboo-shrimp.baby-shrimp { transform: scale(0.8); }
+.shrimp.bamboo-shrimp.juvenile-shrimp { transform: scale(1.2); }
+
+/* Spawning Warning Bubble & Floating Notifications */
+.birth-warning {
+    position: absolute;
+    right: 0px;
+    top: -10px;
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    z-index: 25;
+    pointer-events: none;
+}
+
+.shrimp-floating-bubble {
+    position: absolute;
+    pointer-events: none;
+    background: rgba(217, 92, 92, 0.95);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+    white-space: nowrap;
+    z-index: 1000;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transform: translate(-50%, -100%);
+    animation: floatUpAndFade 1.5s ease-out forwards;
+}
+
+@keyframes floatUpAndFade {
+    0% { transform: translate(-50%, 0) scale(0.85); opacity: 0; }
+    15% { transform: translate(-50%, -20px) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -75px) scale(0.9); opacity: 0; }
+}
+
+/* Egg Cluster */
+.egg-cluster {
+    position: absolute;
+    left: 16px;
+    bottom: 6px;
+    width: 25px;
+    height: 15px;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.egg {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: 0.5px solid rgba(255, 255, 255, 0.35);
+    box-shadow: inset -1px -1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.egg-cluster.green-eggs .egg { background-color: #52a56c; }
+.egg-cluster.yellow-eggs .egg { background-color: #dfb32d; }
+.egg-cluster.white-eggs .egg {
+    background-color: #ffffff;
+    border: 0.5px solid rgba(0, 0, 0, 0.2);
+    box-shadow: inset -1px -1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.egg:nth-child(1) { left: 0px; top: 3px; }  
+.egg:nth-child(2) { left: 5px; top: 3px; }
+.egg:nth-child(3) { left: 10px; top: 3px; }
+.egg:nth-child(4) { left: 15px; top: 3px; }
+
+.shrimp[data-frame="2"] .egg-cluster {
+    transform: translateY(1px);
+}
+
+/* =========================================================
+   6. SIDEBAR MOVABLE SHRIMP LIST
+========================================================= */
+
+.shrimp-list-column {
+    width: 320px;
+    flex-shrink: 0;
+    margin-bottom: 0 !important;
+    box-shadow: 0 4px 15px rgba(50, 90, 100, 0.05);
+}
+
+.shrimp-list-column .movable-body {
+    height: 560px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-right: 5px;
+    background: #fbfdfd;
+}
+
+.movable-window {
+    position: fixed;
+    top: 150px;
+    left: 100px;
+    width: 380px;
+    height: 480px;
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 90, 100, 0.15);
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.movable-header {
+    padding: 10px 15px;
+    background: #eef7f5;
+    border-bottom: 1.5px solid var(--border);
+    cursor: move;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    user-select: none;
+}
+
+.close-movable {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--muted);
+    padding: 0;
+    line-height: 1;
+}
+
+.close-movable:hover {
+    color: var(--danger);
+}
+
+.shrimp-list-item.selected-shrimp-card {
+    background-color: rgba(74, 159, 186, 0.12) !important;
+    border: 2px solid var(--primary) !important;
+    box-shadow: 0 0 8px rgba(74, 159, 186, 0.25);
+}
+
+body.dark-theme .shrimp-list-item.selected-shrimp-card {
+    background-color: rgba(92, 182, 211, 0.18) !important;
+    border: 2px solid var(--primary) !important;
+    box-shadow: 0 0 10px rgba(92, 182, 211, 0.35);
+}
+
+/* =========================================================
+   7. NAVIGATION TABS & RIGHT PANEL COMPONENTS
+========================================================= */
+
+.tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.tab-button {
+    flex: 1;
+    text-align: center;
+    border: none;
+    background: #dfeeee;
+    padding: 10px 4px;
+    font-size: 13px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.tab-button:hover {
+    background: #cce4e6;
+}
+
+.tab-button.active {
+    background: var(--primary);
+    color: white;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Info Grid */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.info-grid > div {
+    padding: 12px;
+    background: #f2f8f8;
+    border-radius: 10px;
+}
+
+.info-grid span {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.info-grid strong {
+    display: block;
+    margin-top: 5px;
+    font-size: 20px;
+}
+
+/* Selected Shrimp Sidebar Card */
+.selected-card {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 15px;
+    align-items: center;
+}
+
+.selected-image {
+    width: 100px;
+    height: 80px;
+    position: relative;
+}
+
+.selected-image .css-shrimp {
+    transform: scale(2);
+    left: 25px;
+    top: 25px;
+}
+
+.detail-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+}
+
+.detail-item {
+    background: #f3f8f8;
+    padding: 7px 9px;
+    border-radius: 7px;
+}
+
+.detail-item span {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.detail-item strong {
+    display: block;
+    margin-top: 2px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #e5eeee;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 8px 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--primary);
+    transition: width .3s;
+}
+
+/* Shop Tab */
+.shop-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.shop-card {
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 12px;
+    background: #fbfdfd;
+}
+
+.shop-card h3 {
+    margin: 0 0 5px;
+}
+
+.shop-card .shop-price {
+    font-weight: bold;
+    margin: 8px 0;
+}
+
+.shrimp-preview {
+    width: 80px;
+    height: 55px;
+    margin: auto;
+    position: relative;
+}
+
+.shrimp-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Silhouette blackout for undiscovered shop shrimp */
+.shop-card.locked-preview .shop-preview-img {
+    filter: brightness(0) opacity(0.35);
+    transition: filter 0.3s ease;
+}
+
+/* Confetti particle elements */
+.confetti-particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 9999;
+    animation: confettiPop 0.8s ease-out forwards;
+}
+
+@keyframes confettiPop {
+    0% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--tx), var(--ty)) scale(0) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* Collection Tab */
+.collection-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.collection-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    min-height: 120px;
+}
+
+.collection-card.locked {
+    opacity: .4;
+    filter: grayscale(1);
+}
+
+.collection-card .collection-color {
+    width: 35px;
+    height: 25px;
+    border-radius: 50%;
+    margin: 10px auto;
+    background: var(--shrimp-color);
+}
+
+#collection .collection-shrimp-img {
+    cursor: zoom-in;
+}
+
+/* Genetics Tab */
+.genetics-warning {
+    margin: 15px 0;
+    padding: 12px;
+    background: #fff6dc;
+    border: 1px solid #ead89e;
+    border-radius: 9px;
+    font-size: 13px;
+}
+
+.genetic-family {
+    margin-bottom: 20px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.genetic-family h3 {
+    margin-top: 0;
+}
+
+.genetic-node {
+    display: inline-block;
+    margin: 4px;
+    padding: 6px 9px;
+    border-radius: 7px;
+    background: #edf5f5;
+    font-size: 12px;
+}
+
+.genetic-node.discovered {
+    border: 1px solid var(--primary);
+}
+
+.genetic-node.locked {
+    opacity: .45;
+}
+
+/* Achievements Panel */
+.achievements-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.achievement-card {
+    display: flex;
+    align-items: center;
+    background: #f4f9f9;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    gap: 16px;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.achievement-img-wrapper {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: rgba(74, 159, 186, 0.08);
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.achievement-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: filter 0.3s;
+}
+
+.achievement-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.achievement-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--text);
+    margin: 0;
+}
+
+.achievement-desc {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.achievement-card.locked {
+    background: rgba(41, 58, 62, 0.02);
+    border-style: dashed;
+}
+
+.achievement-card.locked .achievement-img {
+    filter: grayscale(1) brightness(0.1);
+    opacity: 0.45;
+}
+
+.achievement-card.locked .achievement-title {
+    color: var(--muted);
+}
+
+/* Log Entries */
+.log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.log-entry {
+    padding: 9px 0;
+    border-bottom: 1px solid #edf1f1;
+    font-size: 13px;
+}
+
+.log-time {
+    color: var(--muted);
+    margin-right: 7px;
+}
+
+/* =========================================================
+   8. MODALS & POPUP OVERLAYS
+========================================================= */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 40, 45, .55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-box {
+    background: white;
+    width: min(600px, 100%);
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 15px;
+    padding: 25px;
+    position: relative;
+}
+
+.close-button {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    border: none;
+    background: transparent;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.capacity-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Culling Interface Modal */
+.modal-box-fixed {
+    width: 600px !important;
+    height: 600px !important;
+    max-width: 95vw !important;
+    max-height: 90vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.modal-box-fixed #modalContent {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.modal-box-fixed .cull-list {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.cull-bulk-actions {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0 15px 0;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+}
+
+.cull-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+    max-height: 450px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.cull-row {
+    display: flex;
+    align-items: center;
+    background: #f4f9f9;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    gap: 12px;
+}
+
+.cull-buttons {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.cull-buttons button {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.cull-media {
+    width: 50px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.cull-baby-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.cull-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.cull-info strong {
+    font-size: 14px;
+}
+
+/* Zoom Image Modal */
+.zoom-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url('images/zoomBG.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: min(600px, 90vw);
+    height: min(450px, 70vh);
+    padding: 30px;
+    box-sizing: border-box;
+    filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.6));
+}
+
+#zoomImg {
+    max-width: 80%;
+    max-height: 80%;
+    object-fit: contain;
+    pointer-events: none;
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.3));
+}
+
+/* Achievement Floating Slideout Popup */
+.achievement-popup {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translate(-50%, 60px);
+    background: #1b282c;
+    border: 2px solid #f1c40f;
+    border-radius: 12px;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 10px rgba(241, 196, 15, 0.2);
+    z-index: 99999;
+    color: #e6f2f4;
+    pointer-events: none;
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+    width: min(420px, 95vw);
+    overflow: hidden;
+}
+
+.achievement-popup.active {
+    transform: translate(-50%, 0);
+    opacity: 1;
+}
+
+.achievement-popup::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.15) 30%,
+        rgba(255, 255, 255, 0.45) 50%,
+        rgba(255, 255, 255, 0.15) 70%,
+        transparent
+    );
+    transform: skewX(-25deg);
+    pointer-events: none;
+}
+
+.achievement-popup.active::after {
+    animation: shineSweep 1.2s ease-in-out forwards;
+    animation-delay: 0.25s;
+}
+
+@keyframes shineSweep {
+    0% { left: -150%; }
+    100% { left: 150%; }
+}
+
+/* General Modal Buttons Flex Alignment */
+.game-modal button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    line-height: 1 !important;
+    vertical-align: middle !important;
+}
+
+.game-modal button .ui-emoji {
+    margin: 0 !important;
+    width: 18px !important;
+    height: 18px !important;
+    object-fit: contain !important;
+}
+
+/* =========================================================
+   9. MAIN MENU / TITLE SCREEN
+========================================================= */
+
+body:has(.main-menu-overlay:not(.hidden)),
+body:has(.minigame-overlay:not(.hidden)) {
+    overflow: hidden;
+}
+
+.main-menu-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: var(--background);
+    background-image: url('images/bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+}
+
+.title-shrimp {
+    height: 65px;
+    width: auto;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.left-shrimp { transform: scaleX(1); }
+.right-shrimp { transform: scaleX(-1); }
+
+.menu-box {
+    background-image: url('images/box.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    border: none;
+    padding: 80px;
+    width: min(420px, 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.menu-title {
+    font-size: 32px;
+    margin: 0 0 25px 0;
+    color: var(--text);
+    font-weight: bold;
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.menu-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+}
+
+/* =========================================================
+   10. MINIGAMES ARCADE (SHARED & INDIVIDUAL)
+========================================================= */
+
+.minigame-overlay {
+    position: fixed;
+    inset: 0;
+    background: #0f1c20;
+    z-index: 9998;
+    display: flex;
+    flex-direction: column;
+    color: #e6f2f4;
+    font-family: 'Courier New', Courier, monospace;
+    overflow: hidden;
+    touch-action: none;
+}
+
+.minigame-header {
+    height: 70px;
+    background: #152429;
+    border-bottom: 2px solid #293a3e;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 25px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.minigame-canvas {
+    flex-grow: 1;
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 50%, #062733, #134d61);
+}
+
+.minigame-shrimp {
+    position: absolute;
+    width: 75px;
+    height: 50px;
+    cursor: pointer;
+    user-select: none;
+    z-index: 10;
+}
+
+.minigame-shrimp img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    position: relative;
+    z-index: 2;
+}
+
+.minigame-shrimp .css-shrimp {
+    transform: scale(1.3);
+    left: 15px;
+    top: 15px;
+}
+
+.minigame-shrimp.falling {
+    pointer-events: none;
+    transition: transform 0.5s ease-in;
+}
+
+.minigame-shrimp.bulky { transform: scale(1.35); }
+.minigame-shrimp.nimble { transform: scale(0.85); }
+
+@keyframes hitFlash {
+    0% { filter: brightness(2.5) contrast(1.5); }
+    100% { filter: brightness(1) contrast(1); }
+}
+
+.hit-flash {
+    animation: hitFlash 0.12s ease-out;
+}
+
+.game-modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #1b282c;
+    border: 3px solid #5cb6d3;
+    border-radius: 16px;
+    padding: 30px;
+    width: min(440px, 95vw);
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+    z-index: 100;
+}
+
+.game-modal img {
+    max-width: 160px;
+    height: auto;
+    margin: 20px auto;
+    display: block;
+    border-radius: 8px;
+}
+
+/* Minigame 1: Water Flow Currents & Finish Line */
+#minigameCanvas::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: 
+        linear-gradient(180deg, rgba(74, 159, 186, 0.15) 0%, transparent 100%),
+        repeating-linear-gradient(180deg, rgba(255, 255, 255, 0) 0px, rgba(255, 255, 255, 0) 120px, rgba(74, 159, 186, 0.04) 150px, rgba(255, 255, 255, 0) 180px, rgba(255, 255, 255, 0) 300px),
+        repeating-linear-gradient(180deg, rgba(255, 255, 255, 0) 0px, rgba(74, 159, 186, 0.02) 200px, rgba(255, 255, 255, 0) 400px, rgba(255, 255, 255, 0) 600px);
+    background-size: 100% 100%, 100% 600px, 100% 900px;
+    animation: waterFlowAnimation 14s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes waterFlowAnimation {
+    0% { background-position: 0 0, 0 0, 0 0; }
+    100% { background-position: 0 0, 0 600px, 0 900px; }
+}
+
+.finish-line {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: repeating-linear-gradient(90deg, #d95c5c, #d95c5c 15px, transparent 15px, transparent 30px);
+}
+
+/* Minigame 2: Clado Scanner */
+.minigame-selection-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    padding: 40px;
+    background: radial-gradient(circle at 50% 50%, #152429, #091215);
+}
+
+.minigame-shrimp.walking {
+    transition: none;
+}
+
+.clado-cluster {
+    position: absolute;
+    left: 16px;
+    bottom: 6px;
+    width: 25px;
+    height: 15px;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.clado-triangle {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 7px solid #52a56c;
+    filter: drop-shadow(0px 1px 1.5px rgba(0, 0, 0, 0.3));
+}
+
+.clado-triangle:nth-child(1) { left: 0px; top: 3px; }  
+.clado-triangle:nth-child(2) { left: 5px; top: 3px; }
+.clado-triangle:nth-child(3) { left: 10px; top: 3px; }
+.clado-triangle:nth-child(4) { left: 15px; top: 3px; }
+
+.minigame-shrimp[data-frame="2"] .clado-cluster {
+    transform: translateY(1px);
+}
+
+#minigame2Canvas .minigame-shrimp.nimble { transform: scale(1.5); }
+#minigame2Canvas .minigame-shrimp.basic { transform: scale(1.8); }
+
+#minigame2Canvas .egg {
+    width: 8px;
+    height: 8px;
+    border: 0.5px solid rgba(255, 255, 255, 0.4);
+}
+
+#minigame2Canvas .egg-cluster,
+#minigame2Canvas .clado-cluster {
+    width: 30px;
+    height: 14px;
+    left: 13px;
+    bottom: 8px;
+}
+
+#minigame2Canvas .egg:nth-child(1), #minigame2Canvas .clado-triangle:nth-child(1) { left: 0px; top: 4px; }  
+#minigame2Canvas .egg:nth-child(2), #minigame2Canvas .clado-triangle:nth-child(2) { left: 6px; top: 4px; }
+#minigame2Canvas .egg:nth-child(3), #minigame2Canvas .clado-triangle:nth-child(3) { left: 12px; top: 4px; }
+#minigame2Canvas .egg:nth-child(4), #minigame2Canvas .clado-triangle:nth-child(4) { left: 18px; top: 4px; }
+
+#minigame2Canvas .clado-triangle {
+    border-left: 4.5px solid transparent;
+    border-right: 4.5px solid transparent;
+    border-top: 8px solid #52a56c;
+}
+
+/* Minigame 3: Food Preparation */
+.prep-stage-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(21, 36, 41, 0.85);
+    border: 2px solid var(--border);
+    border-radius: 15px;
+    padding: 30px;
+    width: min(400px, 90vw);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    margin: 15px 0;
+}
+
+.cutting-board {
+    width: 320px;
+    height: 140px;
+    background: #d2b48c;
+    border: 10px solid #8b5a2b;
+    border-radius: 8px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
+    overflow: hidden;
+    cursor: crosshair;
+    touch-action: none;
+}
+
+.cucumber {
+    width: 240px;
+    height: 40px;
+    background: #2e8b57;
+    border-radius: 20px;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    pointer-events: none;
+}
+
+.cucumber-slice-mark {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    border-left: 2px dashed rgba(255, 255, 255, 0.7);
+    transition: border-color 0.2s, opacity 0.2s, transform 0.2s;
+}
+
+.cucumber-slice-mark.cut-complete {
+    border-left: 3px solid #145a32;
+    transform: scaleY(1.1);
+    opacity: 0.9;
+}
+
+.chef-knife {
+    position: absolute;
+    top: -10px;
+    right: 40px;
+    font-size: 50px;
+    pointer-events: none;
+    transition: transform 0.08s ease-out;
+    z-index: 10;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+}
+
+.timing-bar-container {
+    width: 320px;
+    height: 24px;
+    background: #152429;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    position: relative;
+    margin-top: 20px;
+    overflow: hidden;
+}
+
+.timing-bar-target {
+    position: absolute;
+    left: 33%;
+    width: 34%;
+    height: 100%;
+    background: #52a56c;
+    box-shadow: 0 0 10px #52a56c;
+}
+
+.timing-bar-indicator {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    background: #ffffff;
+    box-shadow: 0 0 6px rgba(255,255,255,0.8);
+    border-radius: 4px;
+}
+
+.blanching-pot {
+    width: 200px;
+    height: 200px;
+    background: #34495e;
+    border: 8px solid #bdc3c7;
+    border-radius: 50%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    overflow: hidden;
+    cursor: pointer;
+    touch-action: none;
+}
+
+.water-boiling {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(74, 159, 186, 0.2) 20%, transparent 60%);
+    animation: boilBubble 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes boilBubble {
+    0% { transform: scale(0.9); opacity: 0.4; }
+    100% { transform: scale(1.1); opacity: 0.7; }
+}
+
+.cooking-cucumber-slice {
+    font-size: 60px;
+    z-index: 2;
+    transition: transform 0.1s ease-out;
+    user-select: none;
+}
+
+.timing-circle-inner {
+    position: absolute;
+    width: 76px;
+    height: 76px;
+    border: 6px solid #52a56c;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 3;
+    box-shadow: 0 0 12px rgba(82, 165, 108, 0.8), inset 0 0 8px rgba(82, 165, 108, 0.4);
+}
+
+.timing-circle-outer {
+    position: absolute;
+    border: 3.5px dashed #4a9fba;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 3;
+    box-shadow: 0 0 6px #4a9fba;
+}
+
+#prepFeedback {
+    transition: opacity 0.2s ease-out;
+    opacity: 0;
+}
+
+.brine-frozen-cube {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #a5f2f3, #e1ffff);
+    border: 3px solid #5cb6d3;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: bold;
+    color: #2c3e50;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15), inset 0 0 10px rgba(255,255,255,0.8);
+    transition: transform 0.1s, background-color 0.2s;
+    user-select: none;
+}
+
+.brine-frozen-cube:hover { transform: scale(1.05); }
+.brine-frozen-cube.cube-clicked {
+    background: #52a56c;
+    border-color: #27ae60;
+    color: white;
+    cursor: default;
+    transform: none;
+}
+
+.stir-bowl-outer {
+    width: 200px;
+    height: 200px;
+    background: #34495e;
+    border: 8px solid #bdc3c7;
+    border-radius: 50%;
+    position: relative;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    overflow: hidden;
+}
+
+.brine-cube-melting {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60px;
+    height: 60px;
+    margin-left: -30px;
+    margin-top: -30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    pointer-events: none;
+    transition: transform 0.25s ease-out;
+    user-select: none;
+}
+
+.brine-cube-melting img {
+    width: 44px !important;
+    height: 44px !important;
+    max-width: 44px !important;
+    max-height: 44px !important;
+    margin: 0 !important;
+}
+
+.stir-indicator-dot {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: auto;
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.stir-indicator-dot.dot-active {
+    background: #e67e22;
+    box-shadow: 0 0 8px #e67e22;
+}
+
+.stir-indicator-dot.dot-target {
+    background: #52a56c;
+    box-shadow: 0 0 12px #2ecc71;
+    transform: translate(-50%, -50%) scale(1.3);
+}
+
+.pellets-sandbox {
+    background: #152429;
+    position: relative;
+    border-radius: 8px;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
+}
+
+.pellet-spoon {
+    position: absolute;
+    bottom: 10px;
+    left: calc(50% - 65px);
+    width: 130px;
+    height: 60px;
+    background: linear-gradient(to bottom, #bdc3c7, #95a5a6);
+    border: 4px solid #7f8c8d;
+    border-radius: 0 0 35px 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #2c3e50;
+    z-index: 1;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    pointer-events: none;
+}
+
+.draggable-food {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: grab;
+    user-select: none;
+    z-index: 10;
+    transition: transform 0.1s;
+}
+
+.draggable-food:active {
+    cursor: grabbing;
+    transform: scale(1.15);
+}
+
+.pellet-item {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.distraction-item {
+    background: transparent;
+}
+
+/* =========================================================
+   11. DARK THEME OVERRIDES
+========================================================= */
+
+body.dark-theme {
+    --background: #111d21;
+    --panel: #1b282c;
+    --text: #e6f2f4;
+    --muted: #8fa0a5;
+    --border: #293a3e;
+    --primary: #5cb6d3;
+    --primary-dark: #449cb9;
+}
+
+body.dark-theme .tank-status,
+body.dark-theme .stat {
+    background: #1e2f33;
+    color: var(--text);
+    border-color: #293c40;
+}
+
+body.dark-theme .genetics-warning {
+    background: #2d2412;
+    border-color: #5c431a;
+    color: #ffd875;
+}
+
+body.dark-theme .modal-box,
+body.dark-theme .movable-window {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+body.dark-theme .movable-header {
+    background: #1e2f33;
+    color: var(--text);
+}
+
+body.dark-theme .movable-body {
+    background: var(--panel);
+}
+
+body.dark-theme .tab-button,
+body.dark-theme .secondary-button,
+body.dark-theme .speed-button,
+body.dark-theme .genetic-node {
+    background: #25393d;
+    color: var(--muted);
+}
+
+body.dark-theme .tab-button.active,
+body.dark-theme .speed-button.active {
+    background: var(--primary);
+    color: #ffffff;
+}
+
+body.dark-theme .detail-item,
+body.dark-theme .info-grid > div,
+body.dark-theme .shop-card,
+body.dark-theme .collection-card,
+body.dark-theme .cull-row,
+body.dark-theme .achievement-card {
+    background: #1a2a2e;
+    border-color: var(--border);
+}
+
+body.dark-theme .achievement-card.locked {
+    background: rgba(27, 40, 44, 0.2);
+}
+
+body.dark-theme .genetic-node.discovered {
+    border-color: var(--primary);
+}
+
+body.dark-theme .log-entry {
+    border-bottom-color: var(--border);
+}
+
+body.dark-theme .shrimp-name-tag {
+    background: rgba(27, 40, 44, 0.9);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+body.dark-theme ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+body.dark-theme ::-webkit-scrollbar-track {
+    background: var(--background);
+}
+body.dark-theme ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+body.dark-theme ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted);
+}
+
+/* =========================================================
+   12. RESPONSIVE MEDIA QUERIES
+========================================================= */
+
+@media (max-width: 1200px) {
+    .left-column-grid {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .shrimp-list-column {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 1000px) {
+    .game-layout {
+        grid-template-columns: 1fr;
+    }
+    .aquarium {
+        height: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-save-controls {
+        gap: 6px;
+    }
+    .header-save-controls button {
+        padding: 6px 10px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 600px) {
+    .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .stats {
+        width: 100%;
+    }
+    .stat {
+        font-size: 12px;
+    }
+    .game-layout {
+        padding: 10px;
+    }
+    .aquarium {
+        height: 420px;
+    }
+    .shop-grid {
+        grid-template-columns: 1fr;
+    }
+    .collection-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .info-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

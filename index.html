@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shrimply Genetics</title>
+    <link rel="icon" type="image/png" href="shrimp/firered1.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="topbar">
+        <div class="logo">
+            <img src="images/logo.png" alt="Shrimply Genetics" style="max-width: 100%; height: auto;">
+        </div>
+
+        <!-- CENTER HEADERS CONTROLS -->
+        <div class="header-save-controls">
+            <button id="headerSaveBtn" class="primary-button">
+                <img src="emoji/save.png" alt="Save" class="ui-emoji">
+            </button>
+            <button id="headerSaveExitBtn" class="secondary-button">
+                <img src="emoji/exit.png" alt="Save & Exit" class="ui-emoji">
+            </button>
+        </div>
+
+        <div class="stats">
+            <!-- Help Page Trigger Icon Button -->
+            <button id="helpBtn" class="stat"
+                style="cursor: pointer; font-family: inherit; font-size: 14px; transition: background 0.2s;"
+                title="Help & Controls">
+                <img src="emoji/info.png" alt="Help" class="ui-emoji">
+            </button>
+            <div class="stat">
+                <img src="emoji/money.png" alt="Money" class="ui-emoji"> <span id="money">$100</span>
+            </div>
+            <div class="stat">
+                <img src="emoji/shrimp.png" alt="Population" class="ui-emoji"> <span id="population">0 / 50</span>
+            </div>
+            <div class="stat">
+                <img src="emoji/calendar.png" alt="Day" class="ui-emoji"> Day <span id="day">1</span>
+            </div>
+            <div class="stat">
+                <img src="emoji/clock.png" alt="Clock" class="ui-emoji"> <span id="clock">00:00</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="game-layout">
+        <!-- LEFT SIDE -->
+        <section class="left-column">
+            <!-- Sidebar List & Aquarium Grid wrapper -->
+            <div class="left-column-grid">
+
+                <!-- DRAGGABLE FLOATING SHRIMP LIST -->
+                <div id="movableShrimpList" class="panel shrimp-list-column hidden">
+                    <div class="movable-header">
+                        <span><img src="emoji/list.png" alt="Shrimp" class="ui-emoji"> Tank Shrimp List</span>
+                        <button id="sortShrimpListBtn" class="secondary-button"
+                            style="padding: 2px 8px; font-size: 11px; margin-left: auto;">Sort: High Value</button>
+                    </div>
+                    <div class="movable-body">
+                        <!-- Generated programmatically in loop -->
+                    </div>
+                </div>
+
+                <!-- AQUARIUM PANEL -->
+                <div class="panel aquarium-panel" style="flex-grow: 1;">
+                    <div class="panel-title">
+                        <h2><img src="emoji/herb.png" alt="Aquarium" class="ui-emoji"> Aquarium</h2>
+
+                        <button id="switchAquariumBtn" class="secondary-button hidden"
+                            style="margin-left: auto; margin-right: 10px;">
+                            <img src="emoji/star.png" alt="Star" class="ui-emoji"> View Favorites
+                        </button>
+
+                        <button id="shrimpListBtn" class="secondary-button hidden"
+                            style="margin-left: auto; margin-right: 15px;">
+                            <img src="emoji/list.png" alt="List" class="ui-emoji"> List of Shrimp
+                        </button>
+
+                        <div class="tank-status" id="tankStatus">0 / 50</div>
+                    </div>
+
+                    <div id="aquarium" class="aquarium">
+                        <div class="water-surface"></div>
+                        <div class="bubble bubble1"></div>
+                        <div class="bubble bubble2"></div>
+                        <div class="bubble bubble3"></div>
+                        <div class="bubble bubble4"></div>
+
+                        <!-- Plant background assets -->
+                        <img id="aquariumPlantLeft" src="plants/planbg1.png" class="plant plant-left" alt="Aquarium Plant">
+                        <img id="aquariumPlantRight" src="plants/planbg2.png" class="plant plant-right" alt="Aquarium Plant">
+
+                        <!-- Plant Upgrade Overlays -->
+                        <div id="aquariumFloater" class="plant-floater hidden"></div>
+                        <img id="aquariumBreedingMoss" class="plant-upgrade hidden" alt="Breeding Moss">
+                        <img id="aquariumPregnancyMoss" class="plant-upgrade hidden" alt="Pregnancy Moss">
+                        <img id="aquariumBabyPlant" class="plant-upgrade hidden" alt="Baby Boost Plant">
+                        <img id="aquariumGrowthPlant" class="plant-upgrade hidden" alt="Growth Plant">
+                        
+                        <!-- Marimo Moss Balls -->
+                        <img id="aquariumMarimo1" src="plants/marimo.png" class="marimo-ball hidden" alt="Marimo Moss Ball 1">
+                        <img id="aquariumMarimo2" src="plants/marimo.png" class="marimo-ball hidden" alt="Marimo Moss Ball 2">
+                        <img id="aquariumMarimo3" src="plants/marimo.png" class="marimo-ball hidden" alt="Marimo Moss Ball 3">
+
+                        <div id="shrimpLayer"></div>
+                        <div class="sand"></div>
+                    </div>
+
+                    <div class="aquarium-footer">
+                        <div class="aquarium-help">Click a shrimp to inspect it.</div>
+                        <div class="aquarium-sell-controls">
+                            <button id="sellModeButton" class="secondary-button">
+                                <img src="emoji/cart.png" alt="Sell Mode" class="ui-emoji"> Sell Mode: OFF
+                            </button>
+                            <button id="sellSelectedButton" class="danger-button hidden" disabled>
+                                Sell Selected (0)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- End left-column-grid -->
+
+            <div class="panel controls-panel">
+                <h2>Game Controls</h2>
+                <div class="control-row">
+                    <button id="speed1" class="speed-button active">1x</button>
+                    <button id="speed2" class="speed-button">2x</button>
+                    <button id="speed5" class="speed-button">5x</button>
+                    <button id="speed20" class="speed-button">20x</button>
+                    <button id="speed60" class="speed-button">60x</button>
+
+                    <button id="playFoodPrepBtn" class="primary-button"
+                        style="padding: 9px 13px; font-size: 13px; margin-left: 8px; background-color: #52a56c;">
+                        <img src="emoji/food.png" alt="Food" class="ui-emoji"> Prep Shrimp Food
+                    </button>
+                    <button id="playMinigameBtn" class="primary-button hidden"
+                        style="padding: 9px 13px; font-size: 13px;">
+                        <img src="emoji/controller.png" alt="Controller" class="ui-emoji"> Push 'em back
+                    </button>
+                    <button id="playMinigame2Btn" class="primary-button hidden"
+                        style="padding: 9px 13px; font-size: 13px; margin-left: 8px;">
+                        <img src="emoji/microscope.png" alt="Microscope" class="ui-emoji"> Clado Scanner
+                    </button>
+                </div>
+                <div class="small-text">
+                    Normal speed checks breeding every real minute.
+                    The fastest speed checks breeding every second.
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT SIDE -->
+        <section class="right-column">
+            <div class="tabs">
+                <button class="tab-button active" data-tab="tank">
+                    <img src="emoji/shrimp.png" alt="Tank" class="ui-emoji"> Tank
+                </button>
+                <button class="tab-button" data-tab="shop">
+                    <img src="emoji/cart.png" alt="Shop" class="ui-emoji"> Shop
+                </button>
+                <button class="tab-button" data-tab="collection">
+                    <img src="emoji/book.png" alt="Collection" class="ui-emoji"> Collection
+                </button>
+                <button class="tab-button" data-tab="genetics">
+                    <img src="emoji/dna.png" alt="Genetics" class="ui-emoji"> Genetics
+                </button>
+                <button class="tab-button" data-tab="achievements">
+                    <img src="emoji/trophy.png" alt="Achievements" class="ui-emoji"> Achievements
+                </button>
+                <button class="tab-button" data-tab="settings">
+                    <img src="emoji/settings.png" alt="Settings" class="ui-emoji"> Settings
+                </button>
+            </div>
+
+            <!-- TANK TAB -->
+            <div id="tab-tank" class="tab-content active">
+                <div class="panel">
+                    <h2>Selected Shrimp</h2>
+                    <div id="selectedShrimp">
+                        <div class="empty-selection">Click a shrimp in the aquarium to inspect it.</div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Tank Information</h2>
+                    <div class="info-grid">
+                        <div><span>Capacity</span><strong id="capacityInfo">50</strong></div>
+                        <div><span>Males</span><strong id="maleCount">0</strong></div>
+                        <div><span>Females</span><strong id="femaleCount">0</strong></div>
+                        <div><span>Juveniles</span><strong id="juvenileCount">0</strong></div>
+                        <div><span>Pregnant</span><strong id="pregnantCount">0</strong></div>
+                        <div><span>Plants</span><strong id="plantCount">0</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SHOP TAB -->
+            <div id="tab-shop" class="tab-content">
+                <div class="panel">
+                    <h2><img src="emoji/cart.png" alt="Tank" class="ui-emoji"> Shrimp Shop</h2>
+                    <p class="small-text">Common strains are available for purchase. Their hidden genetics may contain surprises.</p>
+                    <div id="shrimpShop" class="shop-grid"></div>
+                </div>
+
+                <div class="panel">
+                    <h2><img src="emoji/house.png" alt="Tank" class="ui-emoji"> Tank Upgrades</h2>
+                    <div id="tankShop"></div>
+                </div>
+
+                <div class="panel">
+                    <h2><img src="emoji/lightning.png" alt="Speed" class="ui-emoji"> Speed Upgrades</h2>
+                    <div id="speedShop" class="shop-grid"></div>
+                </div>
+
+                <div class="panel">
+                    <h2><img src="emoji/herb.png" alt="Plants" class="ui-emoji"> Plants</h2>
+                    <div id="plantShop" class="shop-grid"></div>
+                </div>
+            </div>
+
+            <!-- COLLECTION -->
+            <div id="tab-collection" class="tab-content">
+                <div class="panel">
+                    <h2><img src="emoji/book.png" alt="Collection" class="ui-emoji"> Shrimp Collection</h2>
+                    <p class="small-text">Discover new colors and patterns by breeding.</p>
+                    <div id="collection" class="collection-grid"></div>
+                </div>
+            </div>
+
+            <!-- GENETICS -->
+            <div id="tab-genetics" class="tab-content">
+                <div class="panel">
+                    <h2><img src="emoji/dna.png" alt="Genetics" class="ui-emoji"> Genetic Research</h2>
+                    <p>Genetics are hidden from you while breeding. As you discover shrimp, more of their lineage becomes visible.</p>
+                    <div class="genetics-warning">
+                        <img src="emoji/warning.png" alt="Warning" class="ui-emoji"> The displayed lineage is your research knowledge, not the shrimp's complete hidden genome.
+                    </div>
+                    <div id="geneticsTree"></div>
+                </div>
+            </div>
+
+            <!-- ACHIEVEMENTS -->
+            <div id="tab-achievements" class="tab-content">
+                <div class="panel">
+                    <h2><img src="emoji/trophy.png" alt="Achievements" class="ui-emoji"> Achievements</h2>
+                    <p class="small-text">Discover unique secrets, rare lineages, and complete processing milestones to unlock achievements.</p>
+                    <div id="achievementsList" class="achievements-list"></div>
+                </div>
+            </div>
+
+            <!-- SETTINGS TAB -->
+            <div id="tab-settings" class="tab-content">
+                <div class="panel">
+                    <h2><img src="emoji/settings.png" alt="Settings" class="ui-emoji"> Game Settings</h2>
+
+                    <!-- Background Music Controls -->
+                    <div class="settings-row" style="margin-bottom: 25px;">
+                        <label style="display: block; font-weight: bold; margin-bottom: 10px;">
+                            <img src="emoji/music.png" alt="Background Music" class="ui-emoji"> Background Music
+                        </label>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <button id="bgmToggleBtn" class="primary-button" style="width: 100px;">Mute</button>
+                            <input type="range" id="bgmVolumeSlider" min="0" max="1" step="0.05" value="0.5"
+                                style="flex-grow: 1; cursor: pointer;">
+                            <span id="bgmVolumeLabel" style="width: 45px; font-weight: bold; text-align: right;">50%</span>
+                        </div>
+                    </div>
+
+                    <!-- SFX Controls -->
+                    <div class="settings-row" style="margin-bottom: 25px;">
+                        <label style="display: block; font-weight: bold; margin-bottom: 10px;">
+                            <img src="emoji/sound.png" alt="Sound Effects" class="ui-emoji"> Sound Effects (SFX)
+                        </label>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <button id="sfxToggleBtn" class="primary-button" style="width: 100px;">Mute</button>
+                            <input type="range" id="sfxVolumeSlider" min="0" max="1" step="0.05" value="0.5"
+                                style="flex-grow: 1; cursor: pointer;">
+                            <span id="sfxVolumeLabel" style="width: 45px; font-weight: bold; text-align: right;">50%</span>
+                        </div>
+                    </div>
+
+                    <!-- Dark Mode Toggle Row -->
+                    <div class="settings-row" style="margin-bottom: 25px;">
+                        <label style="display: block; font-weight: bold; margin-bottom: 10px;">
+                            <img src="emoji/theme.png" alt="Theme Mode" class="ui-emoji"> Theme Mode
+                        </label>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <button id="themeToggleBtn" class="secondary-button" style="width: 100px;">Dark</button>
+                            <span id="themeLabel" style="font-weight: bold;">Light Mode</span>
+                        </div>
+                    </div>
+
+                    <!-- SAVE FILE BACKUP & RESTORE SECTION -->
+                    <div class="settings-row" style="margin-bottom: 25px; border-top: 1px solid var(--border); padding-top: 20px;">
+                        <label style="display: block; font-weight: bold; margin-bottom: 6px;">
+                            <img src="emoji/save.png" alt="Backup" class="ui-emoji"> Save File Management
+                        </label>
+                        <p class="small-text" style="margin-top: 0; margin-bottom: 12px;">
+                            Download your save file to your computer so you never lose your progress if you clear your browser cache.
+                        </p>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button id="exportSaveBtn" class="primary-button">
+                                <img src="emoji/save.png" alt="Export" class="ui-emoji"> Export Save File
+                            </button>
+                            <button id="importSaveBtn" class="secondary-button">
+                                <img src="emoji/book.png" alt="Import" class="ui-emoji"> Import Save File
+                            </button>
+                            <!-- Hidden File Input for loading JSON files -->
+                            <input type="file" id="importSaveFileInput" accept=".json,application/json" style="display: none;" aria-label="file">
+                        </div>
+                    </div>
+
+                    <!-- Reset Game Section -->
+                    <div class="settings-row" style="margin-top: 20px; display: flex; justify-content: flex-end; border-top: 1px solid var(--border); padding-top: 20px;">
+                        <button id="resetButton" class="danger-button">Reset Game</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- SHRIMP DETAIL MODAL -->
+    <div id="shrimpModal" class="modal hidden">
+        <div class="modal-box">
+            <button id="closeModal" class="close-button">x</button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- OVER CAPACITY MODAL -->
+    <div id="capacityModal" class="modal hidden">
+        <div class="modal-box">
+            <h2><img src="emoji/warning.png" alt="Warning" class="ui-emoji"> Tank Full</h2>
+            <p>Your shrimp population has reached the tank's capacity.</p>
+            <p>You must sell shrimp or upgrade your tank before keeping additional babies.</p>
+            <div class="capacity-actions">
+                <button id="sellOldButton" class="primary-button">Sell an Older Shrimp</button>
+                <button id="openShopButton" class="secondary-button">Open Shop</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ZOOM IMAGE CLOSE-UP OVERLAY -->
+    <div id="zoomModal" class="modal"
+        style="position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); display: none; align-items: center; justify-content: center; z-index: 2000; cursor: zoom-out;">
+        <div class="zoom-wrapper">
+            <img id="zoomImg" src="" alt="Close up">
+        </div>
+    </div>
+
+    <!-- ACHIEVEMENT FLOATING POPUP -->
+    <div id="achievementPopup" class="achievement-popup hidden"></div>
+
+    <!-- 1. Core Data, UI & Audio Modules -->
+    <script src="js/sounds.js"></script>
+    <script src="js/mainMenu.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/shrimp.js"></script>
+    <script src="js/achievement.js"></script>
+    <script src="js/helpModal.js"></script>
+    
+    <!-- 2. Minigame Overlays & Modules -->
+    <script src="js/minigames/minigamesModals.js"></script>
+    <script src="js/minigames/minigameFood.js"></script>
+    <script src="js/minigames/minigame1.js"></script>
+    <script src="js/minigames/minigame2.js"></script>
+
+    <!-- 3. Main Game Engine (runs last) -->
+    <script src="game.js" defer></script>
+</body>
+</html>

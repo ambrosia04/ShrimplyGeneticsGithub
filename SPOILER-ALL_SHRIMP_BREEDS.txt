@@ -1,0 +1,575 @@
+======================================================================
+                  SHRIMPLY GENETICS - ALL SHRIMPS
+======================================================================
+
+Format Guide:
+• Name [ID] | Rarity | Base Value | Shop Price (if purchasable)
+• Parents: Direct genetic parents / Origin
+• Breeds Into: Offspring mutations and lines
+• Family & Color: Trait profile & Hex color
+
+======================================================================
+0. WILD PATTERNS & BASE WILD TYPES
+======================================================================
+
+[WildR1] Wild Red Pattern (Type 1)
+• Rarity: Common | Value: 1$
+• Parents: Wild catch / Random starter pattern
+• Breeds Into: Red Cherry line
+• Family & Color: Red (#a83c39)
+
+[WildR2] Wild Red Pattern (Type 2)
+• Rarity: Common | Value: 1$
+• Parents: Wild catch / Random starter pattern
+• Breeds Into: Red Cherry line
+• Family & Color: Red (#b84c49)
+
+[WildY1] Wild Yellow Pattern (Type 1)
+• Rarity: Common | Value: 1$
+• Parents: Wild catch / Random starter pattern
+• Breeds Into: Yellow line
+• Family & Color: Yellow (#e6d13a)
+
+[WildY2] Wild Yellow Pattern (Type 2)
+• Rarity: Common | Value: 1$
+• Parents: Wild catch / Random starter pattern
+• Breeds Into: Yellow line
+• Family & Color: Yellow (#d6c522)
+
+[WildS] Wild Shoko Pattern
+• Rarity: Common | Value: 1$
+• Parents: Wild catch / Random starter pattern
+• Breeds Into: Shoko line
+• Family & Color: Shoko (#65412f)
+
+[WildB] Wild Deep Blue Pattern
+• Rarity: Common | Value: 1$
+• Parents: Wild catch / Random starter pattern
+• Breeds Into: Deep Blue line
+• Family & Color: Deep Blue (#30323d)
+
+[wildDavidi] Neocaridina davidi WT
+• Rarity: Wild | Value: 1$
+• Parents: Wild ancestor base
+• Breeds Into: Red Cherry, Yellow, Shoko, Deep Blue Neo, Transparent
+• Family & Color: Davidi (#7b6952)
+
+[wildPalmata] Neocaridina palmata WT
+• Rarity: Wild | Value: 1$ | Shop: 800$
+• Parents: Wild ancestor base
+• Breeds Into: White Pearl, Blue Pearl
+• Family & Color: Palmata (#887762)
+
+[transparent] Transparent
+• Rarity: Common | Value: 2$
+• Parents: Neocaridina davidi WT
+• Breeds Into: Terminal branch (Cull line)
+• Family & Color: Transparent (#ffffff)
+
+======================================================================
+1. RED CHERRY LINE
+======================================================================
+
+[redCherry] Red Cherry
+• Rarity: Common | Value: 2$ | Shop: 25$
+• Parents: Neocaridina davidi WT / Wild Red Patterns
+• Breeds Into: Sakura Red Grade A, Red Rili, Orange, Red Rili Blue, Orange Neon, Orange Light
+• Family & Color: Red (#e63d3d)
+
+[sakuraRedA] Sakura Red Grade A
+• Rarity: Common | Value: 2$ | Shop: 1,500$
+• Parents: Red Cherry
+• Breeds Into: Sakura Red Grade S, Sakura (Champ), Sakura Singapore, Fire Red Taiwan, Purple, Kanoko
+• Family & Color: Red (#d93636)
+
+[sakuraRedS] Sakura Red Grade S
+• Rarity: Uncommon | Value: 5$
+• Parents: Sakura Red Grade A
+• Breeds Into: Fire Red Low Grade, Fire Red
+• Family & Color: Red (#c92e2e)
+
+[fireRedLowGrade] Fire Red Low Grade
+• Rarity: Rare | Value: 10$
+• Parents: Sakura Red Grade S
+• Breeds Into: Fire Red
+• Family & Color: Red (#bd2525)
+
+[fireRed] Fire Red
+• Rarity: Rare | Value: 10$
+• Parents: Sakura Red Grade S, Fire Red Low Grade
+• Breeds Into: Fire Red Painted Grade SS, Kanoko
+• Family & Color: Red (#df2929)
+
+[fireRedPainted] Fire Red Painted Grade SS
+• Rarity: Epic | Value: 150$
+• Parents: Fire Red
+• Breeds Into: Dark Blue Cherry
+• Family & Color: Red (#d52828)
+
+[fireRedTaiwan] Fire Red Taiwan
+• Rarity: Rare | Value: 10$
+• Parents: Sakura Red Grade A
+• Breeds Into: Koi Sunburst
+• Family & Color: Red (#dc302b)
+
+[koiSunburst] Koi Sunburst
+• Rarity: Epic | Value: 150$
+• Parents: Fire Red Taiwan
+• Breeds Into: Terminal branch
+• Family & Color: Red (#f5a31d)
+
+[sakuraChamp] Sakura
+• Rarity: Rare | Value: 10$
+• Parents: Sakura Red Grade A
+• Breeds Into: Terminal branch
+• Family & Color: Red (#bd3131)
+
+[sakuraSingapore] Sakura Singapore
+• Rarity: Rare | Value: 10$
+• Parents: Sakura Red Grade A
+• Breeds Into: Terminal branch
+• Family & Color: Red (#e04435)
+
+[purple] Purple
+• Rarity: Epic | Value: 150$
+• Parents: Sakura Red Grade A
+• Breeds Into: Terminal branch
+• Family & Color: Red (#6b2e6b)
+
+[darkBlueCherry] Dark Blue Cherry
+• Rarity: Epic | Value: 150$
+• Parents: Fire Red Painted Grade SS
+• Breeds Into: Green Nessie
+• Family & Color: Red (#18386b)
+
+[greenNessie] Green Nessie
+• Rarity: Epic | Value: 150$
+• Parents: Dark Blue Cherry
+• Breeds Into: Terminal branch
+• Family & Color: Red (#1e824c)
+
+[redRili] Red Rili
+• Rarity: Uncommon | Value: 5$
+• Parents: Red Cherry
+• Breeds Into: Red Rili Blue, Red Rili Kohaku, Bloody Snowball, Crystal Red
+• Family & Color: Red (#d94646)
+
+[redRiliBlue] Red Rili Blue
+• Rarity: Uncommon | Value: 5$
+• Parents: Red Cherry, Red Rili
+• Breeds Into: Blue Rili
+• Family & Color: Red (#6c8fb3)
+
+[redRiliKohaku] Red Rili Kohaku
+• Rarity: Rare | Value: 10$
+• Parents: Red Rili
+• Breeds Into: Terminal branch
+• Family & Color: Red (#a83c39)
+
+[kanoko] Kanoko
+• Rarity: Epic | Value: 150$
+• Parents: Sakura Red Grade A, Fire Red
+• Breeds Into: Crystal Red
+• Family & Color: Red (#a73729)
+
+[crystalRed] Crystal Red Shrimp
+• Rarity: Epic | Value: 150$
+• Parents: Kanoko + Red Rili cross
+• Breeds Into: Terminal branch
+• Family & Color: Red (#e63d3d)
+
+======================================================================
+2. ORANGE LINE
+======================================================================
+
+[orange] Orange
+• Rarity: Common | Value: 2$ | Shop: 255$
+• Parents: Red Cherry
+• Breeds Into: Orange Rili, Orange Sakura, Green
+• Family & Color: Red (#f28c28)
+
+[orangeNeon] Orange Neon
+• Rarity: Uncommon | Value: 5$
+• Parents: Red Cherry
+• Breeds Into: Orange Sakura
+• Family & Color: Red (#ff9d00)
+
+[orangeSakura] Orange Sakura
+• Rarity: Uncommon | Value: 5$
+• Parents: Orange, Orange Neon
+• Breeds Into: Light Green
+• Family & Color: Red (#f5a31d)
+
+[orangeRili] Orange Rili
+• Rarity: Uncommon | Value: 5$
+• Parents: Orange
+• Breeds Into: Terminal branch
+• Family & Color: Red (#ed8a30)
+
+[orangeLight] Orange Light
+• Rarity: Rare | Value: 10$
+• Parents: Red Cherry
+• Breeds Into: Terminal branch
+• Family & Color: Red (#f1bd61)
+
+======================================================================
+3. BLUE RILI LINE
+======================================================================
+
+[blueRili] Blue Rili
+• Rarity: Uncommon | Value: 5$
+• Parents: Red Rili Blue
+• Breeds Into: Blue Jelly, Blue Velvet, Royal Blue Rili
+• Family & Color: Red (#5597c5)
+
+[blueJelly] Blue Jelly / Full Blue Rili
+• Rarity: Uncommon | Value: 5$
+• Parents: Blue Rili
+• Breeds Into: Terminal branch
+• Family & Color: Red (#65b3d5)
+
+[royalBlueRili] Royal Rili
+• Rarity: Rare | Value: 10$
+• Parents: Blue Rili
+• Breeds Into: Spiderman
+• Family & Color: Red (#158ee6)
+
+[spiderman] Spiderman
+• Rarity: Epic | Value: 150$
+• Parents: Royal Blue Rili
+• Breeds Into: Terminal branch
+• Family & Color: Red (#0c558a)
+
+======================================================================
+4. YELLOW LINE
+======================================================================
+
+[yellow] Yellow
+• Rarity: Common | Value: 2$ | Shop: 120$
+• Parents: Neocaridina davidi WT / Wild Yellow Patterns
+• Breeds Into: Yellow Neon, Yellow Rili, Green
+• Family & Color: Yellow (#f2df19)
+
+[yellowNeon] Yellow Neon
+• Rarity: Uncommon | Value: 5$
+• Parents: Yellow
+• Breeds Into: Yellow Sakura, Golden Back Neon, Bright Green
+• Family & Color: Yellow (#ffe52c)
+
+[yellowSakura] Yellow Sakura
+• Rarity: Rare | Value: 10$
+• Parents: Yellow Neon
+• Breeds Into: Terminal branch
+• Family & Color: Yellow (#f4e34b)
+
+[goldenBackNeon] Golden Back Neon
+• Rarity: Rare | Value: 10$
+• Parents: Yellow Neon
+• Breeds Into: Terminal branch
+• Family & Color: Yellow (#ffe52c)
+
+[yellowRili] Yellow Rili
+• Rarity: Rare | Value: 10$
+• Parents: Yellow
+• Breeds Into: Snowball (Yellow Snowball)
+• Family & Color: Yellow (#e6d13a)
+
+[yellowSnowball] Snowball
+• Rarity: Rare | Value: 10$
+• Parents: Yellow Rili
+• Breeds Into: Terminal branch
+• Family & Color: Yellow (#f4e34b)
+
+======================================================================
+5. GREEN LINE
+======================================================================
+
+[green] Green / Varr. Green
+• Rarity: Uncommon | Value: 5$
+• Parents: Yellow + Orange cross
+• Breeds Into: Green Jade, Green Rili
+• Family & Color: Green (#4fba43)
+
+[greenJade] Green Jade
+• Rarity: Rare | Value: 10$
+• Parents: Green
+• Breeds Into: Golden Back Jade, Emerald, Green Jelly
+• Family & Color: Green (#287a39)
+
+[greenJelly] Green Jelly
+• Rarity: Rare | Value: 10$
+• Parents: Green Jade
+• Breeds Into: Terminal branch
+• Family & Color: Green (#408339)
+
+[greenRili] Green Rili
+• Rarity: Rare | Value: 10$
+• Parents: Green
+• Breeds Into: Terminal branch
+• Family & Color: Green (#408339)
+
+[goldenBackJade] Golden Back Jade
+• Rarity: Epic | Value: 150$
+• Parents: Green Jade
+• Breeds Into: Terminal branch
+• Family & Color: Green (#287a39)
+
+[emeraldGreen] Emerald
+• Rarity: Epic | Value: 150$
+• Parents: Green Jade
+• Breeds Into: Green Venom
+• Family & Color: Green (#287a39)
+
+[greenVenom] Green Venom
+• Rarity: Epic | Value: 150$
+• Parents: Emerald
+• Breeds Into: Terminal branch
+• Family & Color: Green (#062e0e)
+
+[lightGreen] Light Green
+• Rarity: Rare | Value: 10$
+• Parents: Orange Sakura
+• Breeds Into: Green Cantaloupe
+• Family & Color: Green (#81dd94)
+
+[greenCantaloupe] Green Cantaloupe
+• Rarity: Rare | Value: 10$
+• Parents: Light Green
+• Breeds Into: Hulk Orange
+• Family & Color: Green (#4fba43)
+
+[hulkOrange] Hulk Orange
+• Rarity: Rare | Value: 10$
+• Parents: Green Cantaloupe
+• Breeds Into: Terminal branch
+• Family & Color: Green (#4fba43)
+
+[brightGreen] Bright Green
+• Rarity: Rare | Value: 10$
+• Parents: Yellow Neon
+• Breeds Into: Terminal branch
+• Family & Color: Green (#54ec72)
+
+======================================================================
+6. SHOKO LINE
+======================================================================
+
+[shoko] Shoko
+• Rarity: Common | Value: 2$ | Shop: 400$
+• Parents: Neocaridina davidi WT / Wild Shoko Pattern
+• Breeds Into: Chocolate, Bloody Mary Grade A
+• Family & Color: Shoko (#895330)
+
+[chocolate] Chocolate
+• Rarity: Uncommon | Value: 5$
+• Parents: Shoko
+• Breeds Into: Blue Diamond, Black Diamond
+• Family & Color: Shoko (#65412f)
+
+[blackDiamond] Black Diamond
+• Rarity: Rare | Value: 10$
+• Parents: Chocolate
+• Breeds Into: Terminal branch
+• Family & Color: Shoko (#191919)
+
+[bloodyMaryA] Bloody Mary Grade A
+• Rarity: Rare | Value: 10$
+• Parents: Shoko
+• Breeds Into: Bloody Mary Grade S, Bloody Snowball
+• Family & Color: Shoko (#9e382e)
+
+[bloodyMaryS] Bloody Mary Grade S
+• Rarity: Rare | Value: 10$
+• Parents: Bloody Mary Grade A
+• Breeds Into: Terminal branch
+• Family & Color: Shoko (#a52d27)
+
+[bloodySnowball] Bloody Snowball
+• Rarity: Rare | Value: 10$
+• Parents: Bloody Mary Grade A + Red Rili cross
+• Breeds Into: Terminal branch
+• Family & Color: Shoko (#a52d27)
+
+[blueDiamond] Blue Diamond
+• Rarity: Rare | Value: 10$
+• Parents: Chocolate
+• Breeds Into: Topaz
+• Family & Color: Shoko (#303d91)
+
+[topaz] Topaz
+• Rarity: Rare | Value: 10$
+• Parents: Blue Diamond
+• Breeds Into: Terminal branch
+• Family & Color: Shoko (#273a9d)
+
+======================================================================
+7. DEEP BLUE & CARBON RILI LINE
+======================================================================
+
+[deepBlueNeo] Deep Blue Neo
+• Rarity: Rare | Value: 10$ | Shop: 3,000$
+• Parents: Neocaridina davidi WT / Wild Deep Blue Pattern
+• Breeds Into: Black Rose Sakura, Carbon Rili, Blue Velvet
+• Family & Color: Deep Blue (#24314c)
+
+[blackRose] Black Rose Sakura
+• Rarity: Rare | Value: 10$
+• Parents: Deep Blue Neo
+• Breeds Into: Terminal branch
+• Family & Color: Deep Blue (#191919)
+
+[carbonRili] Carbon Rili
+• Rarity: Rare | Value: 10$
+• Parents: Deep Blue Neo
+• Breeds Into: Blue Carbon Rili Grade A
+• Family & Color: Deep Blue (#30323d)
+
+[carbonRiliA] Blue Carbon Rili Grade A
+• Rarity: Rare | Value: 10$
+• Parents: Carbon Rili
+• Breeds Into: Blue Carbon Rili Grade S, Carbon Rili Gold Back
+• Family & Color: Deep Blue (#344e6d)
+
+[carbonRiliS] Blue Carbon Rili Grade S
+• Rarity: Rare | Value: 10$
+• Parents: Blue Carbon Rili Grade A
+• Breeds Into: Blue Dream, Blue Velvet, Sky Blue Velvet
+• Family & Color: Deep Blue (#536d91)
+
+[carbonRiliGoldBack] Carbon Rili Gold Back
+• Rarity: Rare | Value: 10$
+• Parents: Blue Carbon Rili Grade A
+• Breeds Into: Terminal branch
+• Family & Color: Deep Blue (#4a4a4f)
+
+[blueVelvet] Blue Velvet
+• Rarity: Uncommon | Value: 5$
+• Parents: Deep Blue Neo / Blue Carbon Rili Grade S / Blue Rili
+• Breeds Into: Sky Blue Velvet, Blue Sapphire
+• Family & Color: Deep Blue (#2374a8)
+
+[blueSapphire] Blue Sapphire
+• Rarity: Uncommon | Value: 5$
+• Parents: Blue Velvet
+• Breeds Into: Terminal branch
+• Family & Color: Deep Blue (#2374a8)
+
+[skyBlueVelvet] Sky Blue Velvet
+• Rarity: Uncommon | Value: 5$
+• Parents: Blue Velvet, Blue Carbon Rili Grade S
+• Breeds Into: Terminal branch
+• Family & Color: Deep Blue (#87ceeb)
+
+[blueDream] Blue Dream
+• Rarity: Uncommon | Value: 5$
+• Parents: Blue Carbon Rili Grade S
+• Breeds Into: Terminal branch
+• Family & Color: Deep Blue (#87ceeb)
+
+======================================================================
+8. NEOCARIDINA PALMATA LINE
+======================================================================
+
+[whitePearl] White Pearl / Snowball
+• Rarity: Uncommon | Value: 5$
+• Parents: Neocaridina palmata WT
+• Breeds Into: Terminal branch
+• Family & Color: Palmata (#e5dfc8)
+
+[bluePearl] Blue Pearl
+• Rarity: Rare | Value: 10$
+• Parents: Neocaridina palmata WT
+• Breeds Into: Amber Pearl
+• Family & Color: Palmata (#73b9d0)
+
+[amberPearl] Amber Pearl
+• Rarity: Epic | Value: 150$
+• Parents: Blue Pearl
+• Breeds Into: Terminal branch
+• Family & Color: Palmata (#c7a75a)
+
+======================================================================
+9. CARIDINA BABAULTI LINE
+======================================================================
+
+[babaultiWild] Caridina babaulti Wild
+• Rarity: Common | Value: 2$ | Shop: 1,050$
+• Parents: Wild ancestor base
+• Breeds Into: Caridina babaulti Brown
+• Family & Color: Babaulti (#6e473b)
+
+[babaultiBrown] Caridina babaulti Brown
+• Rarity: Uncommon | Value: 5$
+• Parents: Caridina babaulti Wild
+• Breeds Into: Caridina babaulti Green, Caridina babaulti Malaya, Caridina babaulti Stripes
+• Family & Color: Babaulti (#6e473b)
+
+[babaultiGreen] Caridina babaulti Green
+• Rarity: Uncommon | Value: 5$
+• Parents: Caridina babaulti Brown
+• Breeds Into: Terminal branch
+• Family & Color: Babaulti (#387c44)
+
+[babaultiMalaya] Caridina babaulti Malaya
+• Rarity: Rare | Value: 10$
+• Parents: Caridina babaulti Brown
+• Breeds Into: Terminal branch
+• Family & Color: Babaulti (#a06d4e)
+
+[babaultiStripes] Caridina babaulti Stripes
+• Rarity: Rare | Value: 10$
+• Parents: Caridina babaulti Brown
+• Breeds Into: Terminal branch
+• Family & Color: Babaulti (#4a3c31)
+
+======================================================================
+10. EXOTIC & LEGENDARY LINE
+======================================================================
+
+[amanoShrimp] Amano Shrimp
+• Rarity: Epic | Value: 2500$ | Shop: 9500$
+• Parents: Wild catch / Standalone species
+• Breeds Into: Terminal branch
+• Family & Color: Amano (#b0c4de)
+
+[bambooShrimp] Bamboo Shrimp
+• Rarity: Legendary | Value: 2500$ | Shop: 7000$
+• Parents: Wild catch / Filter feeder
+• Breeds Into: Terminal branch
+• Family & Color: Bamboo (#c08a55)
+
+[legendaryScud] Legendary Scud
+• Rarity: Legendary | Value: 2500$ | Shop: 8500$
+• Parents: Wild catch / Ancient amphipod
+• Breeds Into: Terminal branch
+• Family & Color: Scud (#8fa382)
+
+[redCrawfish] Red Crawfish
+• Rarity: Legendary | Value: 2500$ | Shop: 11000$
+• Parents: Wild catch / Crustacean apex
+• Breeds Into: Blue Crawfish
+• Family & Color: Crawfish (#c0392b)
+
+[blueCrawfish] Blue Crawfish
+• Rarity: Legendary | Value: 2500$
+• Parents: Red Crawfish
+• Breeds Into: Terminal branch
+• Family & Color: Crawfish (#2980b9)
+
+[redNose] Rudolph Red Nose Shrimp
+• Rarity: Legendary | Value: 2500$ | Shop: 12500$
+• Parents: Wild catch / Estuarine brackish
+• Breeds Into: Terminal branch
+• Family & Color: Red Nose (#d63031)
+
+[galaxySulawesi] Galaxy Sulawesi
+• Rarity: Legendary | Value: 2500$ | Shop: 13000$
+• Parents: Wild catch / Ancient lake endemic
+• Breeds Into: Terminal branch
+• Family & Color: Sulawesi (#0f52ba)
+
+[vampireShrimp] Vampire Shrimp
+• Rarity: Legendary | Value: 2500$ | Shop: 15000$
+• Parents: Wild catch / Giant African filter feeder
+• Breeds Into: Terminal branch
+• Family & Color: Vampire (#4a6984)

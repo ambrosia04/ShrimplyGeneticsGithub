@@ -1,0 +1,102 @@
+======================================================================
+                  SHRIMPLY GENETICS - PLAYER'S GUIDE
+======================================================================
+
+1. GETTING STARTED
+------------------
+- Open "index.html" in your web browser.
+- Click "Play" on the title screen.
+- You begin with $100. Open the "Shop" tab (Hotkey: S) and buy your first
+  pair of shrimp (e.g., up to 4 Red Cherry).
+- It has a system so 1 every 3 consecutive genders is the other!
+
+1.5. SPOILER WARNING
+------------------
+- If you want to learn as you play, stop reading here and explore!
+- If you like knowing what does what, keep reading to your heart's content!
+
+2. BREEDING & SADDLES
+---------------------
+- Mature female shrimp develop a "Saddle" on their back (unfertilized eggs).
+- Breeding checks occur automatically every minute (or faster at higher speeds).
+- If a compatible adult male is in the tank, the female will become "Berried" 
+  (pregnant) and carry eggs underneath her tail.
+- Once the pregnancy timer completes, an exclamation icon (!) will appear
+  above her. Click her to open the Culling / Birth menu.
+
+
+3. CULLING & GENETICS
+---------------------
+- Each baby inherits one allele from the mother and one from the father.
+- Dominant colors display physically, but recessive alleles are hidden.
+- In the Culling menu, inspect your baby shrimp:
+    * "NEW" badges indicate an undiscovered species or allele.
+    * Use the dropdowns to filter by specific allele, species, or gender.
+    * Use "Keep" to move them into your tank or "Sell" to earn cash.
+    * Keyboard shortcuts: Left Arrow (Keep All) / Right Arrow (Sell All).
+
+
+4. TANK CAPACITY & EXPANSION
+----------------------------
+- Your starter tank holds up to 50 shrimp.
+- If the tank is full, you cannot keep new babies until you sell older shrimp
+  or upgrade your tank in the Shop.
+- Unlock the "Favorites Tank" in the Shop to create a secondary breeding tank
+  holding up to 100 prized shrimp when fully upgraded. Transfer shrimp by clicking the star (★)
+  on their profile.
+
+
+5. EARNING MONEY
+----------------
+- Sell adult shrimp: Older and pregnant shrimp sell for bonus money.
+- Culling: Sell unwanted shrimplets to earn a bit of money.
+- Food Preparation: Click "Prep Shrimp Food" in the bottom control panel
+  to play cooking minigames and earn up to $30 per session.
+- Unlock Arcades: Purchase the Evolution Console or Clado Scanner in the
+  Shop to unlock bonus arcade minigames.
+- Daily Income: You receive daily income for every 24 in-game hours passed.
+
+
+6. SAVING YOUR PROGRESS & IMPORTANT WARNINGS
+--------------------------------------------
+- The game automatically saves when you make purchases or cull babies,
+  as well as when you press the "Save" or "Save & Exit" buttons.
+
+- [WARNING] ALWAYS SAVE MANUALLY BEFORE CLOSING:
+  Closing the tab or browser directly will NOT automatically save
+  unsaved progress. Always click the "Save" or "Save & Exit" button
+  in the top bar before leaving the game!
+
+- [WARNING] CLEARING BROWSER CACHE / SITE DATA:
+  Your aquarium progress is saved inside your browser's local storage.
+  If you clear your browser cache, cookies, or website data, YOUR
+  SAVE FILE WILL BE PERMANENTLY ERASED.
+
+- [WARNING] INCOGNITO / PRIVATE BROWSING:
+  Never play long-term sessions in Private/Incognito mode, as the
+  browser will automatically wipe all data when the window closes.
+
+======================================================================
+UPGRADES AND LEGENDARY SHRIMP SPOILERS BELOW
+======================================================================
+
+7. PLANT UPGRADES & PASSIVE BONUSES
+-----------------------------------
+- Christmas Moss: Males can breed up to 2 females per check.
+- Amazon Frogbit: Reduces female resting time by 15%.
+- Java Moss: Reduces pregnancy duration by 15%.
+- Water Sprite: Increases the number of babies born per clutch by 15%.
+- Hornwort: Shrimp mature 15% faster.
+- Mutation Algae & Marimo Balls: Boost genetic mutation chances.
+
+
+8. SPECIES SPECIAL ABILITIES
+----------------------------
+- Bamboo Shrimp: Generates passive income ($2/min per live adult).
+- Legendary Scud: Speeds up maturation by 10% for all shrimp in the tank.
+- Red Crawfish: Increases sale values of other shrimp in the tank by +10%.
+- Blue Crawfish: Reduces pregnancy duration by 15%.
+- Rudolph Red Nose: Reduces female rest time by 20%.
+- Vampire Shrimp: Increases tank capacity by +5 per shrimp.
+- Galaxy Sulawesi: Increases mutation rate by +5%.
+======================================================================
