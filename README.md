@@ -6,14 +6,8 @@ A cozy, browser-based aquarium management and genetics simulation game where you
 
 ## 🚀 How to Run the Game
 
-### Method 1: Direct in Browser (Simplest)
-1. Double-click `index.html` or drag-and-drop it into any modern web browser (Chrome, Firefox, Edge, Safari, Opera).
-
-### Method 2: Local Web Server
-Running via a local web server prevents browser security restrictions on local asset loading. In return you have to keep the environment opened:
-- **VS Code**: Install the *Live Server* extension, right-click `index.html`, and click **"Open with Live Server"**.
-- **Python**: Run `python -m http.server 8000` in the game folder and open `http://localhost:8000`.
-- **Node.js**: Run `npx serve` in the project folder.
+### Direct in Browser
+https://ambrosia04.github.io/ShrimplyGeneticsGithub/
 
 ---
 
