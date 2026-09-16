@@ -27,9 +27,8 @@ https://ambrosia04.github.io/ShrimplyGeneticsGithub/
 - **Offline Progression**: Your aquarium continues to age and breed while you are away (up to 7 days of offline time).
 - **Interactive Minigames**:
   - **Food Preparation**: Chop cucumbers, blanch slices, defrost brine shrimp, and measure food pellets to earn starter cash.
-  - **Evolution Arcade ("Push 'em back")**: Defend the surface against jumping shrimp.
-  - **Clado Scanner**: Identify and quarantine parasitic infections under the microscope.
-- **Dual Aquarium Management**: Unlock and upgrade a separate **Favorites Tank** to isolate prized breeding pairs.
+  - **2 more games to be dscovered!**
+- **Multiple Aquarium Management**: Unlock and upgrade a separate **Favorites Tank** to isolate prized breeding pairs as well as multiple tanks to make the selective breeding easier.
 - **Aquarium Customization**: Buy aquatic plants (Java Moss, Frogbit, Hornwort, Christmas Moss, Marimo Balls) that provide passive breeding and growth boosts.
 - **Full Keyboard Shortcuts**: Rebindable hotkeys for tabs, speed toggles, and culling actions.
 - **Dark Mode & BGM/SFX Volume Controls**: Built-in audio manager and theme toggles.
