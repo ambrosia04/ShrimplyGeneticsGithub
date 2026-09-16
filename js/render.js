@@ -43,6 +43,26 @@ function renderHeader() {
     }
   }
 
+  // Target Alleles Dropdown Visibility (Requires "firstBirth" achievement)
+  const hasFirstBirth = game.achievements && game.achievements.includes("firstBirth");
+  
+  const trackedContainer = document.getElementById("trackedAllelesContainer");
+  toggleVisible(trackedContainer, hasFirstBirth, "inline-block");
+
+  const trackedShrimpContainer = document.getElementById("trackedShrimpContainer");
+  toggleVisible(trackedShrimpContainer, hasFirstBirth, "inline-block");
+
+  // Update button label counters on frame render
+  const trackedLabel = document.getElementById("trackedAllelesBtnLabel");
+  if (trackedLabel && game && game.trackedAlleles) {
+    trackedLabel.textContent = `Target Alleles (${game.trackedAlleles.length})`;
+  }
+
+  const trackedShrimpLabel = document.getElementById("trackedShrimpBtnLabel");
+  if (trackedShrimpLabel && game && game.trackedSpecies) {
+    trackedShrimpLabel.textContent = `Target Shrimp (${game.trackedSpecies.length})`;
+  }
+
   if (tankDropdown) {
     if (!hasMultipleTanks) {
       tankDropdown.classList.add("hidden");

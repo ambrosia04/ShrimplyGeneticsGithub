@@ -211,6 +211,8 @@ function createNewGame() {
         favoritesTankLevel: 0,
         activeAquarium: "main",
         purchaseGenderHistory: [],
+        trackedAlleles: [],
+        trackedSpecies: [],
         shortcuts: { ...DEFAULT_SHORTCUTS }
     };
 }
@@ -255,6 +257,8 @@ function loadGame() {
         if (game.favoritesTankUnlocked === undefined) game.favoritesTankUnlocked = false;
         if (game.favoritesTankLevel === undefined) game.favoritesTankLevel = 0;
         if (game.purchaseGenderHistory === undefined) game.purchaseGenderHistory = [];
+        if (!game.trackedAlleles) game.trackedAlleles = [];
+        if (!game.trackedSpecies) game.trackedSpecies = [];
 
         if (!game.shortcuts) {
             game.shortcuts = { ...DEFAULT_SHORTCUTS };
@@ -337,6 +341,259 @@ function loadGame() {
         game = createNewGame();
     }
 }
+
+
+/* =========================================================
+   TRACKED TARGET ALLELES ENGINE
+========================================================= */
+
+function renderTrackedAllelesList() {
+    const list = document.getElementById("trackedAllelesList");
+    const label = document.getElementById("trackedAllelesBtnLabel");
+    const selectAllCheckbox = document.getElementById("selectAllTrackedAlleles");
+    const searchInput = document.getElementById("trackedAllelesSearch");
+    if (!list || !game || !game.discoveredAlleles) return;
+
+    if (!game.trackedAlleles) game.trackedAlleles = [];
+
+    const count = game.trackedAlleles.length;
+    if (label) label.textContent = `Target Alleles (${count})`;
+
+    const filterText = searchInput ? searchInput.value.toLowerCase().trim() : "";
+    const discovered = [...game.discoveredAlleles];
+
+    // Check if all discovered are selected
+    if (selectAllCheckbox) {
+        selectAllCheckbox.checked = discovered.length > 0 && discovered.every(a => game.trackedAlleles.includes(a));
+    }
+
+    list.innerHTML = "";
+
+    discovered.forEach(alleleId => {
+        const data = SHRRIMP_SAFE(alleleId);
+        const name = data.name;
+
+        if (filterText && !name.toLowerCase().includes(filterText)) {
+            return;
+        }
+
+        const item = document.createElement("label");
+        item.className = "multi-select-item";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = game.trackedAlleles.includes(alleleId);
+
+        checkbox.addEventListener("change", () => {
+            if (checkbox.checked) {
+                if (!game.trackedAlleles.includes(alleleId)) {
+                    game.trackedAlleles.push(alleleId);
+                }
+            } else {
+                game.trackedAlleles = game.trackedAlleles.filter(a => a !== alleleId);
+            }
+            if (label) label.textContent = `Target Alleles (${game.trackedAlleles.length})`;
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = discovered.length > 0 && discovered.every(a => game.trackedAlleles.includes(a));
+            }
+            saveGame();
+        });
+
+        const span = document.createElement("span");
+        span.textContent = name;
+
+        item.appendChild(checkbox);
+        item.appendChild(span);
+        list.appendChild(item);
+    });
+
+    if (list.children.length === 0) {
+        list.innerHTML = `<div class="small-text" style="padding: 8px; text-align: center;">No matching alleles.</div>`;
+    }
+}
+
+// Setup Event Listeners for the Target Alleles Dropdown
+function setupTrackedAllelesDropdown() {
+    const btn = document.getElementById("trackedAllelesBtn");
+    const menu = document.getElementById("trackedAllelesMenu");
+    const searchInput = document.getElementById("trackedAllelesSearch");
+    const selectAllBtn = document.getElementById("selectAllTrackedAllelesBtn");
+    const deselectAllBtn = document.getElementById("deselectAllTrackedAllelesBtn");
+
+    if (btn && menu) {
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            playBtnSound();
+            const isHidden = menu.classList.toggle("hidden");
+            if (!isHidden) {
+                renderTrackedAllelesList();
+                if (searchInput) searchInput.focus();
+            }
+        });
+
+        menu.addEventListener("click", (e) => {
+            e.stopPropagation();
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!menu.contains(e.target) && !btn.contains(e.target)) {
+                menu.classList.add("hidden");
+            }
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener("input", () => {
+            renderTrackedAllelesList();
+        });
+    }
+
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            playBtnSound();
+            game.trackedAlleles = [...game.discoveredAlleles];
+            saveGame();
+            renderTrackedAllelesList();
+        });
+    }
+
+    if (deselectAllBtn) {
+        deselectAllBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            playBtnSound();
+            game.trackedAlleles = [];
+            saveGame();
+            renderTrackedAllelesList();
+        });
+    }
+}
+
+
+/* =========================================================
+   TRACKED TARGET SHRIMP (SPECIES) ENGINE
+========================================================= */
+
+function renderTrackedShrimpList() {
+    const list = document.getElementById("trackedShrimpList");
+    const label = document.getElementById("trackedShrimpBtnLabel");
+    const selectAllCheckbox = document.getElementById("selectAllTrackedShrimp");
+    const searchInput = document.getElementById("trackedShrimpSearch");
+    if (!list || !game || !game.discovered) return;
+
+    if (!game.trackedSpecies) game.trackedSpecies = [];
+
+    const count = game.trackedSpecies.length;
+    if (label) label.textContent = `Target Shrimp (${count})`;
+
+    const filterText = searchInput ? searchInput.value.toLowerCase().trim() : "";
+    const discovered = [...game.discovered];
+
+    if (selectAllCheckbox) {
+        selectAllCheckbox.checked = discovered.length > 0 && discovered.every(s => game.trackedSpecies.includes(s));
+    }
+
+    list.innerHTML = "";
+
+    discovered.forEach(speciesId => {
+        const data = SHRIMP[speciesId] || WILD_PATTERNS[speciesId] || { name: speciesId };
+        const name = data.name;
+
+        if (filterText && !name.toLowerCase().includes(filterText)) {
+            return;
+        }
+
+        const item = document.createElement("label");
+        item.className = "multi-select-item";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = game.trackedSpecies.includes(speciesId);
+
+        checkbox.addEventListener("change", () => {
+            if (checkbox.checked) {
+                if (!game.trackedSpecies.includes(speciesId)) {
+                    game.trackedSpecies.push(speciesId);
+                }
+            } else {
+                game.trackedSpecies = game.trackedSpecies.filter(s => s !== speciesId);
+            }
+            if (label) label.textContent = `Target Shrimp (${game.trackedSpecies.length})`;
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = discovered.length > 0 && discovered.every(s => game.trackedSpecies.includes(s));
+            }
+            saveGame();
+        });
+
+        const span = document.createElement("span");
+        span.textContent = name;
+
+        item.appendChild(checkbox);
+        item.appendChild(span);
+        list.appendChild(item);
+    });
+
+    if (list.children.length === 0) {
+        list.innerHTML = `<div class="small-text" style="padding: 8px; text-align: center;">No matching shrimp.</div>`;
+    }
+}
+
+function setupTrackedShrimpDropdown() {
+    const btn = document.getElementById("trackedShrimpBtn");
+    const menu = document.getElementById("trackedShrimpMenu");
+    const searchInput = document.getElementById("trackedShrimpSearch");
+    const selectAllBtn = document.getElementById("selectAllTrackedShrimpBtn");
+    const deselectAllBtn = document.getElementById("deselectAllTrackedShrimpBtn");
+
+    if (btn && menu) {
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            playBtnSound();
+            const isHidden = menu.classList.toggle("hidden");
+            if (!isHidden) {
+                renderTrackedShrimpList();
+                if (searchInput) searchInput.focus();
+            }
+        });
+
+        menu.addEventListener("click", (e) => {
+            e.stopPropagation();
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!menu.contains(e.target) && !btn.contains(e.target)) {
+                menu.classList.add("hidden");
+            }
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener("input", () => {
+            renderTrackedShrimpList();
+        });
+    }
+
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            playBtnSound();
+            game.trackedSpecies = [...game.discovered];
+            saveGame();
+            renderTrackedShrimpList();
+        });
+    }
+
+    if (deselectAllBtn) {
+        deselectAllBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            playBtnSound();
+            game.trackedSpecies = [];
+            saveGame();
+            renderTrackedShrimpList();
+        });
+    }
+}
+
 
 /* =========================================================
    DYNAMIC SHORTCUT CONFIGURATION ENGINE
@@ -1798,19 +2055,19 @@ function showMoveSelectedModal() {
         <p class="small-text">Select which aquarium tank you would like to transfer your selected shrimp to.</p>
         <div class="cull-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
             ${destinationTanks.map(tankId => {
-                const isCurrent = tankId === currentTank;
-                const tankCount = game.shrimp.filter(s => (s.tank || "tank1") === tankId && !s.dead).length;
-                const tankCap = getTankCapacity(tankId);
-                const remainingSpace = Math.max(0, tankCap - tankCount);
-                const canFitAll = remainingSpace >= selectedCount;
-                const isFull = remainingSpace === 0;
+        const isCurrent = tankId === currentTank;
+        const tankCount = game.shrimp.filter(s => (s.tank || "tank1") === tankId && !s.dead).length;
+        const tankCap = getTankCapacity(tankId);
+        const remainingSpace = Math.max(0, tankCap - tankCount);
+        const canFitAll = remainingSpace >= selectedCount;
+        const isFull = remainingSpace === 0;
 
-                let badge = `<span style="color: var(--success); font-weight: bold;">Space: +${remainingSpace}</span>`;
-                if (isCurrent) badge = `<span style="color: var(--muted); font-weight: bold;">(Current Tank)</span>`;
-                else if (isFull) badge = `<span style="color: var(--danger); font-weight: bold;">(Full: 0 space)</span>`;
-                else if (!canFitAll) badge = `<span style="color: var(--danger); font-weight: bold;">(Only ${remainingSpace} can fit)</span>`;
+        let badge = `<span style="color: var(--success); font-weight: bold;">Space: +${remainingSpace}</span>`;
+        if (isCurrent) badge = `<span style="color: var(--muted); font-weight: bold;">(Current Tank)</span>`;
+        else if (isFull) badge = `<span style="color: var(--danger); font-weight: bold;">(Full: 0 space)</span>`;
+        else if (!canFitAll) badge = `<span style="color: var(--danger); font-weight: bold;">(Only ${remainingSpace} can fit)</span>`;
 
-                return `
+        return `
                     <div class="cull-row" style="justify-content: space-between; padding: 12px 16px;">
                         <div>
                             <strong>${formatTankName(tankId)}</strong>
@@ -1824,7 +2081,7 @@ function showMoveSelectedModal() {
                         </button>
                     </div>
                 `;
-            }).join("")}
+    }).join("")}
         </div>
     `;
 
@@ -2142,45 +2399,105 @@ function showCullModal(female) {
 
     content.innerHTML = "";
 
+    // 1. Sleek Compact Header Title
+    const headerRow = document.createElement("div");
+    headerRow.style.display = "flex";
+    headerRow.style.justifyContent = "space-between";
+    headerRow.style.alignItems = "baseline";
+    headerRow.style.marginRight = "25px";
+    headerRow.style.marginBottom = "4px";
+
     const title = document.createElement("h2");
     title.textContent = "Time to cull";
-    content.appendChild(title);
+    title.style.margin = "0";
+    title.style.fontSize = "20px";
+    headerRow.appendChild(title);
 
-    const desc = document.createElement("p");
+    const desc = document.createElement("span");
     desc.className = "small-text";
-    desc.textContent = `These offspring were born from ${displayName(female)}.`;
-    content.appendChild(desc);
+    desc.style.fontSize = "12px";
+    desc.textContent = `Offspring from ${displayName(female)}`;
+    headerRow.appendChild(desc);
+
+    content.appendChild(headerRow);
 
     const hasNewShrimp = female.pendingBabies.some(baby => !game.discovered.includes(baby.species));
     const hasNewAllele = female.pendingBabies.some(baby => !game.discoveredAlleles.includes(baby.hiddenGenes.allele1) || !game.discoveredAlleles.includes(baby.hiddenGenes.allele2));
 
-    if (modalBox) {
-        modalBox.classList.add("modal-box-fixed");
-        modalBox.style.height = (hasNewShrimp || hasNewAllele) ? "640px" : "";
+    // Check for tracked target alleles & target shrimp in this clutch
+    const trackedAllelesPresent = new Set();
+    if (game.trackedAlleles && game.trackedAlleles.length > 0) {
+        female.pendingBabies.forEach(b => {
+            if (game.trackedAlleles.includes(b.hiddenGenes.allele1)) trackedAllelesPresent.add(SHRRIMP_SAFE(b.hiddenGenes.allele1).name);
+            if (game.trackedAlleles.includes(b.hiddenGenes.allele2)) trackedAllelesPresent.add(SHRRIMP_SAFE(b.hiddenGenes.allele2).name);
+        });
     }
 
+    const trackedShrimpPresent = new Set();
+    if (game.trackedSpecies && game.trackedSpecies.length > 0) {
+        female.pendingBabies.forEach(b => {
+            if (game.trackedSpecies.includes(b.species)) {
+                const sName = (SHRIMP[b.species] || WILD_PATTERNS[b.species] || { name: b.species }).name;
+                trackedShrimpPresent.add(sName);
+            }
+        });
+    }
+
+    const hasAnyTarget = trackedAllelesPresent.size > 0 || trackedShrimpPresent.size > 0;
+
+    if (modalBox) {
+        modalBox.classList.add("modal-box-fixed");
+    }
+
+    // 2. Compact Target Warning Banner
+    if (hasAnyTarget) {
+        const targetNotice = document.createElement("div");
+        targetNotice.style.margin = "3px 0 4px 0";
+        targetNotice.style.padding = "5px 10px";
+        targetNotice.style.borderRadius = "7px";
+        targetNotice.style.border = "1.5px solid #d47b32";
+        targetNotice.style.background = "rgba(212, 123, 50, 0.16)";
+        targetNotice.style.color = "var(--text)";
+        targetNotice.style.fontSize = "11px";
+        targetNotice.style.fontWeight = "bold";
+
+        let noticeMsg = `${icon("shrimp")} `;
+        if (trackedShrimpPresent.size > 0 && trackedAllelesPresent.size > 0) {
+            noticeMsg += `<strong>Target Detected:</strong> Shrimp [<u>${Array.from(trackedShrimpPresent).join(", ")}</u>] & Alleles [<u>${Array.from(trackedAllelesPresent).join(", ")}</u>] in this clutch!`;
+        } else if (trackedShrimpPresent.size > 0) {
+            noticeMsg += `<strong>Target Shrimp Detected:</strong> <u>${Array.from(trackedShrimpPresent).join(", ")}</u> present in this clutch!`;
+        } else {
+            noticeMsg += `<strong>Target Alleles Detected:</strong> <u>${Array.from(trackedAllelesPresent).join(", ")}</u> present in this clutch!`;
+        }
+
+        targetNotice.innerHTML = noticeMsg;
+        content.appendChild(targetNotice);
+    }
+
+    // ✨ New Variant / Allele Banner (Matching Green accent background)
     if (hasNewShrimp || hasNewAllele) {
         const noticeBox = document.createElement("div");
-        noticeBox.style.margin = "4px 0 10px 0";
-        noticeBox.style.padding = "6px 12px";
-        noticeBox.style.borderRadius = "6px";
-        noticeBox.style.border = "1px solid var(--border)";
-        noticeBox.style.background = "rgba(82, 165, 108, 0.08)";
+        noticeBox.style.margin = "3px 0 4px 0";
+        noticeBox.style.padding = "5px 10px";
+        noticeBox.style.borderRadius = "7px";
+        noticeBox.style.border = "1.5px solid #52a56c";
+        noticeBox.style.background = "rgba(82, 165, 108, 0.16)";
         noticeBox.style.color = "var(--text)";
-        noticeBox.style.fontSize = "12px";
+        noticeBox.style.fontSize = "11px";
         noticeBox.style.fontWeight = "bold";
 
         let noticeText = "✨ ";
         if (hasNewShrimp && hasNewAllele) {
-            noticeText += "<strong>New Shrimp Variant & Allele detected!</strong> Keep them to expand collection & genetics.";
+            noticeText += "<strong>New Variant & Allele detected!</strong> Keep them to expand collection & genetics.";
         } else if (hasNewShrimp) {
-            noticeText += "<strong>New Shrimp Variant detected!</strong> Keep them to unlock them in your collection.";
+            noticeText += "<strong>New Variant detected!</strong> Keep them to unlock them in your collection.";
         } else if (hasNewAllele) {
             noticeText += "<strong>New Genetic Allele detected!</strong> Keep them to sequence their lineage.";
         }
         noticeBox.innerHTML = noticeText;
         content.appendChild(noticeBox);
     }
+
 
     // Ensure cullFilters state exists and retains selections
     if (!FOOD_PREP.cullFilters) {
@@ -2194,6 +2511,7 @@ function showCullModal(female) {
     const presentTypes = new Set();
     const presentGenders = new Set();
     female.pendingBabies.forEach(baby => {
+        if (!matchesCullFilters(baby)) return;
         if (baby.hiddenGenes) {
             if (baby.hiddenGenes.allele1) presentAlleles.add(baby.hiddenGenes.allele1);
             if (baby.hiddenGenes.allele2) presentAlleles.add(baby.hiddenGenes.allele2);
@@ -2217,21 +2535,25 @@ function showCullModal(female) {
     bulkRow.style.display = "flex";
     bulkRow.style.justifyContent = "space-between";
     bulkRow.style.alignItems = "center";
-    bulkRow.style.gap = "15px";
+    bulkRow.style.gap = "8px";
     bulkRow.style.flexWrap = "wrap";
 
     const buttonsContainer = document.createElement("div");
     buttonsContainer.style.display = "flex";
-    buttonsContainer.style.gap = "10px";
+    buttonsContainer.style.gap = "6px";
 
     const keepAllBtn = document.createElement("button");
     keepAllBtn.className = "primary-button";
+    keepAllBtn.style.padding = "5px 10px";
+    keepAllBtn.style.fontSize = "12px";
     keepAllBtn.textContent = "Keep All (←)";
     keepAllBtn.addEventListener("click", () => cullKeepAll(female.id));
     buttonsContainer.appendChild(keepAllBtn);
 
     const sellAllBtn = document.createElement("button");
     sellAllBtn.className = "danger-button";
+    sellAllBtn.style.padding = "5px 10px";
+    sellAllBtn.style.fontSize = "12px";
     sellAllBtn.textContent = "Sell All (→)";
     sellAllBtn.addEventListener("click", () => cullSellAll(female.id));
     buttonsContainer.appendChild(sellAllBtn);
@@ -2240,24 +2562,24 @@ function showCullModal(female) {
 
     const filtersContainer = document.createElement("div");
     filtersContainer.style.display = "flex";
-    filtersContainer.style.gap = "8px";
+    filtersContainer.style.gap = "6px";
     filtersContainer.style.alignItems = "center";
     filtersContainer.style.flexWrap = "wrap";
 
-    // 1. Destination Tank Dropdown (shown if player has more than 1 tank or unlocked favorites)
+    // 1. Destination Tank Dropdown
     const unlockedTanks = getUnlockedTanks();
     if (unlockedTanks.length > 1 || game.favoritesTankUnlocked) {
         const tankSelect = document.createElement("select");
         tankSelect.className = "secondary-button";
-        tankSelect.style.padding = "6px 10px";
-        tankSelect.style.fontSize = "13px";
+        tankSelect.style.padding = "4px 8px";
+        tankSelect.style.fontSize = "12px";
         tankSelect.style.cursor = "pointer";
-        tankSelect.style.borderRadius = "8px";
+        tankSelect.style.borderRadius = "6px";
         tankSelect.style.border = "1.5px solid var(--border)";
 
         unlockedTanks.forEach(t => {
             const count = game.shrimp.filter(s => (s.tank || "tank1") === t && !s.dead).length;
-            const cap = getTankCapacity(t); // dynamically includes +5 per Vampire Shrimp
+            const cap = getTankCapacity(t);
             const opt = document.createElement("option");
             opt.value = t;
             opt.textContent = `Dest: ${formatTankName(t)} (${count}/${cap})`;
@@ -2285,10 +2607,10 @@ function showCullModal(female) {
     // 2. Allele Filter Dropdown
     const alleleSelect = document.createElement("select");
     alleleSelect.className = "secondary-button";
-    alleleSelect.style.padding = "6px 10px";
-    alleleSelect.style.fontSize = "13px";
+    alleleSelect.style.padding = "4px 8px";
+    alleleSelect.style.fontSize = "12px";
     alleleSelect.style.cursor = "pointer";
-    alleleSelect.style.borderRadius = "8px";
+    alleleSelect.style.borderRadius = "6px";
     alleleSelect.style.border = "1.5px solid var(--border)";
 
     const allAllelesOpt = document.createElement("option");
@@ -2313,10 +2635,10 @@ function showCullModal(female) {
     // 3. Type Filter Dropdown
     const typeSelect = document.createElement("select");
     typeSelect.className = "secondary-button";
-    typeSelect.style.padding = "6px 10px";
-    typeSelect.style.fontSize = "13px";
+    typeSelect.style.padding = "4px 8px";
+    typeSelect.style.fontSize = "12px";
     typeSelect.style.cursor = "pointer";
-    typeSelect.style.borderRadius = "8px";
+    typeSelect.style.borderRadius = "6px";
     typeSelect.style.border = "1.5px solid var(--border)";
 
     const allTypesOpt = document.createElement("option");
@@ -2341,10 +2663,10 @@ function showCullModal(female) {
     // 4. Gender Filter Dropdown
     const genderSelect = document.createElement("select");
     genderSelect.className = "secondary-button";
-    genderSelect.style.padding = "6px 10px";
-    genderSelect.style.fontSize = "13px";
+    genderSelect.style.padding = "4px 8px";
+    genderSelect.style.fontSize = "12px";
     genderSelect.style.cursor = "pointer";
-    genderSelect.style.borderRadius = "8px";
+    genderSelect.style.borderRadius = "6px";
     genderSelect.style.border = "1.5px solid var(--border)";
 
     const allGendersOpt = document.createElement("option");
@@ -2604,14 +2926,43 @@ window.cullSellAll = function (femaleId) {
         !game.discoveredAlleles.includes(baby.hiddenGenes.allele2)
     );
 
-    if (hasNewShrimp || hasNewAllele) {
+    // Check for target alleles in matching babies
+    const trackedAllelesPresent = new Set();
+    if (game.trackedAlleles && game.trackedAlleles.length > 0) {
+        matchingBabies.forEach(b => {
+            if (game.trackedAlleles.includes(b.hiddenGenes.allele1)) trackedAllelesPresent.add(SHRRIMP_SAFE(b.hiddenGenes.allele1).name);
+            if (game.trackedAlleles.includes(b.hiddenGenes.allele2)) trackedAllelesPresent.add(SHRRIMP_SAFE(b.hiddenGenes.allele2).name);
+        });
+    }
+
+    // Check for target shrimp variants in matching babies
+    const trackedShrimpPresent = new Set();
+    if (game.trackedSpecies && game.trackedSpecies.length > 0) {
+        matchingBabies.forEach(b => {
+            if (game.trackedSpecies.includes(b.species)) {
+                const sName = (SHRIMP[b.species] || WILD_PATTERNS[b.species] || { name: b.species }).name;
+                trackedShrimpPresent.add(sName);
+            }
+        });
+    }
+
+    const hasTarget = trackedAllelesPresent.size > 0 || trackedShrimpPresent.size > 0;
+
+    if (hasNewShrimp || hasNewAllele || hasTarget) {
         let warningMsg = "Are you sure you want to sell all matching offspring?";
+
+        if (trackedShrimpPresent.size > 0) {
+            warningMsg += `\n\nWarning: Some offspring match your TARGET SHRIMP (${Array.from(trackedShrimpPresent).join(", ")})!`;
+        }
+        if (trackedAllelesPresent.size > 0) {
+            warningMsg += `\n\nWarning: Some offspring carry your TARGET ALLELE(S) (${Array.from(trackedAllelesPresent).join(", ")})!`;
+        }
         if (hasNewShrimp && hasNewAllele) {
-            warningMsg += "\n\n Warning: Some offspring contain a NEW variant and a NEW genetic allele that you have not discovered yet!";
+            warningMsg += "\n\n✨ Warning: Some offspring contain a NEW variant and a NEW genetic allele that you have not discovered yet!";
         } else if (hasNewShrimp) {
-            warningMsg += "\n\n Warning: Some offspring contain a NEW variant that you have not discovered yet!";
-        } else {
-            warningMsg += "\n\n Warning: Some offspring contain a NEW genetic allele that you have not discovered yet!";
+            warningMsg += "\n\n✨ Warning: Some offspring contain a NEW variant that you have not discovered yet!";
+        } else if (hasNewAllele) {
+            warningMsg += "\n\n✨ Warning: Some offspring contain a NEW genetic allele that you have not discovered yet!";
         }
 
         const confirmed = confirm(warningMsg);
@@ -3047,6 +3398,8 @@ function initialize() {
     loadGame();
     updateSpeedButtons();
     updateHelpModalShortcuts();
+    setupTrackedAllelesDropdown();
+    setupTrackedShrimpDropdown();
 
     // Setup Tank Dropdown Switcher
     const tankDropdown = document.getElementById("tankSelectDropdown");
@@ -3872,37 +4225,23 @@ function initialize() {
     const sellOldBtn = document.getElementById("sellOldButton");
     if (sellOldBtn) {
         sellOldBtn.addEventListener("click", () => {
-            const sold = sellOldestAdultForReplacement();
+            playBtnSound();
 
-            if (sold) {
-                const capModal = document.getElementById("capacityModal");
-                if (capModal) capModal.classList.add("hidden");
+            // Close the capacity modal and the culling modal
+            const capModal = document.getElementById("capacityModal");
+            if (capModal) capModal.classList.add("hidden");
+            closeModal();
 
-                if (game.pendingKeepBaby && game.pendingKeepFemale) {
-                    const baby = game.pendingKeepBaby;
-                    const female = game.pendingKeepFemale;
-                    const idx = game.pendingKeepIndex;
+            // Switch view to the Tank tab
+            const tankTab = document.querySelector('.tab-button[data-tab="tank"]');
+            if (tankTab) tankTab.click();
 
-                    const newShrimp = addShrimp(baby.species, baby.sex, false, [female.id], baby.hiddenGenes);
-                    if (newShrimp) {
-                        newShrimp.pattern = baby.pattern;
-                        discoverWildPattern(newShrimp);
-                    }
-
-                    discoverAllele(baby.hiddenGenes.allele1);
-                    discoverAllele(baby.hiddenGenes.allele2);
-
-                    playKeepSound();
-                    female.pendingBabies.splice(idx, 1);
-
-                    game.pendingKeepBaby = null;
-                    game.pendingKeepFemale = null;
-                    game.pendingKeepIndex = null;
-
-                    finishCullStep(female);
-                }
-            }
+            // Turn on Select Mode so you can choose which shrimp to sell or move
+            game.sellModeActive = true;
+            updateSellModeUI();
             render();
+
+            addLog("Select Mode activated: Click shrimp in the tank to move them to another tank or sell them.");
         });
     }
 

@@ -221,26 +221,35 @@ button:disabled {
 }
 
 .game-layout {
-    max-width: 1500px;
+    max-width: 1600px;
     margin: auto;
-    padding: 20px;
+    padding: 16px;
     display: grid;
-    grid-template-columns: minmax(500px, 1.5fr) minmax(400px, 1fr);
-    gap: 20px;
+    grid-template-columns: minmax(0, 1.65fr) minmax(350px, 1fr);
+    gap: 16px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.left-column,
+.left-column {
+    min-width: 0;
+    width: 100%;
+    overflow: hidden;
+}
+
 .right-column {
     min-width: 0;
+    width: 100%;
 }
 
 .panel {
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 18px;
-    margin-bottom: 18px;
+    padding: 16px;
+    margin-bottom: 16px;
     box-shadow: 0 4px 15px rgba(50, 90, 100, 0.05);
+    min-width: 0;
 }
 
 .panel h2 {
@@ -287,6 +296,130 @@ button:disabled {
     border-radius: 10px;
     font-weight: bold;
     font-size: 14px;
+}
+
+/* =========================================================
+   SEARCHABLE MULTI-SELECT DROPDOWN
+========================================================= */
+
+.multi-select-container {
+    position: relative;
+    display: inline-block;
+    z-index: 50;
+}
+
+.multi-select-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    font-size: 13px;
+    font-weight: bold;
+    border-radius: 9px;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    background: #e7eeee;
+    color: var(--text);
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.multi-select-btn:hover {
+    border-color: var(--primary);
+}
+
+.multi-select-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 230px;
+    background: var(--panel);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 1000;
+}
+
+.multi-select-search-wrapper {
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+}
+
+.multi-select-search {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-size: 12px;
+    outline: none;
+    background: #fbfdfd;
+    color: var(--text);
+    box-sizing: border-box;
+}
+
+.multi-select-search:focus {
+    border-color: var(--primary);
+}
+
+.multi-select-actions {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 4px;
+}
+
+.multi-select-list {
+    max-height: 220px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.multi-select-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+    color: var(--text);
+}
+
+.multi-select-item:hover {
+    background: rgba(74, 159, 186, 0.12);
+}
+
+.multi-select-item input[type="checkbox"] {
+    cursor: pointer;
+    accent-color: var(--primary);
+    width: 14px;
+    height: 14px;
+}
+
+body.dark-theme .multi-select-btn {
+    background: #25393d;
+    color: var(--text);
+    border-color: var(--border);
+}
+
+body.dark-theme .multi-select-menu {
+    background: #1b282c;
+    border-color: var(--border);
+}
+
+body.dark-theme .multi-select-search {
+    background: #152429;
+    color: var(--text);
+    border-color: var(--border);
+}
+
+body.dark-theme .multi-select-item:hover {
+    background: rgba(92, 182, 211, 0.2);
 }
 
 .aquarium {
@@ -1028,32 +1161,33 @@ body.dark-theme .shrimp-list-item.selected-shrimp-card {
 .modal {
     position: fixed;
     inset: 0;
-    background: rgba(20, 40, 45, .55);
+    background: rgba(20, 40, 45, .6);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    padding: 20px;
+    padding: 15px;
 }
 
 .modal-box {
     background: white;
-    width: min(600px, 100%);
+    width: min(640px, 100%);
     max-height: 90vh;
     overflow-y: auto;
-    border-radius: 15px;
-    padding: 25px;
+    border-radius: 14px;
+    padding: 16px 20px;
     position: relative;
 }
 
 .close-button {
     position: absolute;
-    right: 15px;
-    top: 10px;
+    right: 14px;
+    top: 8px;
     border: none;
     background: transparent;
-    font-size: 30px;
+    font-size: 26px;
     cursor: pointer;
+    line-height: 1;
 }
 
 .capacity-actions {
@@ -1062,14 +1196,15 @@ body.dark-theme .shrimp-list-item.selected-shrimp-card {
     flex-wrap: wrap;
 }
 
-/* Culling Interface Modal */
+/* Compact Culling Interface Modal */
 .modal-box-fixed {
-    width: 600px !important;
-    height: 600px !important;
-    max-width: 95vw !important;
-    max-height: 90vh !important;
+    width: 640px !important;
+    height: 640px !important;
+    max-width: 96vw !important;
+    max-height: 92vh !important;
     display: flex !important;
     flex-direction: column !important;
+    padding: 14px 18px !important;
 }
 
 .modal-box-fixed #modalContent {
@@ -1086,46 +1221,47 @@ body.dark-theme .shrimp-list-item.selected-shrimp-card {
 
 .cull-bulk-actions {
     display: flex;
-    gap: 10px;
-    margin: 10px 0 15px 0;
+    gap: 8px;
+    margin: 6px 0 8px 0;
     border-bottom: 1px solid var(--border);
-    padding-bottom: 12px;
+    padding-bottom: 8px;
 }
 
 .cull-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin-top: 15px;
-    max-height: 450px;
+    gap: 6px;
+    margin-top: 6px;
+    max-height: 480px;
     overflow-y: auto;
-    padding-right: 5px;
+    padding-right: 4px;
 }
 
 .cull-row {
     display: flex;
     align-items: center;
     background: #f4f9f9;
-    padding: 10px;
-    border-radius: 10px;
+    padding: 6px 10px;
+    border-radius: 8px;
     border: 1px solid var(--border);
-    gap: 12px;
+    gap: 10px;
 }
 
 .cull-buttons {
     display: flex;
-    gap: 6px;
+    gap: 4px;
     flex-shrink: 0;
 }
 
 .cull-buttons button {
-    padding: 6px 12px;
-    font-size: 12px;
+    padding: 5px 9px;
+    font-size: 11px;
+    border-radius: 6px;
 }
 
 .cull-media {
-    width: 50px;
-    height: 35px;
+    width: 44px;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1142,10 +1278,11 @@ body.dark-theme .shrimp-list-item.selected-shrimp-card {
     display: flex;
     flex-direction: column;
     min-width: 0;
+    line-height: 1.25;
 }
 
 .cull-info strong {
-    font-size: 14px;
+    font-size: 13px;
 }
 
 /* Zoom Image Modal */
