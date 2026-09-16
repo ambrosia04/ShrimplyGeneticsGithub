@@ -17,6 +17,7 @@ https://ambrosia04.github.io/ShrimplyGeneticsGithub/
 - ⚠️ **Always Save Before Closing**: Closing your browser window or tab directly will **NOT** automatically save real-time progress made between checkpoints. Always click **Save** or **Save & Exit** before leaving!
 - ⚠️ **Do Not Clear Browser Data / Cache**: Because save files are stored locally in your browser, clearing your browser's cookies, site data, or cache will **permanently erase your aquarium and progress**.
 - ⚠️ **Private / Incognito Mode**: Playing in Private or Incognito mode will delete your save as soon as the window is closed.
+- ✅ **Export your safe file before clearing your browser data**: It can then be imported back safely to continue playing.
 ---
 
 ## 🎮 Features
