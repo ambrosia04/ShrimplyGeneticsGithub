@@ -1266,12 +1266,35 @@ window.addEventListener("focus", () => {
     handleCatchupProgress();
 });
 
+/* =========================================================
+   GAME TIME & UNPAUSED ENGINE
+========================================================= */
+
+let lastAutosaveTimestamp = Date.now();
+
+function isGamePaused() {
+    // Only pause if the main title screen is active
+    const mainMenu = document.getElementById("mainMenu");
+    if (mainMenu && !mainMenu.classList.contains("hidden")) return true;
+
+    // Or if currently playing inside a full-screen minigame
+    const mg1 = document.getElementById("minigameOverlay");
+    if (mg1 && !mg1.classList.contains("hidden")) return true;
+
+    const mg2 = document.getElementById("minigame2Overlay");
+    if (mg2 && !mg2.classList.contains("hidden")) return true;
+
+    const prep = document.getElementById("foodPrepOverlay");
+    if (prep && !prep.classList.contains("hidden")) return true;
+
+    return false;
+}
 
 function gameLoop() {
     const now = Date.now();
     if (!game) return;
 
-    if (gamePlaying) {
+    if (!isGamePaused()) {
         const deltaSeconds = (now - game.lastRealTime) / 1000;
 
         if (deltaSeconds > 0) {
@@ -1296,8 +1319,6 @@ function gameLoop() {
 
     requestAnimationFrame(gameLoop);
 }
-
-
 function advanceGameMinuteFraction(minutes, isFastForward = false) {
     game.minutes += minutes;
 
@@ -1616,7 +1637,11 @@ function buyNextTankUpgrade() {
 ========================================================= */
 
 function buyShrimp(species, sourceBtn = null) {
-    if (game.shrimp.length >= game.capacity) {
+    const targetTank = (game ? game.activeAquarium : "tank1") || "tank1";
+    const currentTankCount = game.shrimp.filter(s => (s.tank || "tank1") === targetTank && !s.dead).length;
+    const currentTankCapacity = getTankCapacity(targetTank);
+
+    if (currentTankCount >= currentTankCapacity) {
         showCapacityWarning();
         return;
     }
@@ -1663,6 +1688,13 @@ function buyShrimp(species, sourceBtn = null) {
 
     lastCollectionState = "";
     lastRenderedMoney = null;
+
+    // Invalidate sidebar list cache and render immediately so new shrimp appears instantly!
+    const listBody = document.querySelector("#movableShrimpList .movable-body");
+    if (listBody) delete listBody.dataset.cache;
+
+    saveGame();
+    render();
     renderCollection();
     renderShop();
 
@@ -3452,8 +3484,10 @@ function initialize() {
     // Setup Tank Dropdown Switcher
     const tankDropdown = document.getElementById("tankSelectDropdown");
     if (tankDropdown) {
-        const onTankSelect = (newTank) => {
+        tankDropdown.addEventListener("change", (e) => {
+            const newTank = e.target.value;
             if (!newTank) return;
+
             game.activeAquarium = newTank;
             game.selectedShrimpId = null;
 
@@ -3471,11 +3505,6 @@ function initialize() {
             playBtnSound();
             saveGame();
             render();
-            tankDropdown.blur();
-        };
-
-        tankDropdown.addEventListener("change", (e) => {
-            onTankSelect(e.target.value);
         });
     }
 

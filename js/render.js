@@ -3,6 +3,7 @@
 ========================================================= */
 
 let lastCollectionState = "";
+let lastSidebarDiscoveredCount = -1;
 const failedImages = new Set();
 
 
@@ -78,19 +79,19 @@ function renderHeader() {
         tankDropdown.dataset.signature = optionsSignature;
 
         let optionsHTML = unlockedTanks.map((t) => {
-          const selected = (t === currentTank) ? "selected" : "";
-          return `<option value="${t}" ${selected}>${formatTankName(t)}</option>`;
+          return `<option value="${t}">${formatTankName(t)}</option>`;
         }).join("");
 
         if (game.favoritesTankUnlocked) {
-          const favSelected = (currentTank === "favorites") ? "selected" : "";
-          optionsHTML += `<option value="favorites" ${favSelected}>★ Favorites Tank</option>`;
+          optionsHTML += `<option value="favorites">★ Favorites Tank</option>`;
         }
 
         tankDropdown.innerHTML = optionsHTML;
+        tankDropdown.value = currentTank;
       }
 
-      if (document.activeElement !== tankDropdown && tankDropdown.value !== currentTank) {
+      // Only update the value if the user is not actively clicking/interacting with it
+      if (document.activeElement !== tankDropdown && !tankDropdown.matches(":active") && tankDropdown.value !== currentTank) {
         tankDropdown.value = currentTank;
       }
     }
@@ -489,7 +490,6 @@ genesSpan.innerHTML = `${icon("dna")} Alleles: ${formatAlleleDisplay(shrimp.hidd
 
 function renderSelectedShrimp() {
   const container = document.getElementById("selectedShrimp");
-  let lastSidebarDiscoveredCount = -1;
 
   if (game.selectedShrimpId === null) {
     lastSelectedId = null;
