@@ -3366,7 +3366,8 @@ function formatDuration(minutes) {
     const mins = Math.floor((totalSeconds % 3600) / 60);
     const secs = totalSeconds % 60;
 
-    if (hours > 0) return `${hours}h ${mins}m`;
+    // Always show seconds so players can clearly see the timer ticking down in real time
+    if (hours > 0) return `${hours}h ${mins}m ${secs}s`;
     if (mins > 0) return `${mins}m ${secs}s`;
     return `${secs}s`;
 }
