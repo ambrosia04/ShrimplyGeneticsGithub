@@ -4095,7 +4095,6 @@ function initialize() {
     if (playMinigame2Btn) {
         playMinigame2Btn.addEventListener("click", () => {
             playBtnSound();
-            gamePlaying = false;
             document.getElementById("minigame2Overlay").classList.remove("hidden");
             document.getElementById("minigame2Selection").classList.remove("hidden");
             document.getElementById("minigame2Game").classList.add("hidden");
@@ -4123,7 +4122,6 @@ function initialize() {
         minigame2CancelBtn.addEventListener("click", () => {
             playBtnSound();
             document.getElementById("minigame2Overlay").classList.add("hidden");
-            gamePlaying = true;
             game.lastRealTime = Date.now();
             render();
         });
@@ -4158,7 +4156,6 @@ function initialize() {
     if (playFoodPrepBtn) {
         playFoodPrepBtn.addEventListener("click", () => {
             playBtnSound();
-            gamePlaying = false;
             document.getElementById("foodPrepOverlay").classList.remove("hidden");
             document.getElementById("foodPrepIntro").classList.remove("hidden");
             document.getElementById("foodPrepGame").classList.add("hidden");
@@ -4178,7 +4175,6 @@ function initialize() {
         foodPrepCancelBtn.addEventListener("click", () => {
             playBtnSound();
             document.getElementById("foodPrepOverlay").classList.add("hidden");
-            gamePlaying = true;
             game.lastRealTime = Date.now();
             render();
         });

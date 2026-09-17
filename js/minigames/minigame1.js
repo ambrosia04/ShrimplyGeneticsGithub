@@ -91,7 +91,6 @@ const MINIGAME = {
         if (overlay) overlay.classList.add("hidden");
 
         // Resume main game simulation timeline
-        gamePlaying = true;
         game.lastRealTime = Date.now();
         render();
     },

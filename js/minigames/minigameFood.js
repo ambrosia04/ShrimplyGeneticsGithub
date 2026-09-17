@@ -715,8 +715,6 @@ const FOOD_PREP = {
         document.getElementById("foodPrepOverlay").classList.add("hidden");
         document.getElementById("foodPrepIntro").classList.remove("hidden");
         document.getElementById("foodPrepGame").classList.add("hidden");
-
-        gamePlaying = true;
         game.lastRealTime = Date.now();
         render();
     }

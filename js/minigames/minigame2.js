@@ -52,7 +52,6 @@ const MINIGAME2 = {
         document.getElementById("minigame2Game").classList.add("hidden");
 
         // Resume standard time loops
-        gamePlaying = true;
         game.lastRealTime = Date.now();
         render();
     },
