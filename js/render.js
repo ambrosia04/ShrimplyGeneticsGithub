@@ -316,7 +316,10 @@ function renderMovableShrimpList() {
     (s) => (s.tank || "tank1") === currentAquarium && !s.dead
   );
 
+  const discCount = (game.discovered || []).length;
   const shrimpIdString =
+    discCount +
+    "|" +
     currentAquarium +
     "|" +
     sortState +
@@ -468,8 +471,7 @@ function renderMovableShrimpList() {
     genesSpan.style.fontSize = "10px";
     genesSpan.style.marginTop = "2px";
     genesSpan.style.color = "var(--muted)";
-    genesSpan.innerHTML = `${icon("dna")} Alleles: <strong>${SHRRIMP_SAFE(shrimp.hiddenGenes.allele1).name}</strong> / <strong>${SHRRIMP_SAFE(shrimp.hiddenGenes.allele2).name}</strong>`;
-    infoDiv.appendChild(genesSpan);
+genesSpan.innerHTML = `${icon("dna")} Alleles: ${formatAlleleDisplay(shrimp.hiddenGenes.allele1)} / ${formatAlleleDisplay(shrimp.hiddenGenes.allele2)}`;    infoDiv.appendChild(genesSpan);
 
     card.appendChild(infoDiv);
 
@@ -487,6 +489,7 @@ function renderMovableShrimpList() {
 
 function renderSelectedShrimp() {
   const container = document.getElementById("selectedShrimp");
+  let lastSidebarDiscoveredCount = -1;
 
   if (game.selectedShrimpId === null) {
     lastSelectedId = null;
@@ -522,12 +525,15 @@ function renderSelectedShrimp() {
   else if (shrimp.sex === "female" && isAdult(shrimp) && shrimp.saddle)
     currentState = "saddled";
 
+  const currentDiscoveredCount = (game.discovered || []).length;
   if (
     game.selectedShrimpId !== lastSelectedId ||
-    currentState !== lastSidebarState
+    currentState !== lastSidebarState ||
+    currentDiscoveredCount !== lastSidebarDiscoveredCount
   ) {
     lastSelectedId = game.selectedShrimpId;
     lastSidebarState = currentState;
+    lastSidebarDiscoveredCount = currentDiscoveredCount;
 
     let pregnancyHTML = "";
 
@@ -684,10 +690,10 @@ function renderSelectedShrimp() {
             <div class="panel" style="margin-top: 10px; margin-bottom: 10px;">
                 <h3 style="margin: 0 0 8px 0; font-size: 15px;"><img src="emoji/dna.png" alt="DNA" class="ui-emoji"> Genetics Profile</h3>
                 <p style="margin: 4px 0; font-size: 13px;">
-                    <strong>Allele 1:</strong> ${SHRRIMP_SAFE(shrimp.hiddenGenes.allele1).name}
+                    <strong>Allele 1:</strong> ${formatAlleleDisplay(shrimp.hiddenGenes.allele1)}
                 </p>
                 <p style="margin: 4px 0; font-size: 13px;">
-                    <strong>Allele 2:</strong> ${SHRRIMP_SAFE(shrimp.hiddenGenes.allele2).name}
+                    <strong>Allele 2:</strong> ${formatAlleleDisplay(shrimp.hiddenGenes.allele2)}
                 </p>
                 <p style="margin: 4px 0; font-size: 13px;">
                     <strong>Pattern:</strong> ${capitalize(shrimp.pattern)}

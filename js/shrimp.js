@@ -1108,3 +1108,20 @@ function createCssShrimpFallback(color, scale = 1) {
     }
     return fallback;
 }
+
+/* =========================================================
+   ALLELE COLLECTION DISPLAY HELPER
+========================================================= */
+
+function formatAlleleDisplay(alleleId) {
+    const data = SHRRIMP_SAFE(alleleId);
+    const name = data.name;
+    const isDiscovered = Boolean(game && game.discovered && game.discovered.includes(alleleId));
+
+    if (!isDiscovered) {
+        // Red and bold when NOT yet discovered in the collection
+        return `<strong style="color: var(--danger); font-weight: bold;">${name}</strong>`;
+    }
+    // Normal text once discovered
+    return `<span style="color: var(--text); font-weight: normal;">${name}</span>`;
+}

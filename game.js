@@ -285,38 +285,44 @@ function loadGame() {
         /* =========================================================
            SAFE BACKWARD COMPATIBLE MULTI-TANK MIGRATION
         ========================================================= */
-        // Normalize any old legacy "main" tank references
-        if (!game.activeAquarium || game.activeAquarium === "main" || (!getUnlockedTanks().includes(game.activeAquarium) && game.activeAquarium !== "favorites")) {
-            game.activeAquarium = "tank1";
-        }
+        const oldUpgradeToNewLevel = {
+            0: 0, 1: 0, 2: 1, 3: 2, 4: 4, 5: 9
+        };
 
-        game.shrimp.forEach(s => {
-            if (!s.tank || s.tank === "main") {
-                s.tank = "tank1";
-            }
-        });
-
-        const generalShrimp = game.shrimp.filter(s => s.tank !== "favorites");
-        const tanksNeededForShrimp = Math.max(1, Math.ceil(generalShrimp.length / GAME.tankCapacity));
-        const minLevelForShrimp = Math.min(9, tanksNeededForShrimp - 1);
-
-        // Perform one-time tier conversion ONLY for legacy unversioned saves
+        // Perform one-time tier conversion for legacy saves ONLY
         if (game.saveVersion === undefined || game.saveVersion < 2) {
-            const oldUpgradeToNewLevel = { 0: 0, 1: 0, 2: 1, 3: 2, 4: 4, 5: 9 };
+            const generalShrimp = game.shrimp.filter(s => s.tank !== "favorites");
+            const tanksNeededForShrimp = Math.max(1, Math.ceil(generalShrimp.length / GAME.tankCapacity));
+            const minLevelForShrimp = Math.min(9, tanksNeededForShrimp - 1);
+
             const oldLevel = game.tankUpgradeLevel || 0;
             const convertedLevel = oldUpgradeToNewLevel[oldLevel] !== undefined ? oldUpgradeToNewLevel[oldLevel] : oldLevel;
             game.tankUpgradeLevel = Math.min(9, Math.max(convertedLevel, minLevelForShrimp));
 
             const totalUnlockedTanks = Math.min(10, Math.max(1, (game.tankUpgradeLevel || 0) + 1));
+
+            // Distribute only legacy shrimp that do not have a tank assigned yet
             generalShrimp.forEach((s, index) => {
-                if (!s.tank || s.tank === "tank1") {
+                if (!s.tank || s.tank === "main") {
                     const tankIndex = Math.min(totalUnlockedTanks, Math.floor(index / GAME.tankCapacity) + 1);
                     s.tank = `tank${tankIndex}`;
                 }
             });
+
             game.saveVersion = 2;
-        } else {
-            game.tankUpgradeLevel = Math.min(9, Math.max(game.tankUpgradeLevel || 0, minLevelForShrimp));
+        }
+
+        // Validate tank assignment for each shrimp without overwriting custom placements
+        const unlockedTanksList = getUnlockedTanks();
+        for (const s of game.shrimp) {
+            if (!s.tank || (s.tank !== "favorites" && !unlockedTanksList.includes(s.tank))) {
+                s.tank = "tank1";
+            }
+        }
+
+        // Ensure active aquarium selection is valid
+        if (!game.activeAquarium || game.activeAquarium === "main" || (!unlockedTanksList.includes(game.activeAquarium) && game.activeAquarium !== "favorites")) {
+            game.activeAquarium = "tank1";
         }
 
         applyOfflineProgress();
@@ -707,28 +713,22 @@ function applyOfflineProgress() {
 
     const now = Date.now();
     let elapsedSeconds = (now - game.lastRealTime) / 1000;
+    // Cap offline time at 7 days max
     elapsedSeconds = Math.min(elapsedSeconds, 7 * 24 * 60 * 60);
 
     if (elapsedSeconds <= 0) return;
 
+    // Convert to in-game minutes including current speed multiplier
     const totalInGameMinutes = (elapsedSeconds / 60) * GAME.speed;
 
-    // Fast-forward in batched slices (skip visual physics) to avoid browser freezing
-    const stepSize = 1;
+    // Step in small 1-minute slices so breeding checks and growth trigger accurately
+    const stepSize = 1; // 1 in-game minute per step
     let remainingMinutes = totalInGameMinutes;
-    const maxSteps = 180; // Cap loop iterations to avoid thread hanging
-    let stepsRun = 0;
 
-    while (remainingMinutes > 0 && stepsRun < maxSteps) {
+    while (remainingMinutes > 0) {
         const chunk = Math.min(remainingMinutes, stepSize);
-        advanceGameMinuteFraction(chunk, true); // true = skip heavy DOM/movement calculations
+        advanceGameMinuteFraction(chunk);
         remainingMinutes -= chunk;
-        stepsRun++;
-    }
-
-    // Process remainder all at once if offline time was very long
-    if (remainingMinutes > 0) {
-        advanceGameMinuteFraction(remainingMinutes, true);
     }
 
     game.lastRealTime = now;
@@ -736,8 +736,6 @@ function applyOfflineProgress() {
         addLog(`Your aquariums processed ${formatDuration(elapsedSeconds / 60)} of growth.`);
     }
 }
-
-
 
 /* =========================================================
    SHRIMP CREATION
@@ -971,7 +969,7 @@ function runBreedingCheckForTank(tank) {
             if (fIndex > -1) availableFemales.splice(fIndex, 1);
 
             const hasVampire = hasLiveShrimp("vampireShrimp", tank, true);
-            const breedingChance = hasVampire ? 0.85 : 0.60;
+            const breedingChance = hasVampire ? 0.65 : 0.40;
 
             if (Math.random() < breedingChance) {
                 makePregnant(selectedFemale, male);
@@ -1277,7 +1275,6 @@ function gameLoop() {
         const deltaSeconds = (now - game.lastRealTime) / 1000;
 
         if (deltaSeconds > 0) {
-            // If jump is more than 3 seconds (throttled/tabbed out), run slice catch-up
             if (deltaSeconds > 3) {
                 applyOfflineProgress();
             } else {
@@ -1285,6 +1282,13 @@ function gameLoop() {
                 game.lastRealTime = now;
             }
         }
+
+        // Automatic background save every 60 seconds
+        if (now - lastAutosaveTimestamp >= 60000) {
+            saveGame();
+            lastAutosaveTimestamp = now;
+        }
+
         render();
     } else {
         game.lastRealTime = now;
@@ -1612,15 +1616,7 @@ function buyNextTankUpgrade() {
 ========================================================= */
 
 function buyShrimp(species, sourceBtn = null) {
-    const currentTank = (game && game.activeAquarium) || "tank1";
-    if (currentTank === "favorites") {
-        addLog("Cannot purchase shrimp directly into the Favorites Tank.");
-        return;
-    }
-
-    const currentCount = game.shrimp.filter(s => (s.tank || "tank1") === currentTank && !s.dead).length;
-    const capacityLimit = getTankCapacity(currentTank);
-    if (currentCount >= capacityLimit) {
+    if (game.shrimp.length >= game.capacity) {
         showCapacityWarning();
         return;
     }
@@ -1709,8 +1705,22 @@ function sellShrimp(id) {
         game.selectedShrimpId = null;
     }
 
+    // Check if the sold shrimp was part of the Select Mode selection
+    if (game.selectedForSaleIds && game.selectedForSaleIds.includes(id)) {
+        game.selectedForSaleIds = game.selectedForSaleIds.filter(selId => selId !== id);
+
+        // If that was the only one selected, turn Select Mode OFF
+        if (game.selectedForSaleIds.length === 0) {
+            game.sellModeActive = false;
+        }
+
+        // Update the button counters ("Sell Selected (X)" / "Move Selected (X)")
+        updateSellModeUI();
+    }
+
     addLog(`Sold ${data.name} for $${value}.`);
     closeModal();
+    saveGame();
     render();
 }
 
@@ -2063,37 +2073,53 @@ function showMoveSelectedModal() {
     content.innerHTML = `
         <h2><img src="emoji/herb.png" alt="Move" class="ui-emoji"> Move ${selectedCount} Selected Shrimp</h2>
         <p class="small-text">Select which aquarium tank you would like to transfer your selected shrimp to.</p>
-        <div class="cull-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
-            ${destinationTanks.map(tankId => {
+        <div id="moveTankList" class="cull-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
+        </div>
+    `;
+
+    const listContainer = content.querySelector("#moveTankList");
+
+    destinationTanks.forEach(tankId => {
         const isCurrent = tankId === currentTank;
         const tankCount = game.shrimp.filter(s => (s.tank || "tank1") === tankId && !s.dead).length;
         const tankCap = getTankCapacity(tankId);
         const remainingSpace = Math.max(0, tankCap - tankCount);
-        const canFitAll = remainingSpace >= selectedCount;
         const isFull = remainingSpace === 0;
 
         let badge = `<span style="color: var(--success); font-weight: bold;">Space: +${remainingSpace}</span>`;
         if (isCurrent) badge = `<span style="color: var(--muted); font-weight: bold;">(Current Tank)</span>`;
         else if (isFull) badge = `<span style="color: var(--danger); font-weight: bold;">(Full: 0 space)</span>`;
-        else if (!canFitAll) badge = `<span style="color: var(--danger); font-weight: bold;">(Only ${remainingSpace} can fit)</span>`;
+        else if (remainingSpace < selectedCount) badge = `<span style="color: var(--danger); font-weight: bold;">(Only ${remainingSpace} can fit)</span>`;
 
-        return `
-                    <div class="cull-row" style="justify-content: space-between; padding: 12px 16px;">
-                        <div>
-                            <strong>${formatTankName(tankId)}</strong>
-                            <div class="small-text">Population: ${tankCount} / ${tankCap} • ${badge}</div>
-                        </div>
-                        <button class="primary-button" 
-                            style="${isCurrent || isFull ? 'opacity: 0.4; cursor: not-allowed;' : ''}" 
-                            ${isCurrent || isFull ? 'disabled' : ''} 
-                            onclick="executeMoveSelected('${tankId}')">
-                            Move Here
-                        </button>
-                    </div>
-                `;
-    }).join("")}
-        </div>
-    `;
+        const row = document.createElement("div");
+        row.className = "cull-row";
+        row.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;";
+
+        row.innerHTML = `
+            <div>
+                <strong>${formatTankName(tankId)}</strong>
+                <div class="small-text">Population: ${tankCount} / ${tankCap} • ${badge}</div>
+            </div>
+        `;
+
+        const btn = document.createElement("button");
+        btn.className = "primary-button";
+        btn.textContent = "Move Here";
+
+        if (isCurrent || isFull) {
+            btn.disabled = true;
+            btn.style.opacity = "0.4";
+            btn.style.cursor = "not-allowed";
+        } else {
+            // Direct event listener — guaranteed to work without scope or popup issues
+            btn.addEventListener("click", () => {
+                executeMoveSelected(tankId);
+            });
+        }
+
+        row.appendChild(btn);
+        listContainer.appendChild(row);
+    });
 
     modal.classList.remove("hidden");
 }
@@ -2102,7 +2128,7 @@ function executeMoveSelected(targetTank) {
     const currentTank = game.activeAquarium || "tank1";
     if (targetTank === currentTank) return;
 
-    const selectedShrimp = game.shrimp.filter(s => game.selectedForSaleIds.includes(s.id) && !s.dead);
+    const selectedShrimp = game.shrimp.filter(s => (game.selectedForSaleIds || []).includes(s.id) && !s.dead);
     if (selectedShrimp.length === 0) return;
 
     const targetCap = getTankCapacity(targetTank);
@@ -2110,32 +2136,31 @@ function executeMoveSelected(targetTank) {
     const availableSpace = targetCap - targetCurrentCount;
 
     if (availableSpace <= 0) {
-        alert(`${formatTankName(targetTank)} is already full!`);
+        addLog(`${formatTankName(targetTank)} is already full!`);
         return;
     }
 
     const moveCount = Math.min(selectedShrimp.length, availableSpace);
-    const willFitAll = selectedShrimp.length <= availableSpace;
-
-    let confirmMsg = `Are you sure you want to move ${moveCount} shrimp from ${formatTankName(currentTank)} to ${formatTankName(targetTank)}?`;
-    if (!willFitAll) {
-        confirmMsg = `${formatTankName(targetTank)} only has room for ${availableSpace} more shrimp.\n\nMove the first ${moveCount} shrimp and leave the rest in this tank?`;
-    }
-
-    if (!confirm(confirmMsg)) return;
 
     for (let i = 0; i < moveCount; i++) {
         selectedShrimp[i].tank = targetTank;
     }
 
-    addLog(`Transferred ${moveCount} shrimp to ${formatTankName(targetTank)}.`);
+    addLog(`Transferred ${moveCount} shrimp from ${formatTankName(currentTank)} to ${formatTankName(targetTank)}.`);
     playKeepSound();
 
+    // Reset selection and turn Select Mode OFF
     game.selectedForSaleIds = [];
     game.selectedShrimpId = null;
+    game.sellModeActive = false;
+
+    // Invalidate sidebar cache so the list immediately updates
+    const listBody = document.querySelector("#movableShrimpList .movable-body");
+    if (listBody) delete listBody.dataset.cache;
 
     closeModal();
     updateSellModeUI();
+    saveGame();
     render();
 }
 
@@ -2268,6 +2293,7 @@ function moveShrimpToTank(shrimpId, targetTank) {
     const listBody = document.querySelector("#movableShrimpList .movable-body");
     if (listBody) delete listBody.dataset.cache;
 
+    saveGame(); // Ensure single-shrimp moves are saved immediately!
     render();
 }
 
@@ -2353,8 +2379,8 @@ function showShrimpModal(shrimp) {
 
         <div class="panel">
             <h3><img src="emoji/dna.png" alt="DNA" class="ui-emoji"> Genetics Profile</h3>
-            <p><strong>Allele 1:</strong> ${SHRRIMP_SAFE(shrimp.hiddenGenes.allele1).name}</p>
-            <p><strong>Allele 2:</strong> ${SHRRIMP_SAFE(shrimp.hiddenGenes.allele2).name}</p>
+            <p><strong>Allele 1:</strong> ${formatAlleleDisplay(shrimp.hiddenGenes.allele1)}</p>
+            <p><strong>Allele 2:</strong> ${formatAlleleDisplay(shrimp.hiddenGenes.allele2)}</p>
             <p><strong>Pattern:</strong> ${capitalize(shrimp.pattern)}</p>
         </div>
 
@@ -2764,9 +2790,7 @@ function showCullModal(female) {
         genesSpan.style.marginTop = "4px";
         genesSpan.style.color = "var(--muted)";
 
-        const a1Name = SHRRIMP_SAFE(baby.hiddenGenes.allele1).name;
-        const a2Name = SHRRIMP_SAFE(baby.hiddenGenes.allele2).name;
-        genesSpan.innerHTML = `<img src="emoji/dna.png" alt="DNA" class="ui-emoji"> Alleles: <strong>${a1Name}</strong> / <strong>${a2Name}</strong>`;
+        genesSpan.innerHTML = `<img src="emoji/dna.png" alt="DNA" class="ui-emoji"> Alleles: ${formatAlleleDisplay(baby.hiddenGenes.allele1)} / ${formatAlleleDisplay(baby.hiddenGenes.allele2)}`;
         infoDiv.appendChild(genesSpan);
 
         row.appendChild(infoDiv);
