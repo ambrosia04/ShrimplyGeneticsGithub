@@ -2290,10 +2290,24 @@ function moveShrimpToTank(shrimpId, targetTank) {
     lastSelectedId = null;
     lastSidebarState = "";
 
+    // If the moved shrimp was part of the Select Mode selection:
+    const numId = Number(shrimp.id);
+    if (game.selectedForSaleIds && game.selectedForSaleIds.some(id => Number(id) === numId)) {
+        game.selectedForSaleIds = game.selectedForSaleIds.filter(id => Number(id) !== numId);
+
+        // If it was the only one selected, exit Select Mode
+        if (game.selectedForSaleIds.length === 0) {
+            game.sellModeActive = false;
+        }
+
+        // Update the button counts ("Move Selected (X)" / "Sell Selected (X)")
+        updateSellModeUI();
+    }
+
     const listBody = document.querySelector("#movableShrimpList .movable-body");
     if (listBody) delete listBody.dataset.cache;
 
-    saveGame(); // Ensure single-shrimp moves are saved immediately!
+    saveGame();
     render();
 }
 
