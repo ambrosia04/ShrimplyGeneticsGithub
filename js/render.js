@@ -485,20 +485,6 @@ function renderMovableShrimpList() {
   });
 }
 
-function renderTankInfo() {
-  const males = game.shrimp.filter((s) => s.sex === "male").length;
-  const females = game.shrimp.filter((s) => s.sex === "female").length;
-  const juveniles = game.shrimp.filter((s) => lifeStage(s) !== "Adult").length;
-  const pregnant = game.shrimp.filter((s) => s.pregnant).length;
-
-  document.getElementById("capacityInfo").textContent = game.capacity;
-  document.getElementById("maleCount").textContent = males;
-  document.getElementById("femaleCount").textContent = females;
-  document.getElementById("juvenileCount").textContent = juveniles;
-  document.getElementById("pregnantCount").textContent = pregnant;
-  document.getElementById("plantCount").textContent = game.plants.length;
-}
-
 function renderSelectedShrimp() {
   const container = document.getElementById("selectedShrimp");
 

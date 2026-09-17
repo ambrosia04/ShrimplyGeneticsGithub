@@ -51,8 +51,7 @@ const MINIGAME = {
         this.nextId = 1;
         this.timeElapsed = 0;
 
-        // Pause main background simulation timeline
-        gamePlaying = false;
+        // Keep tank running.
 
         // Display screen overlay
         const overlay = document.getElementById("minigameOverlay");

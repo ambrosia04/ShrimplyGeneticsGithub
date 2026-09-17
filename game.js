@@ -186,7 +186,7 @@ function createNewGame() {
         lastRealTime: Date.now(),
         lastBreedingCheck: 0,
         lastDailyPayment: 0,
-        capacity: GAME.startingCapacity,
+        capacity: GAME.tankCapacity,
         shrimp: [],
         plants: [],
         logs: [],
@@ -209,7 +209,7 @@ function createNewGame() {
         darkModeActive: false,
         favoritesTankUnlocked: false,
         favoritesTankLevel: 0,
-        activeAquarium: "main",
+        activeAquarium: "tank1",
         purchaseGenderHistory: [],
         trackedAlleles: [],
         trackedSpecies: [],
@@ -285,45 +285,38 @@ function loadGame() {
         /* =========================================================
            SAFE BACKWARD COMPATIBLE MULTI-TANK MIGRATION
         ========================================================= */
-        // 1. Separate Favorites shrimp so they remain untouched
-        const favoriteShrimp = game.shrimp.filter(s => s.tank === "favorites");
+        // Normalize any old legacy "main" tank references
+        if (!game.activeAquarium || game.activeAquarium === "main" || (!getUnlockedTanks().includes(game.activeAquarium) && game.activeAquarium !== "favorites")) {
+            game.activeAquarium = "tank1";
+        }
+
+        game.shrimp.forEach(s => {
+            if (!s.tank || s.tank === "main") {
+                s.tank = "tank1";
+            }
+        });
+
         const generalShrimp = game.shrimp.filter(s => s.tank !== "favorites");
-
-        // 2. Map old upgrade tiers [50, 100, 200, 300, 500, 7000] to new tank levels
-        const oldUpgradeToNewLevel = {
-            0: 0, // Starter Tank (50 cap) -> Tank 1 (100 cap)
-            1: 0, // Small Upgrade (100 cap) -> Tank 1 (100 cap)
-            2: 1, // Medium Upgrade (200 cap) -> Tank 1 & 2 (200 cap)
-            3: 2, // Large Upgrade (300 cap) -> Tanks 1-3 (300 cap)
-            4: 4, // Breeder Tank (500 cap) -> Tanks 1-5 (500 cap)
-            5: 9  // Commercial Breeder (7000 cap) -> Master Breeder Tanks 1-10 (1000 cap)
-        };
-
-        // Calculate minimum tanks needed to safely hold all existing general shrimp
         const tanksNeededForShrimp = Math.max(1, Math.ceil(generalShrimp.length / GAME.tankCapacity));
         const minLevelForShrimp = Math.min(9, tanksNeededForShrimp - 1);
 
-        // Perform one-time tier conversion for legacy saves
+        // Perform one-time tier conversion ONLY for legacy unversioned saves
         if (game.saveVersion === undefined || game.saveVersion < 2) {
+            const oldUpgradeToNewLevel = { 0: 0, 1: 0, 2: 1, 3: 2, 4: 4, 5: 9 };
             const oldLevel = game.tankUpgradeLevel || 0;
             const convertedLevel = oldUpgradeToNewLevel[oldLevel] !== undefined ? oldUpgradeToNewLevel[oldLevel] : oldLevel;
             game.tankUpgradeLevel = Math.min(9, Math.max(convertedLevel, minLevelForShrimp));
+
+            const totalUnlockedTanks = Math.min(10, Math.max(1, (game.tankUpgradeLevel || 0) + 1));
+            generalShrimp.forEach((s, index) => {
+                if (!s.tank || s.tank === "tank1") {
+                    const tankIndex = Math.min(totalUnlockedTanks, Math.floor(index / GAME.tankCapacity) + 1);
+                    s.tank = `tank${tankIndex}`;
+                }
+            });
             game.saveVersion = 2;
         } else {
             game.tankUpgradeLevel = Math.min(9, Math.max(game.tankUpgradeLevel || 0, minLevelForShrimp));
-        }
-
-        const totalUnlockedTanks = Math.min(10, Math.max(1, (game.tankUpgradeLevel || 0) + 1));
-
-        // 3. Distribute general shrimp in order across unlocked tanks (100 per tank)
-        generalShrimp.forEach((s, index) => {
-            const tankIndex = Math.min(totalUnlockedTanks, Math.floor(index / GAME.tankCapacity) + 1);
-            s.tank = `tank${tankIndex}`;
-        });
-
-        // 4. Ensure active aquarium selection is valid
-        if (!game.activeAquarium || game.activeAquarium === "main" || (!getUnlockedTanks().includes(game.activeAquarium) && game.activeAquarium !== "favorites")) {
-            game.activeAquarium = "tank1";
         }
 
         applyOfflineProgress();
@@ -714,22 +707,28 @@ function applyOfflineProgress() {
 
     const now = Date.now();
     let elapsedSeconds = (now - game.lastRealTime) / 1000;
-    // Cap offline time at 7 days max
     elapsedSeconds = Math.min(elapsedSeconds, 7 * 24 * 60 * 60);
 
     if (elapsedSeconds <= 0) return;
 
-    // Convert to in-game minutes including current speed multiplier
     const totalInGameMinutes = (elapsedSeconds / 60) * GAME.speed;
 
-    // Step in small 1-minute slices so breeding checks and growth trigger accurately
-    const stepSize = 1; // 1 in-game minute per step
+    // Fast-forward in batched slices (skip visual physics) to avoid browser freezing
+    const stepSize = 1;
     let remainingMinutes = totalInGameMinutes;
+    const maxSteps = 180; // Cap loop iterations to avoid thread hanging
+    let stepsRun = 0;
 
-    while (remainingMinutes > 0) {
+    while (remainingMinutes > 0 && stepsRun < maxSteps) {
         const chunk = Math.min(remainingMinutes, stepSize);
-        advanceGameMinuteFraction(chunk);
+        advanceGameMinuteFraction(chunk, true); // true = skip heavy DOM/movement calculations
         remainingMinutes -= chunk;
+        stepsRun++;
+    }
+
+    // Process remainder all at once if offline time was very long
+    if (remainingMinutes > 0) {
+        advanceGameMinuteFraction(remainingMinutes, true);
     }
 
     game.lastRealTime = now;
@@ -737,6 +736,7 @@ function applyOfflineProgress() {
         addLog(`Your aquariums processed ${formatDuration(elapsedSeconds / 60)} of growth.`);
     }
 }
+
 
 
 /* =========================================================
@@ -971,7 +971,7 @@ function runBreedingCheckForTank(tank) {
             if (fIndex > -1) availableFemales.splice(fIndex, 1);
 
             const hasVampire = hasLiveShrimp("vampireShrimp", tank, true);
-            const breedingChance = hasVampire ? 0.65 : 0.40;
+            const breedingChance = hasVampire ? 0.95 : 0.70;
 
             if (Math.random() < breedingChance) {
                 makePregnant(selectedFemale, male);
@@ -1294,7 +1294,7 @@ function gameLoop() {
 }
 
 
-function advanceGameMinuteFraction(minutes) {
+function advanceGameMinuteFraction(minutes, isFastForward = false) {
     game.minutes += minutes;
 
     const adultBambooCount = countLiveShrimp("bambooShrimp", null, true);
@@ -1362,7 +1362,9 @@ function advanceGameMinuteFraction(minutes) {
             }
         }
 
-        updateShrimpMovement(shrimp, minutes);
+        if (!isFastForward) {
+            updateShrimpMovement(shrimp, minutes);
+        }
     }
 
     if (game.minutes - game.lastBreedingCheck >= (GAME.breedingInterval / 60)) {
@@ -1610,7 +1612,15 @@ function buyNextTankUpgrade() {
 ========================================================= */
 
 function buyShrimp(species, sourceBtn = null) {
-    if (game.shrimp.length >= game.capacity) {
+    const currentTank = (game && game.activeAquarium) || "tank1";
+    if (currentTank === "favorites") {
+        addLog("Cannot purchase shrimp directly into the Favorites Tank.");
+        return;
+    }
+
+    const currentCount = game.shrimp.filter(s => (s.tank || "tank1") === currentTank && !s.dead).length;
+    const capacityLimit = getTankCapacity(currentTank);
+    if (currentCount >= capacityLimit) {
         showCapacityWarning();
         return;
     }

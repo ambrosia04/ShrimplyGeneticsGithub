@@ -18,7 +18,7 @@ const FOOD_PREP = {
     goodBlanches: 0,
     indicatorPos: 0,
     indicatorDir: 1,
-    sliceSpeed: 3,
+    sliceSpeed: 1.6,
     outerCircleScale: 2.5,
     circleShrinkSpeed: 0.018,
     cutLines: [
@@ -77,7 +77,7 @@ const FOOD_PREP = {
             this.incorrectSpoonedCount = 0;
         }
 
-        gamePlaying = false; // Pause main background calculations
+        // Keep tank running
 
         document.getElementById("foodPrepOverlay").classList.remove("hidden");
         document.getElementById("foodPrepIntro").classList.add("hidden");
