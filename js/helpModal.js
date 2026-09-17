@@ -117,7 +117,6 @@
                             </a></strong>
                         </div>
                         <div>
-                            :
                             <strong><a href="https://shrimpybusiness.com/blogs/shrimpy-business-blog/guide-to-freshwater-shrimp-care?srsltid=AU7gw4Uvhvoow-twIc9hcCner7jhi7eE8DnZa4ixDfH57Bjc0CcDXO-k" target="_blank" rel="noopener noreferrer" style="color: var(--primary); font-weight: bold; text-decoration: underline; word-break: break-all;">
                                 Other Types Care Guide
                             </a></strong> 

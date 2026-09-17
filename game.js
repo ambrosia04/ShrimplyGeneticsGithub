@@ -971,7 +971,7 @@ function runBreedingCheckForTank(tank) {
             if (fIndex > -1) availableFemales.splice(fIndex, 1);
 
             const hasVampire = hasLiveShrimp("vampireShrimp", tank, true);
-            const breedingChance = hasVampire ? 0.95 : 0.70;
+            const breedingChance = hasVampire ? 0.85 : 0.60;
 
             if (Math.random() < breedingChance) {
                 makePregnant(selectedFemale, male);
