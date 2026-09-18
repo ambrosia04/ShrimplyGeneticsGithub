@@ -1534,21 +1534,9 @@ window.addEventListener("focus", () => {
 let lastAutosaveTimestamp = Date.now();
 
 function isGamePaused() {
-    // Only pause if the main title screen is active
+    // ONLY pause time if the player is on the Title Screen / Main Menu
     const mainMenu = document.getElementById("mainMenu");
-    if (mainMenu && !mainMenu.classList.contains("hidden")) return true;
-
-    // Or if currently playing inside a full-screen minigame
-    const mg1 = document.getElementById("minigameOverlay");
-    if (mg1 && !mg1.classList.contains("hidden")) return true;
-
-    const mg2 = document.getElementById("minigame2Overlay");
-    if (mg2 && !mg2.classList.contains("hidden")) return true;
-
-    const prep = document.getElementById("foodPrepOverlay");
-    if (prep && !prep.classList.contains("hidden")) return true;
-
-    return false;
+    return Boolean(mainMenu && !mainMenu.classList.contains("hidden"));
 }
 
 function gameLoop() {
