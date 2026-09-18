@@ -289,7 +289,8 @@ const SHRIMP = {
         parents: ["redCherry"],
         children: [
             "redRiliBlue",
-            "redRiliKohaku"
+            "redRiliKohaku", 
+            "bloodySnowball"
         ]
     },
 
@@ -657,7 +658,7 @@ const SHRIMP = {
         image: "bloodymarya",
         parents: ["shoko"],
         children: [
-            "bloodyMaryS"
+            "bloodyMaryS", "bloodySnowball"
         ]
     },
 

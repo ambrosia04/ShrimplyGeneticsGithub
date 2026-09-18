@@ -898,6 +898,14 @@ function determinePhenotype(a1, a2) {
         return "green";
     }
 
+    // Bloody Mary + Red Rili expresses Bloody Snowball
+    if (
+        ((a1 === "bloodyMaryA" || a1 === "bloodyMaryS") && a2 === "redRili") ||
+        (a1 === "redRili" && (a2 === "bloodyMaryA" || a2 === "bloodyMaryS"))
+    ) {
+        return "bloodySnowball";
+    }
+
     if (canDescendFrom(a2, a1)) return a1;
     if (canDescendFrom(a1, a2)) return a2;
 
@@ -1086,6 +1094,14 @@ function inheritGenes(mother, father, species) {
     if (isKanokoRedRiliPair && Math.random() < 0.01) {
         addLog("Amazing! A rare mutation occurred: A Crystal Red Shrimp was born!");
         return { allele1: "crystalRed", allele2: "crystalRed" };
+    }
+
+    const isBloodyMaryRedRiliPair = 
+        ((mother.species === "bloodyMaryA" || mother.species === "bloodyMaryS") && father.species === "redRili") ||
+        (mother.species === "redRili" && (father.species === "bloodyMaryA" || father.species === "bloodyMaryS"));
+    if (isBloodyMaryRedRiliPair && Math.random() < 0.12) {
+        addLog("A rare crossbreed occurred: A Bloody Snowball Shrimp was born!");
+        return { allele1: "bloodySnowball", allele2: "bloodySnowball" };
     }
 
     const hasFireRedPaintedParent = (mother.species === "fireRedPainted" || father.species === "fireRedPainted");
