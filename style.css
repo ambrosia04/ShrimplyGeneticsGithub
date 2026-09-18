@@ -561,6 +561,64 @@ body.dark-theme .multi-select-item:hover {
 }
 
 /* =========================================================
+   HEADER TARGET & SEARCH BOXES
+========================================================= */
+
+.target-group-box {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 4px 8px 6px 8px;
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    background: rgba(74, 159, 186, 0.05);
+}
+
+.target-group-title {
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--muted);
+    line-height: 1;
+}
+
+.target-group-buttons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+body.dark-theme .target-group-box {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: var(--border);
+}
+
+/* Aquarium & List Highlights */
+.shrimp.tank-highlighted {
+    filter: drop-shadow(0 0 6px #2ecc71) drop-shadow(0 0 12px rgba(46, 204, 113, 0.9)) brightness(1.25);
+    z-index: 25 !important;
+}
+
+.shrimp.tank-dimmed {
+    opacity: 0.22;
+    filter: grayscale(0.8) brightness(0.7);
+    transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.shrimp-list-item.tank-filter-highlighted {
+    background-color: rgba(46, 204, 113, 0.16) !important;
+    border: 2px solid #2ecc71 !important;
+    box-shadow: 0 0 10px rgba(46, 204, 113, 0.3);
+}
+
+body.dark-theme .shrimp-list-item.tank-filter-highlighted {
+    background-color: rgba(46, 204, 113, 0.22) !important;
+    border: 2px solid #2ecc71 !important;
+    box-shadow: 0 0 12px rgba(46, 204, 113, 0.4);
+}
+
+/* =========================================================
    5. SHRIMP SPRITES & IN-TANK VISUALS
 ========================================================= */
 

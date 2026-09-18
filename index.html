@@ -61,6 +61,12 @@
                         <button id="sortShrimpListBtn" class="secondary-button"
                             style="padding: 2px 8px; font-size: 11px; margin-left: auto;">Sort: High Value</button>
                     </div>
+                    <!-- ADD THIS SEARCH BAR HERE -->
+                    <div style="padding: 6px 8px; border-bottom: 1px solid var(--border); background: var(--panel);">
+                        <input type="text" id="tankListSearchInput" class="multi-select-search"
+                            placeholder="Search tank (name, allele, sex, status)..." autocomplete="off"
+                            style="width: 100%;">
+                    </div>
                     <div class="movable-body">
                         <!-- Generated programmatically in loop -->
                     </div>
@@ -70,78 +76,119 @@
                 <div class="panel aquarium-panel" style="flex-grow: 1;">
                     <!-- AQUARIUM PANEL TITLE -->
                     <div class="panel-title"
-                        style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 4px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
+                        style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 16px; padding-bottom: 4px; flex-wrap: wrap;">
+                        
+                        <!-- Left: Tank Title / Switcher -->
+                        <div style="display: flex; align-items: center; gap: 8px;">
                             <img src="emoji/herb.png" alt="Aquarium" class="ui-emoji"
                                 style="width: 24px !important; height: 24px !important;">
                             <span id="singleTankTitle"
                                 style="font-size: 22px; font-weight: bold; color: var(--text); letter-spacing: -0.2px;">Aquarium</span>
                             <select id="tankSelectDropdown" class="secondary-button hidden"
-                                style="font-size: 20px; font-weight: bold; padding: 6px 14px; cursor: pointer; border-radius: 10px; border: 1.5px solid var(--border);">
+                                style="font-size: 18px; font-weight: bold; padding: 5px 12px; cursor: pointer; border-radius: 9px; border: 1.5px solid var(--border);">
                                 <option value="tank1">Tank 1</option>
                             </select>
                         </div>
 
-                        <!-- SEARCHABLE MULTI-SELECT TARGET ALLELES DROPDOWN (Unlocked via "New Generation") -->
-                        <div id="trackedAllelesContainer" class="multi-select-container hidden"
-                            style="position: relative; margin-left: 10px;">
-                            <button id="trackedAllelesBtn" type="button" class="secondary-button multi-select-btn">
-                                <img src="emoji/dna.png" alt="DNA" class="ui-emoji">
-                                <span id="trackedAllelesBtnLabel">Target Alleles (0)</span>
-                                <span style="font-size: 10px; margin-left: 4px;">▼</span>
-                            </button>
+                        <!-- Group 1: Culling Targets (Unlocked with First Birth) -->
+                        <div id="cullingTargetsGroup" class="target-group-box hidden">
+                            <span class="target-group-title"><img src="emoji/target.png" alt="DNA" class="ui-emoji"> Culling Targets</span>
+                            <div class="target-group-buttons">
+                                <!-- Target Alleles -->
+                                <div id="trackedAllelesContainer" class="multi-select-container">
+                                    <button id="trackedAllelesBtn" type="button" class="secondary-button multi-select-btn" style="padding: 5px 9px; font-size: 12px;">
+                                        <img src="emoji/dna.png" alt="DNA" class="ui-emoji">
+                                        <span id="trackedAllelesBtnLabel">Alleles (0)</span>
+                                        <span style="font-size: 9px; margin-left: 3px;">▼</span>
+                                    </button>
+                                    <div id="trackedAllelesMenu" class="multi-select-menu hidden">
+                                        <div class="multi-select-search-wrapper">
+                                            <input type="text" id="trackedAllelesSearch" class="multi-select-search"
+                                                placeholder="Search alleles..." autocomplete="off">
+                                        </div>
+                                        <div class="multi-select-actions" style="display: flex; gap: 6px; padding: 4px 0;">
+                                            <button type="button" id="selectAllTrackedAllelesBtn" class="secondary-button" style="flex: 1; padding: 4px 6px; font-size: 11px; font-weight: bold;">Select All</button>
+                                            <button type="button" id="deselectAllTrackedAllelesBtn" class="secondary-button" style="flex: 1; padding: 4px 6px; font-size: 11px; font-weight: bold;">Deselect All</button>
+                                        </div>
+                                        <div id="trackedAllelesList" class="multi-select-list"></div>
+                                    </div>
+                                </div>
 
-                            <div id="trackedAllelesMenu" class="multi-select-menu hidden">
-                                <div class="multi-select-search-wrapper">
-                                    <input type="text" id="trackedAllelesSearch" class="multi-select-search"
-                                        placeholder="Search alleles..." autocomplete="off">
-                                </div>
-                                <div class="multi-select-actions" style="display: flex; gap: 6px; padding: 4px 0;">
-                                    <button type="button" id="selectAllTrackedAllelesBtn" class="secondary-button"
-                                        style="flex: 1; padding: 4px 6px; font-size: 11px; font-weight: bold;">Select
-                                        All</button>
-                                    <button type="button" id="deselectAllTrackedAllelesBtn" class="secondary-button"
-                                        style="flex: 1; padding: 4px 6px; font-size: 11px; font-weight: bold;">Deselect
-                                        All</button>
-                                </div>
-                                <div id="trackedAllelesList" class="multi-select-list">
-                                    <!-- Programmatically populated with discovered alleles -->
+                                <!-- Target Shrimp -->
+                                <div id="trackedShrimpContainer" class="multi-select-container">
+                                    <button id="trackedShrimpBtn" type="button" class="secondary-button multi-select-btn" style="padding: 5px 9px; font-size: 12px;">
+                                        <img src="emoji/shrimp.png" alt="Shrimp" class="ui-emoji">
+                                        <span id="trackedShrimpBtnLabel">Shrimp (0)</span>
+                                        <span style="font-size: 9px; margin-left: 3px;">▼</span>
+                                    </button>
+                                    <div id="trackedShrimpMenu" class="multi-select-menu hidden">
+                                        <div class="multi-select-search-wrapper">
+                                            <input type="text" id="trackedShrimpSearch" class="multi-select-search"
+                                                placeholder="Search shrimp..." autocomplete="off">
+                                        </div>
+                                        <div class="multi-select-actions" style="display: flex; gap: 6px; padding: 4px 0;">
+                                            <button type="button" id="selectAllTrackedShrimpBtn" class="secondary-button" style="flex: 1; padding: 4px 6px; font-size: 11px; font-weight: bold;">Select All</button>
+                                            <button type="button" id="deselectAllTrackedShrimpBtn" class="secondary-button" style="flex: 1; padding: 4px 6px; font-size: 11px; font-weight: bold;">Deselect All</button>
+                                        </div>
+                                        <div id="trackedShrimpList" class="multi-select-list"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- SEARCHABLE MULTI-SELECT TARGET SHRIMP -->
-                        <div id="trackedShrimpContainer" class="multi-select-container hidden"
-                            style="position: relative; margin-left: 6px;">
-                            <button id="trackedShrimpBtn" type="button" class="secondary-button multi-select-btn">
-                                <img src="emoji/shrimp.png" alt="Shrimp" class="ui-emoji">
-                                <span id="trackedShrimpBtnLabel">Target Shrimp (0)</span>
-                                <span style="font-size: 10px; margin-left: 4px;">▼</span>
-                            </button>
+                        <!-- Group 2: Search in Current Tank -->
+                        <div id="tankFilterGroup" class="target-group-box">
+                            <span class="target-group-title"><img src="emoji/herb.png" alt="DNA" class="ui-emoji"> Search in Current Tank</span>
+                            <div class="target-group-buttons">
+                                <!-- Filter Tank Alleles -->
+                                <div id="tankFilterAllelesContainer" class="multi-select-container">
+                                    <button id="tankFilterAllelesBtn" type="button" class="secondary-button multi-select-btn" style="padding: 5px 9px; font-size: 12px;">
+                                        <img src="emoji/dna.png" alt="DNA" class="ui-emoji">
+                                        <span id="tankFilterAllelesBtnLabel">Alleles (0)</span>
+                                        <span style="font-size: 9px; margin-left: 3px;">▼</span>
+                                    </button>
+                                    <div id="tankFilterAllelesMenu" class="multi-select-menu hidden">
+                                        <div class="multi-select-search-wrapper">
+                                            <input type="text" id="tankFilterAllelesSearch" class="multi-select-search"
+                                                placeholder="Search alleles..." autocomplete="off">
+                                        </div>
+                                        <div class="multi-select-actions" style="display: flex; gap: 6px; padding: 4px 0;">
+                                            <button type="button" id="selectAllTankFilterAllelesBtn" class="secondary-button" style="flex: 1; padding: 4px 6px; font-size: 11px; font-weight: bold;">Select All</button>
+                                            <button type="button" id="deselectAllTankFilterAllelesBtn" class="secondary-button" style="flex: 1; padding: 4px 6px; font-size: 11px; font-weight: bold;">Deselect All</button>
+                                        </div>
+                                        <div id="tankFilterAllelesList" class="multi-select-list"></div>
+                                    </div>
+                                </div>
 
-                            <div id="trackedShrimpMenu" class="multi-select-menu hidden">
-                                <div class="multi-select-search-wrapper">
-                                    <input type="text" id="trackedShrimpSearch" class="multi-select-search"
-                                        placeholder="Search shrimp..." autocomplete="off">
+                                <!-- Filter Tank Shrimp -->
+                                <div id="tankFilterShrimpContainer" class="multi-select-container">
+                                    <button id="tankFilterShrimpBtn" type="button" class="secondary-button multi-select-btn" style="padding: 5px 9px; font-size: 12px;">
+                                        <img src="emoji/shrimp.png" alt="Shrimp" class="ui-emoji">
+                                        <span id="tankFilterShrimpBtnLabel">Shrimp (0)</span>
+                                        <span style="font-size: 9px; margin-left: 3px;">▼</span>
+                                    </button>
+                                    <div id="tankFilterShrimpMenu" class="multi-select-menu hidden">
+                                        <div class="multi-select-search-wrapper">
+                                            <input type="text" id="tankFilterShrimpSearch" class="multi-select-search"
+                                                placeholder="Search shrimp..." autocomplete="off">
+                                        </div>
+                                        <div class="multi-select-actions" style="display: flex; gap: 6px; padding: 4px 0;">
+                                            <button type="button" id="selectAllTankFilterShrimpBtn" class="secondary-button" style="flex: 1; padding: 4px 6px; font-size: 11px; font-weight: bold;">Select All</button>
+                                            <button type="button" id="deselectAllTankFilterShrimpBtn" class="secondary-button" style="flex: 1; padding: 4px 6px; font-size: 11px; font-weight: bold;">Deselect All</button>
+                                        </div>
+                                        <div id="tankFilterShrimpList" class="multi-select-list"></div>
+                                    </div>
                                 </div>
-                                <div class="multi-select-actions" style="display: flex; gap: 6px; padding: 4px 0;">
-                                    <button type="button" id="selectAllTrackedShrimpBtn" class="secondary-button"
-                                        style="flex: 1; padding: 4px 6px; font-size: 11px; font-weight: bold;">Select
-                                        All</button>
-                                    <button type="button" id="deselectAllTrackedShrimpBtn" class="secondary-button"
-                                        style="flex: 1; padding: 4px 6px; font-size: 11px; font-weight: bold;">Deselect
-                                        All</button>
-                                </div>
-                                <div id="trackedShrimpList" class="multi-select-list"></div>
                             </div>
                         </div>
 
-                        <button id="shrimpListBtn" class="secondary-button hidden"
-                            style="margin-left: auto; margin-right: 12px; padding: 8px 14px; font-size: 13px;">
-                            <img src="emoji/list.png" alt="List" class="ui-emoji"> List of Shrimp
-                        </button>
-
-                        <div class="tank-status" id="tankStatus" style="font-size: 14px; padding: 8px 14px;">0 / 100
+                        <!-- Right: List button & Population counter -->
+                        <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+                            <button id="shrimpListBtn" class="secondary-button hidden"
+                                style="padding: 7px 12px; font-size: 13px;">
+                                <img src="emoji/list.png" alt="List" class="ui-emoji"> List of Shrimp
+                            </button>
+                            <div class="tank-status" id="tankStatus" style="font-size: 14px; padding: 7px 12px;">0 / 100</div>
                         </div>
                     </div>
 
@@ -180,6 +227,10 @@
                     <div class="aquarium-footer">
                         <div class="aquarium-help">Click a shrimp to inspect it.</div>
                         <div class="aquarium-sell-controls">
+                            <button id="tankBulkCullBtn" class="primary-button hidden" style="background-color: #52a56c;">
+                                <img src="emoji/baby.png" alt="Nursery" class="ui-emoji"> Nursery Harvest (0)
+                            </button>
+
                             <button id="sellModeButton" class="secondary-button">
                                 <img src="emoji/shrimp.png" alt="Select Mode" class="ui-emoji"> Select Mode: OFF
                             </button>
@@ -191,6 +242,8 @@
                             </button>
                         </div>
                     </div>
+
+
                 </div>
             </div> <!-- End left-column-grid -->
 

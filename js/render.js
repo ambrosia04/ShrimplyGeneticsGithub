@@ -46,22 +46,28 @@ function renderHeader() {
 
   // Target Alleles Dropdown Visibility (Requires "firstBirth" achievement)
   const hasFirstBirth = game.achievements && game.achievements.includes("firstBirth");
-  
-  const trackedContainer = document.getElementById("trackedAllelesContainer");
-  toggleVisible(trackedContainer, hasFirstBirth, "inline-block");
 
-  const trackedShrimpContainer = document.getElementById("trackedShrimpContainer");
-  toggleVisible(trackedShrimpContainer, hasFirstBirth, "inline-block");
+  const cullingGroup = document.getElementById("cullingTargetsGroup");
+  toggleVisible(cullingGroup, hasFirstBirth, "flex");
 
-  // Update button label counters on frame render
-  const trackedLabel = document.getElementById("trackedAllelesBtnLabel");
-  if (trackedLabel && game && game.trackedAlleles) {
-    trackedLabel.textContent = `Target Alleles (${game.trackedAlleles.length})`;
+  const filterAllelesLabel = document.getElementById("tankFilterAllelesBtnLabel");
+  if (filterAllelesLabel && game && game.tankFilterAlleles) {
+    filterAllelesLabel.textContent = `Alleles (${game.tankFilterAlleles.length})`;
+  }
+
+  const filterShrimpLabel = document.getElementById("tankFilterShrimpBtnLabel");
+  if (filterShrimpLabel && game && game.tankFilterSpecies) {
+    filterShrimpLabel.textContent = `Shrimp (${game.tankFilterSpecies.length})`;
+  }
+
+  const trackedAllelesLabel = document.getElementById("trackedAllelesBtnLabel");
+  if (trackedAllelesLabel && game && game.trackedAlleles) {
+    trackedAllelesLabel.textContent = `Alleles (${game.trackedAlleles.length})`;
   }
 
   const trackedShrimpLabel = document.getElementById("trackedShrimpBtnLabel");
   if (trackedShrimpLabel && game && game.trackedSpecies) {
-    trackedShrimpLabel.textContent = `Target Shrimp (${game.trackedSpecies.length})`;
+    trackedShrimpLabel.textContent = `Shrimp (${game.trackedSpecies.length})`;
   }
 
   if (tankDropdown) {
@@ -159,6 +165,16 @@ function renderAquarium() {
     } else {
       sellControls.style.display = "flex";
     }
+  }
+
+  const nurseryBtn = document.getElementById("tankBulkCullBtn");
+  if (nurseryBtn) {
+    const hasUpgrade = game && game.plants && game.plants.includes("autoNursery");
+    const spawningCount = game ? game.shrimp.filter(s => (s.tank || "tank1") === currentTank && s.readyToBirth && !s.dead).length : 0;
+
+    toggleVisible(nurseryBtn, hasUpgrade, "inline-flex");
+    nurseryBtn.disabled = spawningCount === 0;
+    nurseryBtn.innerHTML = `<img src="emoji/baby.png" alt="Nursery" class="ui-emoji"> Nursery Harvest (${spawningCount})`;
   }
 
   const leftPlant = document.getElementById("aquariumPlantLeft");
@@ -305,6 +321,9 @@ function renderMovableShrimpList() {
   const movable = document.getElementById("movableShrimpList");
   if (!movable || movable.classList.contains("hidden")) return;
 
+  const searchInput = document.getElementById("tankListSearchInput");
+  const query = searchInput ? searchInput.value.toLowerCase().trim() : "";
+
   const body = movable.querySelector(".movable-body");
   if (!body) return;
 
@@ -318,7 +337,12 @@ function renderMovableShrimpList() {
   );
 
   const discCount = (game.discovered || []).length;
+  const filterKey = (game.tankFilterAlleles || []).join(",") + "_" + (game.tankFilterSpecies || []).join(",");
   const shrimpIdString =
+    filterKey +
+    "|" +
+    query +
+    "|" +
     discCount +
     "|" +
     currentAquarium +
@@ -394,6 +418,21 @@ function renderMovableShrimpList() {
     });
   }
 
+  // Filter list by search query if typed
+  if (query) {
+    sortedList = sortedList.filter(s => {
+      const name = displayName(s).toLowerCase();
+      const a1 = SHRRIMP_SAFE(s.hiddenGenes.allele1).name.toLowerCase();
+      const a2 = SHRRIMP_SAFE(s.hiddenGenes.allele2).name.toLowerCase();
+      const sex = s.sex.toLowerCase();
+      const stage = lifeStage(s).toLowerCase();
+      const status = s.readyToBirth ? "spawning" : s.pregnant ? "berried" : s.resting ? "resting" : "";
+
+      return name.includes(query) || a1.includes(query) || a2.includes(query) ||
+        sex.includes(query) || stage.includes(query) || status.includes(query);
+    });
+  }
+
   sortedList.forEach((shrimp) => {
     const imgPrefix = getShrimpImagePrefix(shrimp);
     const data = SHRRIMP_SAFE(shrimp.species);
@@ -411,6 +450,11 @@ function renderMovableShrimpList() {
 
     if (isSingleSelected || isSellSelected) {
       card.classList.add("selected-shrimp-card");
+    }
+
+    // TANK SEARCH GREEN HIGHLIGHT (placed safely inside the forEach loop where shrimp and card exist)
+    if (typeof isShrimpTankFiltered === "function" && isShrimpTankFiltered(shrimp)) {
+      card.classList.add("tank-filter-highlighted");
     }
 
     const mediaDiv = document.createElement("div");
@@ -472,7 +516,8 @@ function renderMovableShrimpList() {
     genesSpan.style.fontSize = "10px";
     genesSpan.style.marginTop = "2px";
     genesSpan.style.color = "var(--muted)";
-genesSpan.innerHTML = `${icon("dna")} Alleles: ${formatAlleleDisplay(shrimp.hiddenGenes.allele1)} / ${formatAlleleDisplay(shrimp.hiddenGenes.allele2)}`;    infoDiv.appendChild(genesSpan);
+    genesSpan.innerHTML = `${icon("dna")} Alleles: ${formatAlleleDisplay(shrimp.hiddenGenes.allele1)} / ${formatAlleleDisplay(shrimp.hiddenGenes.allele2)}`; 
+    infoDiv.appendChild(genesSpan);
 
     card.appendChild(infoDiv);
 
@@ -877,9 +922,14 @@ function renderShrimpShop() {
   if (isRedCrawfishUnlocked()) activeShopShrimp.push("redCrawfish");
   if (isRedNoseUnlocked()) activeShopShrimp.push("redNose");
   if (isVampireUnlocked()) activeShopShrimp.push("vampireShrimp");
-  
 
-  for (const species of activeShopShrimp) {
+
+  for (const shopEntry of SHOP_SHRIMP) {
+    const species = typeof shopEntry === "string" ? shopEntry : shopEntry.id;
+    const reqCount = shopEntry.requiredDiscoveries || 0;
+    const currentDiscovered = (game.discovered || []).length;
+    const isUnlockedByMilestone = currentDiscovered >= reqCount;
+
     const data = SHRRIMP_SAFE(species);
     const price = SHRIMP_PRICES[species] || 10;
     const canAfford = game.money >= price;
@@ -887,8 +937,16 @@ function renderShrimpShop() {
     const isOwnedSulawesi =
       species === "galaxySulawesi" &&
       game.shrimp.some((s) => s.species === "galaxySulawesi" && !s.dead);
-    const isDisabled = !canAfford || isOwnedSulawesi ? "disabled" : "";
-    const buttonText = isOwnedSulawesi ? "Owned" : "Buy";
+
+    const isLocked = !isUnlockedByMilestone;
+    const isDisabled = isLocked || !canAfford || isOwnedSulawesi ? "disabled" : "";
+
+    let buttonText = "Buy";
+    if (isLocked) {
+      buttonText = `${icon("lock")} ${currentDiscovered}/${reqCount} Unlocked`;
+    } else if (isOwnedSulawesi) {
+      buttonText = "Owned";
+    }
 
     const card = document.createElement("div");
     card.className = `shop-card ${isDiscovered ? "" : "locked-preview"}`;
@@ -903,7 +961,7 @@ function renderShrimpShop() {
             </div>
             <h3>${displayedName}</h3>
             <div class="small-text">${capitalize(data.rarity)}</div>
-            <div class="shop-price">$${price}</div>
+            <div class="shop-price">${isLocked ? `<span style="font-size: 11px; color: var(--muted);">${reqCount} varieties required</span>` : "$" + price}</div>
             <button class="shop-button" ${isDisabled}>${buttonText}</button>
         `;
 
@@ -1074,26 +1132,46 @@ function renderSpeedShop() {
 
   container.innerHTML = "";
 
+  const SPEED_PREREQUISITES = {
+    5: 2,
+    20: 5,
+    60: 20
+  };
+
   SPEED_UPGRADES.forEach((upgrade) => {
     const owned = game.unlockedSpeeds.includes(upgrade.speed);
+    const prevRequired = SPEED_PREREQUISITES[upgrade.speed];
+    const hasPrerequisite = !prevRequired || game.unlockedSpeeds.includes(prevRequired);
+
     const canAfford = game.money >= upgrade.price;
-    const isDisabled = owned || !canAfford;
-    const buttonText = owned ? "Unlocked" : "Unlock";
+    const canBuy = !owned && hasPrerequisite && canAfford;
+
+    let buttonText = "Unlock";
+    let statusText = owned ? "Unlocked" : "Locked";
+    let priceHTML = `$${upgrade.price}`;
+
+    if (owned) {
+      buttonText = "Unlocked";
+    } else if (!hasPrerequisite) {
+      buttonText = `🔒 Requires ${prevRequired}x`;
+      statusText = `Requires ${prevRequired}x`;
+      priceHTML = `<span style="font-size: 11px; color: var(--muted);">${prevRequired}x speed required</span>`;
+    }
 
     const card = document.createElement("div");
     card.className = "shop-card";
     card.innerHTML = `
             <h3>⚡ ${upgrade.name}</h3>
             <p class="small-text">${upgrade.desc}</p>
-            <p>Status: <strong>${owned ? "Unlocked" : "Locked"}</strong></p>
-            <div class="shop-price">$${upgrade.price}</div>
-            <button class="shop-button" ${isDisabled ? "disabled" : ""}>${buttonText}</button>
+            <p>Status: <strong>${statusText}</strong></p>
+            <div class="shop-price">${priceHTML}</div>
+            <button class="shop-button" ${!canBuy ? "disabled" : ""}>${buttonText}</button>
         `;
 
     container.appendChild(card);
 
     const buyBtn = card.querySelector(".shop-button");
-    if (buyBtn && !owned && canAfford) {
+    if (buyBtn && canBuy) {
       buyBtn.addEventListener("click", () => {
         buySpeedUpgrade(upgrade);
       });
