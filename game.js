@@ -68,43 +68,43 @@ const SHOP_PLANTS = {
     },
     berriedPlant: {
         name: "Amazon Frogbit",
-        price: 1380,
+        price: 1800,
         description: "Reduces female resting/cooldown time by 15%.",
         effect: "restReduction"
     },
     pregnancyPlant: {
         name: "Java Moss",
-        price: 1780,
+        price: 3200,
         description: "Reduces pregnancy duration by 15%.",
         effect: "pregnancyReduction"
     },
     babyPlant: {
         name: "Water Sprite",
-        price: 2400,
+        price: 5500,
         description: "Increases babies born by 15%.",
         effect: "babyBoost"
     },
     growthPlant: {
         name: "Hornwort",
-        price: 3820,
+        price: 9200,
         description: "Shrimp mature 15% faster.",
         effect: "growthBoost"
     },
     mutationPlant: {
         name: "Mutation Algae",
-        price: 5750,
+        price: 16000,
         description: "Alters the water chemistry to double the baseline genetic mutation rate (increases it by 5%).",
         effect: "mutationBoost"
     },
     autoNursery: {
         name: "Automated Nursery",
-        price: 10500,
+        price: 32000,
         description: "Unlocks the 'Nursery Harvest' button. Auto-sells duplicate tank offspring for cash while opening a cull menu for only new variants, new alleles, and target shrimp.",
         effect: "autoNursery"
     },
     marimo: {
         name: "Marimo",
-        price: 15750,
+        price: 25000,
         description: "Makes the shrimp happy, increasing the genetic mutation rate (increases it by 10%).",
         effect: "superMutationBoost"
     }
@@ -116,15 +116,15 @@ const SHOP_PLANTS = {
 
 const TANK_UPGRADES = [
     { unlockedTanks: 1, price: 0, name: "Starter Aquarium (Tank 1)" },
-    { unlockedTanks: 2, price: 500, name: "Second Aquarium (Tank 2)" },
+    { unlockedTanks: 2, price: 400, name: "Second Aquarium (Tank 2)" },
     { unlockedTanks: 3, price: 1500, name: "Third Aquarium (Tank 3)" },
     { unlockedTanks: 4, price: 3500, name: "Fourth Aquarium (Tank 4)" },
-    { unlockedTanks: 5, price: 7000, name: "Fifth Aquarium (Tank 5)" },
-    { unlockedTanks: 6, price: 12000, name: "Sixth Aquarium (Tank 6)" },
-    { unlockedTanks: 7, price: 18000, name: "Seventh Aquarium (Tank 7)" },
-    { unlockedTanks: 8, price: 26000, name: "Eighth Aquarium (Tank 8)" },
-    { unlockedTanks: 9, price: 36000, name: "Ninth Aquarium (Tank 9)" },
-    { unlockedTanks: 10, price: 50000, name: "Master Breeder (Tank 10)" }
+    { unlockedTanks: 5, price: 9000, name: "Fifth Aquarium (Tank 5)" },
+    { unlockedTanks: 6, price: 20000, name: "Sixth Aquarium (Tank 6)" },
+    { unlockedTanks: 7, price: 42000, name: "Seventh Aquarium (Tank 7)" },
+    { unlockedTanks: 8, price: 80000, name: "Eighth Aquarium (Tank 8)" },
+    { unlockedTanks: 9, price: 150000, name: "Ninth Aquarium (Tank 9)" },
+    { unlockedTanks: 10, price: 275000, name: "Master Breeder (Tank 10)" }
 ];
 
 function getUnlockedTanks() {
@@ -142,12 +142,12 @@ function getUnlockedTanks() {
 ========================================================= */
 
 const SPEED_UPGRADES = [
-    { speed: 2, price: 400, name: "2x Time Acceleration", desc: "Unlock 2x game speed to accelerate breeding checks." },
-    { speed: 5, price: 3500, name: "5x Time Acceleration", desc: "Unlock 5x game speed to accelerate breeding checks." },
-    { speed: 20, price: 7500, name: "20x Time Acceleration", desc: "Unlock 20x game speed to speed up growth rates." },
-    { speed: 60, price: 15000, name: "60x Time Acceleration", desc: "Unlock 60x game speed for maximum breeding warp." },
-    { speed: "game", price: 2000, name: `${icon('controller')} Evolution Console`, desc: "Unlocks an action minigame to play and earn extra cash!" },
-    { speed: "game2", price: 6000, name: `${icon('microscope')} Clado Scanner Console`, desc: "Unlocks a minigame about identifying cladocera to earn extra cash!!" }
+    { speed: 2, price: 500, name: "2x Time Acceleration", desc: "Unlock 2x game speed to accelerate breeding checks." },
+    { speed: 5, price: 6000, name: "5x Time Acceleration", desc: "Unlock 5x game speed to accelerate breeding checks." },
+    { speed: 20, price: 45000, name: "20x Time Acceleration", desc: "Unlock 20x game speed to speed up growth rates." },
+    { speed: 60, price: 125000, name: "60x Time Acceleration", desc: "Unlock 60x game speed for maximum breeding warp." },
+    { speed: "game", price: 2500, name: `${icon('controller')} Evolution Console`, desc: "Unlocks an action minigame to play and earn extra cash!" },
+    { speed: "game2", price: 12000, name: `${icon('microscope')} Clado Scanner Console`, desc: "Unlocks a minigame about identifying cladocera to earn extra cash!!" }
 ];
 
 /* =========================================================
@@ -1809,10 +1809,10 @@ function getPlantPrice(id) {
 
     if (id === "marimo") {
         const count = countPlants("marimo");
-        if (count === 0) return 15750;
-        if (count === 1) return 15750 * 2;
-        if (count === 2) return 15750 * 2 * 3;
-        return 94500;
+        if (count === 0) return 25000;
+        if (count === 1) return 25000 * 3;
+        if (count === 2) return 25000 * 8;
+        return 200000;
     }
     return plant.price;
 }

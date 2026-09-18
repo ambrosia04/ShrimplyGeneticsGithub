@@ -52,21 +52,27 @@ const WILD_PATTERNS = {
 ========================================================= */
 
 const SHRIMP_PRICES = {
+    // === TIER 1: Standard Neocaridina Mutation Line ===
     redCherry: 25,
     yellow: 120,
-    orange: 255,
-    shoko: 400,
-    wildPalmata: 800,
-    babaultiWild: 1050,
-    sakuraRedA: 1500,
-    deepBlueNeo: 3000,
-    bambooShrimp: 7000,
-    legendaryScud: 8500,
-    amanoShrimp: 9500,
-    redCrawfish: 11000,
-    redNose: 12500,
-    galaxySulawesi: 13000,
-    vampireShrimp: 15000
+    orange: 260,
+    shoko: 550,
+    wildPalmata: 1100,
+    sakuraRedA: 1850,
+
+    // === TIER 2: Early Milestones & Mid-Game ===
+    babaultiWild: 2800,    // Reward: 100% Red family alleles
+    legendaryScud: 7500,   // Reward: Clado Scanner Console ($12k unlock)
+    galaxySulawesi: 9500,  // Reward: Tank 6 ($20k unlock - perfect bridge into automation)
+
+    // === TIER 3: Late-Game Specialized Breeders ===
+    bambooShrimp: 12000,   // Reward: All common shrimp discovered
+    redCrawfish: 18000,    // Reward: Favorites Tank (Slow breeding, high unit payout)
+    redNose: 28000,        // Reward: 100% Alleles for BOTH Palmata + Red
+
+    // === TIER 4: Grandmaster / Endgame Trophies ===
+    amanoShrimp: 50000,    // Reward: Own ALL shop plants
+    vampireShrimp: 85000   // Reward: 100% Alleles across 4 entire families
 };
 
 /* =========================================================

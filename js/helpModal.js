@@ -128,7 +128,7 @@
                     If you encounter any bug, please complete <a href="https://forms.gle/Btyvygo7EUvUDa1c9" target="_blank" rel="noopener noreferrer" style="color: var(--primary); font-weight: bold; text-decoration: underline;">this form</a> or email me at <a href="mailto:okamidevelop@gmail.com" style="color: var(--primary); font-weight: bold; text-decoration: underline;">okamidevelop@gmail.com</a>.
                 </div>
                 <div style="margin-top: 20px; padding-top: 15px; border-top: 1.5px solid var(--border); font-size: 13px; color: var(--muted);">
-                    Current version: 1.0.3
+                    Current version: 1.0.3a
                 </div>
             </div>
         </div>
