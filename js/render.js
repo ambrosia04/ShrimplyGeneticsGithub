@@ -155,17 +155,9 @@ function renderAquarium() {
 
   const sellControls = document.querySelector(".aquarium-sell-controls");
   if (sellControls) {
-    if (currentTank === "favorites") {
-      sellControls.style.display = "none";
-      if (game.sellModeActive) {
-        game.sellModeActive = false;
-        game.selectedForSaleIds = [];
-        updateSellModeUI();
-      }
-    } else {
-      sellControls.style.display = "flex";
-    }
+    sellControls.style.display = "flex";
   }
+
 
   const nurseryBtn = document.getElementById("tankBulkCullBtn");
   if (nurseryBtn) {
