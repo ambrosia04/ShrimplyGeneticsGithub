@@ -59,6 +59,7 @@ const SHRIMP_PRICES = {
     shoko: 550,
     wildPalmata: 1100,
     sakuraRedA: 1850,
+    deepBlueNeo: 2500,
 
     // === TIER 2: Early Milestones & Mid-Game ===
     babaultiWild: 2800,    // Reward: 100% Red family alleles
@@ -261,7 +262,7 @@ const SHRIMP = {
         rarity: "epic",
         family: "red",
         color: "#f5a31d",
-        image: "koisunburst",
+        image: "koisunburstShrimp",
         parents: ["fireRedTaiwan"],
         children: []
     },

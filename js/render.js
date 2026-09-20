@@ -857,8 +857,10 @@ function renderGenetics() {
 
 function renderShop() {
   if (!game) return;
-  if (game.money === lastRenderedMoney) return;
-  lastRenderedMoney = game.money;
+  // If only unlocks changed but money didn't, this would block the re-render
+  const shopState = `${game.money}_${(game.discovered || []).length}_${(game.discoveredAlleles || []).length}_${(game.plants || []).length}_${game.tankUpgradeLevel}_${(game.unlockedSpeeds || []).join(",")}`;
+  if (shopState === lastRenderedMoney) return;
+  lastRenderedMoney = shopState;
 
   renderShrimpShop();
   renderTankShop();
@@ -916,7 +918,7 @@ function renderShrimpShop() {
   if (isVampireUnlocked()) activeShopShrimp.push("vampireShrimp");
 
 
-  for (const shopEntry of SHOP_SHRIMP) {
+  for (const shopEntry of activeShopShrimp) {
     const species = typeof shopEntry === "string" ? shopEntry : shopEntry.id;
     const reqCount = shopEntry.requiredDiscoveries || 0;
     const currentDiscovered = (game.discovered || []).length;
