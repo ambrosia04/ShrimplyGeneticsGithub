@@ -2837,35 +2837,6 @@ function nurseryKeepOne(idx) {
         newShrimp.pattern = baby.pattern;
         discoverWildPattern(newShrimp);
     }
-
-    // Immediately register discoveries so remaining offspring update live!
-    discover(baby.species);
-    discoverAllele(baby.hiddenGenes.allele1);
-    discoverAllele(baby.hiddenGenes.allele2);
-
-    playKeepSound();
-    removeNurseryBaby(idx);
-}
-
-function nurseryKeepOne(idx) {
-    const item = NURSERY_CULL.babies[idx];
-    if (!item) return;
-
-    const targetTank = NURSERY_CULL.targetTank || "tank1";
-    const cap = getTankCapacity(targetTank);
-    const count = game.shrimp.filter(s => (s.tank || "tank1") === targetTank && !s.dead).length;
-
-    if (count >= cap) {
-        addLog(`Cannot keep: ${formatTankName(targetTank)} is full (${count}/${cap})!`);
-        return;
-    }
-
-    const baby = item.baby;
-    const newShrimp = addShrimp(baby.species, baby.sex, false, [item.femaleId], baby.hiddenGenes, targetTank);
-    if (newShrimp) {
-        newShrimp.pattern = baby.pattern;
-        discoverWildPattern(newShrimp);
-    }
     discoverAllele(baby.hiddenGenes.allele1);
     discoverAllele(baby.hiddenGenes.allele2);
 
@@ -3596,8 +3567,13 @@ function showCullModal(female) {
 
         const isNewShrimp = !game.discovered.includes(baby.species);
         const isNewAllele = !game.discoveredAlleles.includes(baby.hiddenGenes.allele1) || !game.discoveredAlleles.includes(baby.hiddenGenes.allele2);
+        
+        const visualId = typeof getShrimpVisualIdentity === "function" ? getShrimpVisualIdentity(baby) : baby.species;
+        const isTargetSpecies = (game.trackedSpecies || []).includes(visualId) || (game.trackedSpecies || []).includes(baby.species);
+        const isTargetAllele = (game.trackedAlleles || []).includes(baby.hiddenGenes.allele1) ||
+            (game.trackedAlleles || []).includes(baby.hiddenGenes.allele2);
 
-        if (isNewShrimp || isNewAllele) {
+        if (isNewShrimp || isNewAllele || isTargetSpecies || isTargetAllele) {
             const badgeContainer = document.createElement("div");
             badgeContainer.style.marginLeft = "auto";
             badgeContainer.style.marginRight = "15px";
@@ -3622,6 +3598,15 @@ function showCullModal(female) {
                 alleleBadge.style.fontSize = "13px";
                 alleleBadge.innerHTML = '<img src="emoji/dna.png" alt="DNA" class="ui-emoji"> NEW';
                 badgeContainer.appendChild(alleleBadge);
+            }
+
+            if (isTargetSpecies || isTargetAllele) {
+                const targetBadge = document.createElement("span");
+                targetBadge.style.fontWeight = "bold";
+                targetBadge.style.color = "#d47b32";
+                targetBadge.style.fontSize = "13px";
+                targetBadge.innerHTML = '<img src="emoji/target.png" alt="Target" class="ui-emoji"> TARGET';
+                badgeContainer.appendChild(targetBadge);
             }
 
             row.appendChild(badgeContainer);
