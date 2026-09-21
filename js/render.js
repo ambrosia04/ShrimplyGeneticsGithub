@@ -94,10 +94,12 @@ function renderHeader() {
 
         tankDropdown.innerHTML = optionsHTML;
         tankDropdown.value = currentTank;
+        tankDropdown.dataset.currentTank = currentTank;
       }
 
-      // Only update the value if the user is not actively clicking/interacting with it
-      if (document.activeElement !== tankDropdown && !tankDropdown.matches(":active") && tankDropdown.value !== currentTank) {
+      // Only sync if the active aquarium changed in game state
+      if (tankDropdown.dataset.currentTank !== currentTank) {
+        tankDropdown.dataset.currentTank = currentTank;
         tankDropdown.value = currentTank;
       }
     }

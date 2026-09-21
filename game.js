@@ -4400,6 +4400,7 @@ function initialize() {
             const newTank = e.target.value;
             if (!newTank) return;
 
+            tankDropdown.dataset.currentTank = newTank;
             game.activeAquarium = newTank;
             game.selectedShrimpId = null;
 
@@ -4646,7 +4647,7 @@ function initialize() {
     if (switchBtn) {
         switchBtn.addEventListener("click", () => {
             playBtnSound();
-            game.activeAquarium = game.activeAquarium === "main" ? "favorites" : "main";
+            game.activeAquarium = game.activeAquarium === "favorites" ? "tank1" : "favorites";
             render();
         });
     }
