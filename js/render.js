@@ -859,8 +859,8 @@ function renderGenetics() {
 
 function renderShop() {
   if (!game) return;
-  // If only unlocks changed but money didn't, this would block the re-render
-  const shopState = `${game.money}_${(game.discovered || []).length}_${(game.discoveredAlleles || []).length}_${(game.plants || []).length}_${game.tankUpgradeLevel}_${(game.unlockedSpeeds || []).join(",")}`;
+  // Use Math.floor so fractional tick income (e.g., from Bamboo Shrimp) doesn't wipe the DOM every frame
+  const shopState = `${Math.floor(game.money)}_${(game.discovered || []).length}_${(game.discoveredAlleles || []).length}_${(game.plants || []).length}_${game.tankUpgradeLevel}_${(game.unlockedSpeeds || []).join(",")}`;
   if (shopState === lastRenderedMoney) return;
   lastRenderedMoney = shopState;
 
@@ -869,7 +869,6 @@ function renderShop() {
   renderSpeedShop();
   renderPlantShop();
 }
-
 function triggerShopConfetti(element) {
   if (!element) return;
   const rect = element.getBoundingClientRect();
