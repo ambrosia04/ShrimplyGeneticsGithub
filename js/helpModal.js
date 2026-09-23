@@ -65,33 +65,32 @@
                     </tr>
                     <tr style="border-bottom: 1px solid var(--border);">
                         <td style="padding: 8px 0;">
-                            <button id="help-key-speed1" class="secondary-button help-rebind-btn" style="min-width: 70px; padding: 4px 8px; font-size: 11px;" data-action="speed1">1</button>
+                            <button id="help-key-speedDown" class="secondary-button help-rebind-btn" style="min-width: 70px; padding: 4px 8px; font-size: 11px;" data-action="speedDown">,</button>
                         </td>
-                        <td style="padding: 8px 0;">Set Speed to 1x</td>
+                        <td style="padding: 8px 0;">Decrease Speed (Min: 1x)</td>
                     </tr>
                     <tr style="border-bottom: 1px solid var(--border);">
                         <td style="padding: 8px 0;">
-                            <button id="help-key-speed2" class="secondary-button help-rebind-btn" style="min-width: 70px; padding: 4px 8px; font-size: 11px;" data-action="speed2">2</button>
+                            <button id="help-key-speedUp" class="secondary-button help-rebind-btn" style="min-width: 70px; padding: 4px 8px; font-size: 11px;" data-action="speedUp">.</button>
                         </td>
-                        <td style="padding: 8px 0;">Set Speed to 2x <span style="font-size: 11px; color: var(--muted);">(Once unlocked)</span></td>
+                        <td style="padding: 8px 0;">Increase Speed (Max: 60x, Unlocked Speeds only)</td>
                     </tr>
                     <tr style="border-bottom: 1px solid var(--border);">
                         <td style="padding: 8px 0;">
-                            <button id="help-key-speed5" class="secondary-button help-rebind-btn" style="min-width: 70px; padding: 4px 8px; font-size: 11px;" data-action="speed5">3</button>
+                            <div style="display: flex; gap: 2px; flex-wrap: wrap;">
+                                <button id="help-key-tank1" class="secondary-button help-rebind-btn" style="min-width: 20px; padding: 2px 4px; font-size: 10px;" data-action="tank1">1</button>
+                                <button id="help-key-tank2" class="secondary-button help-rebind-btn" style="min-width: 20px; padding: 2px 4px; font-size: 10px;" data-action="tank2">2</button>
+                                <button id="help-key-tank3" class="secondary-button help-rebind-btn" style="min-width: 20px; padding: 2px 4px; font-size: 10px;" data-action="tank3">3</button>
+                                <button id="help-key-tank4" class="secondary-button help-rebind-btn" style="min-width: 20px; padding: 2px 4px; font-size: 10px;" data-action="tank4">4</button>
+                                <button id="help-key-tank5" class="secondary-button help-rebind-btn" style="min-width: 20px; padding: 2px 4px; font-size: 10px;" data-action="tank5">5</button>
+                                <button id="help-key-tank6" class="secondary-button help-rebind-btn" style="min-width: 20px; padding: 2px 4px; font-size: 10px;" data-action="tank6">6</button>
+                                <button id="help-key-tank7" class="secondary-button help-rebind-btn" style="min-width: 20px; padding: 2px 4px; font-size: 10px;" data-action="tank7">7</button>
+                                <button id="help-key-tank8" class="secondary-button help-rebind-btn" style="min-width: 20px; padding: 2px 4px; font-size: 10px;" data-action="tank8">8</button>
+                                <button id="help-key-tank9" class="secondary-button help-rebind-btn" style="min-width: 20px; padding: 2px 4px; font-size: 10px;" data-action="tank9">9</button>
+                                <button id="help-key-tank10" class="secondary-button help-rebind-btn" style="min-width: 20px; padding: 2px 4px; font-size: 10px;" data-action="tank10">0</button>
+                            </div>
                         </td>
-                        <td style="padding: 8px 0;">Set Speed to 5x <span style="font-size: 11px; color: var(--muted);">(Once unlocked)</span></td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid var(--border);">
-                        <td style="padding: 8px 0;">
-                            <button id="help-key-speed20" class="secondary-button help-rebind-btn" style="min-width: 70px; padding: 4px 8px; font-size: 11px;" data-action="speed20">4</button>
-                        </td>
-                        <td style="padding: 8px 0;">Set Speed to 20x <span style="font-size: 11px; color: var(--muted);">(Once unlocked)</span></td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid var(--border);">
-                        <td style="padding: 8px 0;">
-                            <button id="help-key-speed60" class="secondary-button help-rebind-btn" style="min-width: 70px; padding: 4px 8px; font-size: 11px;" data-action="speed60">5</button>
-                        </td>
-                        <td style="padding: 8px 0;">Set Speed to 60x <span style="font-size: 11px; color: var(--muted);">(Once unlocked)</span></td>
+                        <td style="padding: 8px 0;">Fast travel to Tanks 1-10 (0 = Tank 10, Unlocked only)</td>
                     </tr>
                 </table>
 

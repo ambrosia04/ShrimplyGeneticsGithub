@@ -13,11 +13,18 @@ const DEFAULT_SHORTCUTS = {
     settings: "J",
     sellMode: "E",
     favoriteTank: "F",
-    speed1: "1",
-    speed2: "2",
-    speed5: "3",
-    speed20: "4",
-    speed60: "5"
+    speedDown: ",",
+    speedUp: ".",
+    tank1: "1",
+    tank2: "2",
+    tank3: "3",
+    tank4: "4",
+    tank5: "5",
+    tank6: "6",
+    tank7: "7",
+    tank8: "8",
+    tank9: "9",
+    tank10: "0"
 };
 
 // Tracking active rebinding key actions
@@ -278,6 +285,14 @@ function loadGame() {
             if (game.shortcuts.log === "L") game.shortcuts.log = "A";
             if (game.shortcuts.settings === "A") game.shortcuts.settings = "J";
 
+            // Clean up obsolete speed keys if present from older versions
+            delete game.shortcuts.speed1;
+            delete game.shortcuts.speed2;
+            delete game.shortcuts.speed5;
+            delete game.shortcuts.speed20;
+            delete game.shortcuts.speed60;
+
+            // Merge any missing defaults (including speedDown, speedUp, and tank1-tank10)
             for (const key of Object.keys(DEFAULT_SHORTCUTS)) {
                 if (game.shortcuts[key] === undefined) {
                     game.shortcuts[key] = DEFAULT_SHORTCUTS[key];
@@ -825,11 +840,18 @@ function renderShortcutsConfig() {
         settings: "Settings Tab",
         sellMode: "Toggle Sell Mode",
         favoriteTank: "Toggle Favorites",
-        speed1: "Speed 1x",
-        speed2: "Speed 2x",
-        speed5: "Speed 5x",
-        speed20: "Speed 20x",
-        speed60: "Speed 60x"
+        speedDown: "Speed Down (,)",
+        speedUp: "Speed Up (.)",
+        tank1: "Go to Tank 1",
+        tank2: "Go to Tank 2",
+        tank3: "Go to Tank 3",
+        tank4: "Go to Tank 4",
+        tank5: "Go to Tank 5",
+        tank6: "Go to Tank 6",
+        tank7: "Go to Tank 7",
+        tank8: "Go to Tank 8",
+        tank9: "Go to Tank 9",
+        tank10: "Go to Tank 10"
     };
 
     for (const [action, key] of Object.entries(game.shortcuts)) {
@@ -880,7 +902,8 @@ function updateHelpModalShortcuts() {
 
     const helpActions = [
         "tank", "shop", "collection", "genetics", "log", "settings",
-        "sellMode", "favoriteTank", "speed1", "speed2", "speed5", "speed20", "speed60"
+        "sellMode", "favoriteTank", "speedDown", "speedUp",
+        "tank1", "tank2", "tank3", "tank4", "tank5", "tank6", "tank7", "tank8", "tank9", "tank10"
     ];
 
     helpActions.forEach(action => {
@@ -2828,6 +2851,7 @@ function nurseryKeepOne(idx) {
 
     if (count >= cap) {
         addLog(`Cannot keep: ${formatTankName(targetTank)} is full (${count}/${cap})!`);
+        showCapacityWarning();
         return;
     }
 
@@ -2837,6 +2861,9 @@ function nurseryKeepOne(idx) {
         newShrimp.pattern = baby.pattern;
         discoverWildPattern(newShrimp);
     }
+
+    // Immediately register discoveries so remaining offspring update live
+    discover(baby.species);
     discoverAllele(baby.hiddenGenes.allele1);
     discoverAllele(baby.hiddenGenes.allele2);
 
@@ -4453,8 +4480,8 @@ function initialize() {
                 return;
             }
 
-            const isAlphanumeric = /^[A-Z0-9]$/.test(inputKey);
-            if (!isAlphanumeric) return;
+            const isValidKey = /^[A-Z0-9,\.]$/.test(inputKey);
+            if (!isValidKey) return;
 
             for (const [action, key] of Object.entries(game.shortcuts)) {
                 if (key === inputKey) {
@@ -4512,21 +4539,42 @@ function initialize() {
                         switchBtn.click();
                     }
                 }
-            } else if (triggeredAction === "speed1") {
-                const btn = document.getElementById("speed1");
-                if (btn && !btn.disabled) btn.click();
-            } else if (triggeredAction === "speed2") {
-                const btn = document.getElementById("speed2");
-                if (btn && !btn.disabled && game.unlockedSpeeds.includes(2)) btn.click();
-            } else if (triggeredAction === "speed5") {
-                const btn = document.getElementById("speed5");
-                if (btn && !btn.disabled && game.unlockedSpeeds.includes(5)) btn.click();
-            } else if (triggeredAction === "speed20") {
-                const btn = document.getElementById("speed20");
-                if (btn && !btn.disabled && game.unlockedSpeeds.includes(20)) btn.click();
-            } else if (triggeredAction === "speed60") {
-                const btn = document.getElementById("speed60");
-                if (btn && !btn.disabled && game.unlockedSpeeds.includes(60)) btn.click();
+            } else if (triggeredAction === "speedDown") {
+                const speedLadder = [1, 2, 5, 20, 60];
+                const availableSpeeds = speedLadder.filter(s => game.unlockedSpeeds.includes(s));
+                const currentIdx = availableSpeeds.indexOf(GAME.speed);
+                if (currentIdx > 0) {
+                    const prevSpeed = availableSpeeds[currentIdx - 1];
+                    const btn = document.getElementById(`speed${prevSpeed}`);
+                    if (btn) btn.click();
+                }
+            } else if (triggeredAction === "speedUp") {
+                const speedLadder = [1, 2, 5, 20, 60];
+                const availableSpeeds = speedLadder.filter(s => game.unlockedSpeeds.includes(s));
+                const currentIdx = availableSpeeds.indexOf(GAME.speed);
+                if (currentIdx !== -1 && currentIdx < availableSpeeds.length - 1) {
+                    const nextSpeed = availableSpeeds[currentIdx + 1];
+                    const btn = document.getElementById(`speed${nextSpeed}`);
+                    if (btn) btn.click();
+                }
+            } else if (triggeredAction.startsWith("tank")) {
+                const targetTank = triggeredAction; // e.g. "tank1", "tank10"
+                const unlockedTanks = getUnlockedTanks();
+                if (unlockedTanks.includes(targetTank) && game.activeAquarium !== targetTank) {
+                    game.activeAquarium = targetTank;
+                    game.selectedShrimpId = null;
+                    if (game.sellModeActive) {
+                        game.selectedForSaleIds = [];
+                        updateSellModeUI();
+                    }
+                    const listBody = document.querySelector("#movableShrimpList .movable-body");
+                    if (listBody) delete listBody.dataset.cache;
+                    lastSelectedId = null;
+                    lastSidebarState = "";
+                    playBtnSound();
+                    saveGame();
+                    render();
+                }
             }
         }
     });
