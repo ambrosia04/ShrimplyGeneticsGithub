@@ -103,14 +103,24 @@ button:disabled {
 }
 
 /* Rarity Color Class Utilities */
-.rarity-common { color: #4d875b; }
-.rarity-uncommon { color: #4e76a7; }
-.rarity-rare { color: #8658b5; }
-.rarity-epic { color: #d47b32; }
-.rarity-wild { color: #6c6c6c; }
+.rarity-common { color: #6c6c6c; }
+.rarity-uncommon { color: #27ae60; }
+.rarity-rare { color: #2980b9; }
+.rarity-epic { color: #8e44ad; }
 .rarity-legendary {
     color: #f1c40f;
     text-shadow: 0 0 2px rgba(241, 196, 15, 0.3);
+}
+
+.rarity-special {
+    color: #2ecc71;
+    text-shadow: 0 0 6px rgba(46, 204, 113, 0.6), 0 0 12px rgba(46, 204, 113, 0.3);
+    font-weight: bold;
+}
+
+.rarity-btn-special {
+    border-color: #2ecc71 !important;
+    box-shadow: 0 0 15px rgba(46, 204, 113, 0.4) !important;
 }
 
 /* =========================================================
@@ -1223,7 +1233,7 @@ body.dark-theme .shrimp-list-item.selected-shrimp-card {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 10005 !important;
     padding: 15px;
 }
 
@@ -1545,10 +1555,11 @@ body:has(.minigame-overlay:not(.hidden)) {
     background: radial-gradient(circle at 50% 50%, #062733, #134d61);
 }
 
+/* Base size for all minigame shrimp (increased base dimensions) */
 .minigame-shrimp {
     position: absolute;
-    width: 75px;
-    height: 50px;
+    width: 95px;   /* Increased from 75px */
+    height: 65px;  /* Increased from 50px */
     cursor: pointer;
     user-select: none;
     z-index: 10;
@@ -1683,33 +1694,48 @@ body:has(.minigame-overlay:not(.hidden)) {
     transform: translateY(1px);
 }
 
-#minigame2Canvas .minigame-shrimp.nimble { transform: scale(1.5); }
-#minigame2Canvas .minigame-shrimp.basic { transform: scale(1.8); }
+/* Minigame 1: Scale boosts */
+.minigame-shrimp.basic { transform: scale(1.4); }  /* Default was 1.0 */
+.minigame-shrimp.bulky { transform: scale(1.75); } /* Increased from 1.35 */
+.minigame-shrimp.nimble { transform: scale(1.2); } /* Increased from 0.85 */
 
-#minigame2Canvas .egg {
-    width: 8px;
-    height: 8px;
-    border: 0.5px solid rgba(255, 255, 255, 0.4);
-}
+/* Minigame 2 (Clado Scanner): Scale boosts */
+#minigame2Canvas .minigame-shrimp.basic { transform: scale(2.0); }  /* Increased from 1.8 */
+#minigame2Canvas .minigame-shrimp.nimble { transform: scale(1.75); } /* Increased from 1.5 */
 
 #minigame2Canvas .egg-cluster,
 #minigame2Canvas .clado-cluster {
-    width: 30px;
-    height: 14px;
-    left: 13px;
-    bottom: 8px;
+    position: absolute;
+    width: 32px;
+    height: 4px;
+    left: 24px;
+    bottom: 20px;
+    z-index: 1;
+    pointer-events: none;
 }
 
-#minigame2Canvas .egg:nth-child(1), #minigame2Canvas .clado-triangle:nth-child(1) { left: 0px; top: 4px; }  
-#minigame2Canvas .egg:nth-child(2), #minigame2Canvas .clado-triangle:nth-child(2) { left: 6px; top: 4px; }
-#minigame2Canvas .egg:nth-child(3), #minigame2Canvas .clado-triangle:nth-child(3) { left: 12px; top: 4px; }
-#minigame2Canvas .egg:nth-child(4), #minigame2Canvas .clado-triangle:nth-child(4) { left: 18px; top: 4px; }
+#minigame2Canvas .egg {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 0.5px solid rgba(255, 255, 255, 0.4);
+}
 
 #minigame2Canvas .clado-triangle {
-    border-left: 4.5px solid transparent;
-    border-right: 4.5px solid transparent;
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
     border-top: 8px solid #52a56c;
+    filter: drop-shadow(0px 1px 1.5px rgba(0, 0, 0, 0.4));
 }
+
+#minigame2Canvas .egg:nth-child(1), #minigame2Canvas .clado-triangle:nth-child(1) { left: 0px; top: 0px; }  
+#minigame2Canvas .egg:nth-child(2), #minigame2Canvas .clado-triangle:nth-child(2) { left: 7px; top: 0px; }
+#minigame2Canvas .egg:nth-child(3), #minigame2Canvas .clado-triangle:nth-child(3) { left: 14px; top: 0px; }
+#minigame2Canvas .egg:nth-child(4), #minigame2Canvas .clado-triangle:nth-child(4) { left: 21px; top: 0px; }
 
 /* Minigame 3: Food Preparation */
 .prep-stage-container {
@@ -2169,4 +2195,775 @@ body.dark-theme ::-webkit-scrollbar-thumb:hover {
     .info-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+}
+
+/* =========================================================
+   BLACK MARKET & BREEDER'S JOURNAL
+========================================================= */
+
+#journalModal .modal-box {
+    display: flex !important;
+    flex-direction: column !important;
+    max-height: 85vh !important;
+    height: 680px !important;
+    overflow: hidden !important;
+}
+
+#journalEntriesContainer {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto !important;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-right: 8px;
+    margin-top: 6px;
+}
+
+.journal-rarity-group {
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--panel);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.journal-rarity-header {
+    padding: 10px 14px;
+    background: rgba(74, 159, 186, 0.08);
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+    border-bottom: 1px solid transparent;
+}
+
+.journal-rarity-header:hover {
+    background: rgba(74, 159, 186, 0.16);
+}
+
+.journal-cards-container {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-top: 1px solid var(--border);
+}
+
+.journal-cards-container.hidden {
+    display: none !important;
+    padding: 0 !important;
+    border-top: none !important;
+}
+
+.journal-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    background: #fbfdfd;
+    gap: 14px;
+}
+
+body.dark-theme .journal-card {
+    background: #172327;
+}
+
+.journal-card-text {
+    flex: 1;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.journal-card-img {
+    width: 65px;
+    height: 45px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+/* =========================================================
+   BLACK MARKET VISUAL NOVEL & ANIMATED BASEMENT
+========================================================= */
+
+/* 1. Procedural Low-Light Background */
+.black-market-screen {
+    background: radial-gradient(circle at 50% 25%, #0e1c22 0%, #060b0d 65%, #020405 100%) !important;
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    height: 100vh !important;
+    width: 100vw !important;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 2. Topbar Money Badge */
+.bm-money-stat {
+    background: #1e2f33 !important;
+    color: #e6f2f4 !important;
+    border: 1px solid #293c40 !important;
+}
+
+.bm-money-stat span {
+    color: #52a56c !important;
+    font-weight: bold;
+}
+
+/* 3. Ceiling Light Fixtures & Volumetric Cones */
+.bm-ceiling-lights-bar {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    right: 0;
+    height: 38%;
+    display: flex;
+    justify-content: space-around;
+    padding: 0 4vw;
+    box-sizing: border-box;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.bm-light-fixture {
+    position: relative;
+    width: 22%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.bm-lamp-head {
+    width: 48px;
+    height: 14px;
+    background: #1e282d;
+    border-radius: 8px 8px 2px 2px;
+    box-shadow: 0 0 12px #5cb6d3, 0 2px 5px rgba(0,0,0,0.8);
+    position: relative;
+}
+
+.bm-lamp-head::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 6px;
+    right: 6px;
+    height: 4px;
+    background: #eef7f5;
+    border-radius: 2px;
+    box-shadow: 0 0 10px #ffffff;
+}
+
+.bm-light-cone {
+    width: 100%;
+    flex-grow: 1;
+    background: linear-gradient(180deg, rgba(92, 182, 211, 0.22) 0%, rgba(92, 182, 211, 0.05) 60%, transparent 100%);
+    clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+    pointer-events: none;
+    opacity: 0.85;
+}
+
+/* 4. Ambient Tanks Floating on the Stand */
+.bm-ambient-tanks {
+    position: absolute;
+    top: 24%;
+    left: 0;
+    right: 0;
+    height: 34%;
+    display: flex;
+    justify-content: space-around;
+    padding: 0 4vw;
+    box-sizing: border-box;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.bm-tank {
+    position: relative;
+    width: 22%;
+    height: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 4px solid #1c333c;
+    background: radial-gradient(circle at 50% 20%, rgba(74, 159, 186, 0.35) 0%, #081d24 60%, #030e12 100%);
+    box-shadow: 
+        inset 0 0 30px rgba(0, 0, 0, 0.85),
+        0 10px 25px rgba(0, 0, 0, 0.7),
+        0 0 20px rgba(74, 159, 186, 0.25);
+}
+
+.bm-tank-surface {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.bm-water-glow {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(92, 182, 211, 0.15) 0%, transparent 80%);
+    pointer-events: none;
+}
+
+.bm-tank-sand {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 16px;
+    background: #091316;
+    border-top: 1px solid #14282e;
+}
+
+/* Micro Bubbles */
+.bm-bubble {
+    position: absolute;
+    bottom: 14px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    animation: bmBubbleRise 3.5s linear infinite;
+}
+
+.bm-bubble.b1 { left: 25%; animation-duration: 4s; animation-delay: 0.3s; }
+.bm-bubble.b2 { left: 75%; animation-duration: 3.2s; animation-delay: 1.8s; }
+
+@keyframes bmBubbleRise {
+    0% { transform: translateY(0); opacity: 0; }
+    20% { opacity: 0.8; }
+    100% { transform: translateY(-160px); opacity: 0; }
+}
+
+.bm-shrimp-layer {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+/* Glowing Bio-Blobs */
+.bm-blob {
+    position: absolute;
+    width: 18px;
+    height: 10px;
+    border-radius: 55% 45% 45% 55%;
+    box-shadow: 0 0 10px currentColor;
+    opacity: 0.9;
+    transition: transform 0.2s linear;
+    filter: brightness(1.3);
+}
+
+.bm-blob::after {
+    content: "";
+    position: absolute;
+    right: -4px;
+    top: 2px;
+    width: 5px;
+    height: 6px;
+    background: currentColor;
+    border-radius: 50%;
+    opacity: 0.85;
+}
+
+/* 5. Deep Black Counter / Stand under the tanks */
+.bm-counter-stand {
+    position: absolute;
+    top: calc(24% + 34%);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, #101a1e 0%, #080d0f 40%, #030506 100%);
+    border-top: 6px solid #1b2e35;
+    box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.9);
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* 6. Shopkeeper on Left */
+.bm-stage {
+    position: absolute;
+    left: 4vw;
+    bottom: -40px; /* Sunk safely below viewport */
+    pointer-events: none;
+    z-index: 5;
+    line-height: 0;
+    overflow: visible;
+}
+
+.bm-shopkeeper-img {
+    height: 80vh;
+    max-height: 740px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.8));
+    user-select: none;
+    display: block;
+    transform-origin: bottom center !important;
+}
+
+@keyframes npcJumpBounce {
+    0% { transform: translateY(0) scale(1, 1); }
+    20% { transform: translateY(8px) scale(1.08, 0.90); }
+    45% { transform: translateY(-22px) scale(0.94, 1.12); }
+    70% { transform: translateY(4px) scale(1.04, 0.96); }
+    85% { transform: translateY(-6px) scale(0.98, 1.02); }
+    100% { transform: translateY(0) scale(1, 1); }
+}
+
+.bm-shopkeeper-img.npc-bounce {
+    animation: npcJumpBounce 0.75s ease-in-out;
+}
+
+/* 7. Stacked Right-Side Interactive Panel (Buttons on Top, Dialogue on Bottom) */
+.bm-bottom-dialogue-wrapper {
+    position: absolute;
+    bottom: 24px;
+    right: 2vw;
+    z-index: 10;
+    pointer-events: none;
+    max-width: 78vw;
+    width: clamp(750px, 75vw, 1200px);
+}
+
+.bm-right-panel-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 16px;
+    width: 100%;
+}
+
+/* Large Button Cards on Top */
+.bm-action-area {
+    pointer-events: auto;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.bm-buttons-grid {
+    display: flex;
+    gap: 14px;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+}
+
+.bm-tier-btn {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 125px !important;
+    height: 90px !important;
+    padding: 10px !important;
+    background: rgba(23, 34, 39, 0.95) !important;
+    border: 2px solid var(--border) !important;
+    border-radius: 12px !important;
+    color: #e6f2f4 !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6) !important;
+    transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+}
+
+.bm-tier-btn span {
+    font-size: 16px !important;
+    font-weight: bold !important;
+    margin-bottom: 4px !important;
+}
+
+.bm-tier-btn strong {
+    font-size: 14px !important;
+    color: #e6f2f4 !important;
+}
+
+.bm-tier-btn:hover:not(:disabled) {
+    background: rgba(33, 49, 56, 0.98) !important;
+    transform: translateY(-4px) !important;
+}
+
+.bm-tier-btn:disabled {
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+/* Glowing rarity borders */
+.rarity-btn-common { border-color: #6c6c6c !important; }
+.rarity-btn-uncommon { border-color: #27ae60 !important; box-shadow: 0 0 10px rgba(39, 174, 96, 0.2) !important; }
+.rarity-btn-rare { border-color: #2980b9 !important; box-shadow: 0 0 10px rgba(41, 128, 185, 0.25) !important; }
+.rarity-btn-epic { border-color: #8e44ad !important; box-shadow: 0 0 10px rgba(142, 68, 173, 0.3) !important; }
+.rarity-btn-legendary { border-color: #f1c40f !important; box-shadow: 0 0 15px rgba(241, 196, 15, 0.35) !important; }
+
+/* Wide Dialogue Box on Bottom */
+.bm-dialogue-box {
+    width: 100%;
+    background: rgba(17, 24, 28, 0.95);
+    border: 2px solid #8658b5;
+    border-radius: 14px;
+    padding: 14px 22px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85), inset 0 0 15px rgba(134, 88, 181, 0.2);
+    box-sizing: border-box;
+    backdrop-filter: blur(8px);
+    pointer-events: auto;
+}
+
+.bm-text-content {
+    text-align: left;
+}
+
+.bm-npc-title {
+    color: #f1c40f;
+    font-size: 15px;
+    margin: 0 0 5px 0;
+    font-weight: bold;
+    letter-spacing: 0.3px;
+}
+
+.bm-dialogue-text {
+    color: #e6f2f4;
+    font-size: 14px;
+    margin: 0;
+    line-height: 1.45;
+}
+
+/* 8. Responsive Media Queries */
+@media (max-width: 1024px) {
+    .bm-bottom-dialogue-wrapper {
+        width: 95vw;
+        right: 2.5vw;
+        bottom: 15px;
+    }
+    .bm-tier-btn {
+        width: 100px !important;
+        height: 75px !important;
+    }
+    .bm-tier-btn span {
+        font-size: 13px !important;
+    }
+    .bm-tier-btn strong {
+        font-size: 12px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .bm-shopkeeper-img {
+        height: 48vh;
+        left: 2vw;
+        bottom: 120px;
+        opacity: 0.9;
+    }
+    .bm-buttons-grid {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+/* =========================================================
+   MINIGAME SPEED WARNING BANNER -- SHRIMP OVERHAUL
+========================================================= */
+
+.minigame-speed-warning {
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 26px;
+    font-weight: bold;
+    color: #ff3333;
+    text-shadow: 0 0 12px rgba(255, 0, 0, 0.8), 0 0 25px rgba(255, 255, 255, 0.6);
+    background: rgba(15, 28, 32, 0.75);
+    border: 2px solid #ff3333;
+    border-radius: 12px;
+    padding: 12px 24px;
+    letter-spacing: 2px;
+    pointer-events: none; /* Allows clicking through cleanly */
+    z-index: 50;
+    animation: speedWarningPulse 0.5s infinite alternate;
+}
+
+@keyframes speedWarningPulse {
+    0% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.95); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+}
+
+/* Big Centered GOODS button in Black Market */
+.bm-goods-center-wrapper {
+    position: absolute;
+    top: 52%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 15;
+    pointer-events: auto;
+}
+
+.bm-goods-btn {
+    padding: 16px 42px !important;
+    font-size: 22px !important;
+    font-weight: bold !important;
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #1e3a29 0%, #2ecc71 100%) !important;
+    border: 2.5px solid #2ecc71 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 0 25px rgba(46, 204, 113, 0.6), 0 8px 25px rgba(0, 0, 0, 0.8) !important;
+    cursor: pointer !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    letter-spacing: 2px !important;
+    animation: goodsPulse 1.8s infinite alternate !important;
+}
+
+.bm-goods-btn:hover {
+    transform: scale(1.08) !important;
+    box-shadow: 0 0 35px rgba(46, 204, 113, 0.9), 0 10px 30px rgba(0, 0, 0, 0.9) !important;
+}
+
+@keyframes goodsPulse {
+    0% { transform: scale(1); box-shadow: 0 0 15px rgba(46, 204, 113, 0.5); }
+    100% { transform: scale(1.04); box-shadow: 0 0 30px rgba(46, 204, 113, 0.9); }
+}
+
+#shrimpModal {
+    z-index: 10020 !important;
+}
+
+#capacityModal {
+    z-index: 10030 !important;
+}
+
+#zoomModal {
+    z-index: 10040 !important;
+}
+
+/* =========================================================
+   DECORATING MODE & AQUARIUM DECOR SYSTEM
+========================================================= */
+
+#decorStudioOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 16, 18, 0.98);
+    display: flex;
+    flex-direction: column;
+    z-index: 10015;
+    touch-action: none;
+}
+
+.studio-aquarium-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    overflow: hidden;
+    padding: 10px;
+}
+
+#studioAquarium {
+    width: min(100%, 1100px);
+    height: 620px; /* Exact height of the main aquarium */
+    position: relative;
+    overflow: hidden;
+    border-radius: 14px;
+    border: 8px solid #adc9ce;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,.35), transparent 8%),
+        linear-gradient(to bottom, #9ddae5 0%, #74c6d6 45%, #4eabbf 100%);
+    box-shadow:
+        inset 0 0 40px rgba(0, 90, 120, 0.2),
+        0 8px 20px rgba(40, 90, 100, 0.15);
+}
+
+.placed-decor-item {
+    position: absolute;
+    user-select: none;
+    touch-action: none;
+    transform: translate(-50%, -100%); /* Bottom-center anchor */
+    cursor: grab;
+}
+
+.placed-decor-item:active {
+    cursor: grabbing;
+}
+
+.placed-decor-item.selected-decor {
+    outline: 2px dashed #5cb6d3;
+    filter: drop-shadow(0 0 10px rgba(92, 182, 211, 0.85));
+}
+
+.placed-decor-item img.decor-graphic {
+    width: 100%;
+    height: auto;
+    display: block;
+    pointer-events: none;
+}
+
+/* Top-Right Resize Handle */
+.decor-resize-handle {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 14px;
+    height: 14px;
+    background: #5cb6d3;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    cursor: nesw-resize !important;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 0 6px rgba(0,0,0,0.6);
+}
+
+.placed-decor-item.selected-decor .decor-resize-handle {
+    display: block;
+}
+
+.decor-layer-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: rgba(74, 159, 186, 0.05);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.decor-layer-row.active-row {
+    border-color: var(--primary);
+    background: rgba(74, 159, 186, 0.22);
+}
+
+.decor-layer-row img.thumb {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+
+.decor-layer-actions {
+    display: flex;
+    gap: 3px;
+    margin-left: auto;
+}
+
+.decor-layer-actions button {
+    padding: 3px 6px;
+    font-size: 11px;
+}
+
+/* Decor Visibility Toggle Button */
+.decor-toggle-btn {
+    padding: 3px 6px;
+    font-size: 12px;
+    cursor: pointer;
+    background: #e7eeee;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.decor-toggle-btn.hidden-decor {
+    opacity: 0.5;
+    background: #d95c5c;
+    color: white;
+    border-color: #c0392b;
+}
+
+.decor-layer-row.is-hidden-row {
+    opacity: 0.55;
+    border-style: dashed;
+}
+
+/* =========================================================
+   DECORATING STUDIO: THEME & TEXT CONTRAST FIXES
+========================================================= */
+
+/* Ensure the studio background and panels match the active theme */
+#decorStudioOverlay {
+    background: var(--background) !important;
+    color: var(--text) !important;
+}
+
+#decorStudioOverlay .minigame-header {
+    background: var(--panel) !important;
+    border-bottom: 2px solid var(--border) !important;
+    color: var(--text) !important;
+}
+
+#decorStudioOverlay .panel {
+    background: var(--panel) !important;
+    border: 1.5px solid var(--border) !important;
+    color: var(--text) !important;
+}
+
+#decorStudioOverlay .panel-title h3,
+#decorStudioOverlay .panel-title span,
+#decorStudioOverlay .small-text {
+    color: var(--text) !important;
+}
+
+#decorStudioOverlay .small-text {
+    color: var(--muted) !important;
+}
+
+/* Layer list items text contrast */
+.decor-layer-row {
+    background: #f4f9f9;
+    border: 1.5px solid var(--border);
+    color: var(--text) !important;
+}
+
+.decor-layer-row strong {
+    color: var(--text) !important;
+}
+
+.decor-layer-row .small-text {
+    color: var(--muted) !important;
+}
+
+.decor-layer-row.active-row {
+    background: rgba(74, 159, 186, 0.18) !important;
+    border-color: var(--primary) !important;
+}
+
+/* Dark Mode Overrides */
+body.dark-theme #decorStudioOverlay {
+    background: #0f1c20 !important;
+    color: #e6f2f4 !important;
+}
+
+body.dark-theme #decorStudioOverlay .minigame-header {
+    background: #152429 !important;
+    border-bottom-color: #293a3e !important;
+}
+
+body.dark-theme #decorStudioOverlay .panel {
+    background: #1b282c !important;
+    border-color: #293a3e !important;
+}
+
+body.dark-theme .decor-layer-row {
+    background: #1e2f33 !important;
+    border-color: #293c40 !important;
+    color: #e6f2f4 !important;
+}
+
+body.dark-theme .decor-layer-row strong {
+    color: #e6f2f4 !important;
+}
+
+body.dark-theme .decor-layer-row .small-text {
+    color: #8fa0a5 !important;
+}
+
+body.dark-theme .decor-layer-row.active-row {
+    background: rgba(92, 182, 211, 0.25) !important;
+    border-color: var(--primary) !important;
 }

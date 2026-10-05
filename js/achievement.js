@@ -20,8 +20,20 @@ const ACHIEVEMENTS = {
     },
     favoritesUnlocked: {
         title: "Fancy Shrimp Club",
-        desc: "Unlock the Favorites Tank and transfer a shrimp into it.",
-        check: (game) => game.favoritesTankUnlocked && game.shrimp.some(s => s.tank === "favorites")
+        desc: "Upgrade the Favorites Tank to its maximum capacity (Level 10).",
+        check: (game) => (game.favoritesTankLevel || 0) >= 10
+    },
+    // SHRIMP OVERHAUL
+    patheticClutch: {
+        title: "Pathetic Clutch",
+        desc: "Encounter a clutch with the minimum possible number of offspring.",
+        check: (game) => !!game.hasPatheticClutch
+    },
+    // SHRIMP OVERHAUL
+    mostEggnant: {
+        title: "The Most Eggnant Shrimp Ever",
+        desc: "Encounter a clutch with the maximum possible number of offspring.",
+        check: (game) => !!game.hasMostEggnant
     },
     unlockedAmano: {
         title: "Amano-nopoly",
@@ -92,6 +104,16 @@ const ACHIEVEMENTS = {
         title: "Creature of the Night",
         desc: "Unlock and obtain a legendary Vampire Shrimp. (Increases the capacity of the tank it resides in by +5 capacity).",
         check: (game) => (game.discovered && game.discovered.includes("vampireShrimp")) || game.shrimp.some(s => s.species === "vampireShrimp")
+    },
+    unlockedZombie: {
+        title: "Does this look infected?",
+        desc: "Acquire your very first Zombie Shrimp from the Black Market.",
+        check: (game) => game.shrimp.some(s => s.species === "zombieShrimp") || (game.discovered && game.discovered.includes("zombieShrimp"))
+    },
+    allHintsUnlocked: {
+        title: "What a gossip",
+        desc: "Purchase all available rumors from the Black Market Informant.",
+        check: (game) => typeof areAllHintsPurchased === "function" && areAllHintsPurchased()
     }
 };
 
@@ -164,11 +186,14 @@ function renderAchievements() {
     const container = document.getElementById("achievementsList");
     if (!container) return;
 
-    container.innerHTML = "";
-
     if (!game.achievements) game.achievements = [];
-
     checkAchievements();
+
+    const achState = (game.achievements || []).join(",");
+    if (container.dataset.cache === achState) return;
+    container.dataset.cache = achState;
+
+    container.innerHTML = "";
 
     for (const [id, ach] of Object.entries(ACHIEVEMENTS)) {
         const unlocked = game.achievements.includes(id);

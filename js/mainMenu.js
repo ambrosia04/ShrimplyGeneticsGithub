@@ -20,7 +20,7 @@
             <!-- Toggleable inline settings panel for quick adjustments -->
             <div id="menuSettingsPanel" class="hidden"
                 style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px; text-align: left; width: 100%;">
-                <h3 style="margin-top: 0; margin-bottom: 15px;">⚙️ Settings</h3>
+                <h3 style="margin-top: 0; margin-bottom: 15px;"><img src="emoji/settings.png" alt="Settings" class="ui-emoji"> Settings</h3>
 
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px;">

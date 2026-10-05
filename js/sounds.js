@@ -15,7 +15,7 @@ const SOUND_EFFECTS = {
     sell: new Audio("sounds/sell.mp3"),
     keep: new Audio("sounds/keep.mp3"),
     achievement: new Audio("sounds/achievement.mp3"),
-    
+    pageFlip: new Audio("sounds/pageFlip.mp3") //By Alex Pixabay
 };
 
 // Timestamps to handle debouncing per sound key
@@ -25,9 +25,18 @@ const soundTimestamps = {};
  * Universal sound player
  * @param {string} key - Key matching an entry in SOUND_EFFECTS
  * @param {number} [debounceMs=0] - Optional cooldown in milliseconds between plays
+ * @param {string|null} [tank=null] - Optional tank identifier to filter sound to current active tank only
  */
-function playSound(key, debounceMs = 0) {
+function playSound(key, debounceMs = 0, tank = null) {
     if (typeof game !== "undefined" && game && game.sfxMuted) return;
+
+    // If a tank was passed, only play if the player is currently viewing this tank
+    if (tank && typeof game !== "undefined" && game) {
+        const currentActiveTank = game.activeAquarium || "tank1";
+        if (tank !== currentActiveTank) {
+            return;
+        }
+    }
 
     const audio = SOUND_EFFECTS[key];
     if (!audio) {
@@ -43,9 +52,9 @@ function playSound(key, debounceMs = 0) {
     }
 
     try {
-        const clone = audio.cloneNode();
-        clone.volume = (typeof game !== "undefined" && game) ? game.sfxVolume : 0.5;
-        clone.play().catch(e => console.log(`SFX [${key}] playback blocked:`, e));
+        audio.currentTime = 0;
+        audio.volume = (typeof game !== "undefined" && game) ? (game.sfxVolume ?? 0.5) : 0.5;
+        audio.play().catch(e => console.warn(`SFX [${key}] playback blocked:`, e));
     } catch (err) {
         console.warn(`Error playing sound [${key}]:`, err);
     }
@@ -59,11 +68,12 @@ function updateAudioVolumes() {
     bgm.volume = game.bgmMuted ? 0 : game.bgmVolume;
 }
 
-// Convenient shortcut wrappers (keeps full backwards compatibility with your existing code)
-function playBtnSound()         { playSound("btn"); }
-function playBerriedSound()     { playSound("berried", 500); }
-function playPregnantSound()    { playSound("pregnant", 500); }
-function playBigSaleSound()     { playSound("bigSale"); }
-function playSellSound()        { playSound("sell"); }
-function playKeepSound()        { playSound("keep"); }
-function playAchievementSound() { playSound("achievement"); }
+// Convenient shortcut wrappers
+function playBtnSound()                 { playSound("btn"); }
+function playBerriedSound(tank = null)  { playSound("berried", 500, tank); }
+function playPregnantSound(tank = null) { playSound("pregnant", 500, tank); }
+function playBigSaleSound(tank = null)  { playSound("bigSale", 0, tank); }
+function playSellSound(tank = null)     { playSound("sell", 0, tank); }
+function playKeepSound(tank = null)     { playSound("keep", 0, tank); }
+function playAchievementSound()         { playSound("achievement"); }
+function playPageFlipSound()            { playSound("pageFlip"); }

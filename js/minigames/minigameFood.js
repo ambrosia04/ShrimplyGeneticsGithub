@@ -77,8 +77,6 @@ const FOOD_PREP = {
             this.incorrectSpoonedCount = 0;
         }
 
-        // Keep tank running
-
         document.getElementById("foodPrepOverlay").classList.remove("hidden");
         document.getElementById("foodPrepIntro").classList.add("hidden");
         document.getElementById("foodPrepGame").classList.remove("hidden");
@@ -715,6 +713,7 @@ const FOOD_PREP = {
         document.getElementById("foodPrepOverlay").classList.add("hidden");
         document.getElementById("foodPrepIntro").classList.remove("hidden");
         document.getElementById("foodPrepGame").classList.add("hidden");
+
         game.lastRealTime = Date.now();
         render();
     }

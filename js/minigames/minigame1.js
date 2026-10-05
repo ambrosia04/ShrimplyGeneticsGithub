@@ -11,6 +11,7 @@ const MINIGAME = {
     animFrameId: null,
     nextId: 1,
     timeElapsed: 0,
+    currentSpeedTier: 0, // SHRIMP OVERHAUL
 
     shrimpTypes: {
         basic: {
@@ -42,7 +43,7 @@ const MINIGAME = {
         }
     },
 
-    start() {
+    start() { // SHRIMP OVERHAUL
         if (this.active) return;
         this.active = true;
         this.strikes = 0;
@@ -50,8 +51,7 @@ const MINIGAME = {
         this.shrimps = [];
         this.nextId = 1;
         this.timeElapsed = 0;
-
-        // Keep tank running.
+        this.currentSpeedTier = 0; // <-- ADDED: Reset milestone tracking
 
         // Display screen overlay
         const overlay = document.getElementById("minigameOverlay");
@@ -60,22 +60,19 @@ const MINIGAME = {
         const modal = document.getElementById("minigameOverModal");
         if (modal) modal.classList.add("hidden");
 
-        // Clear previous canvas objects
+        // Clear previous canvas objects & banners
         const canvas = document.getElementById("minigameCanvas");
         if (canvas) {
-            canvas.querySelectorAll(".minigame-shrimp").forEach(el => el.remove());
+            canvas.querySelectorAll(".minigame-shrimp, .minigame-speed-warning").forEach(el => el.remove());
         }
 
         this.updateHeaderUI();
-
-        // Spawn loop
         this.scheduleSpawn();
-
-        // Physics tick loop
         this.tick();
     },
 
     stop() {
+        this.saveHighScore();
         this.active = false;
         if (this.spawnTimer) clearTimeout(this.spawnTimer);
         if (this.animFrameId) cancelAnimationFrame(this.animFrameId);
@@ -90,23 +87,77 @@ const MINIGAME = {
         const overlay = document.getElementById("minigameOverlay");
         if (overlay) overlay.classList.add("hidden");
 
-        // Resume main game simulation timeline
         game.lastRealTime = Date.now();
         render();
     },
 
-    scheduleSpawn() {
+    scheduleSpawn() { // SHRIMP OVERHAUL
         if (!this.active) return;
 
-        // Spawn every 1.2s to 2.2s
-        const delay = 1200 + Math.random() * 1000;
+        // Generous spawn intervals so waves never feel like a wall
+        let baseDelay = 1500;
+        if (this.moneyCollected >= 500) {
+            baseDelay = 800;
+        } else if (this.moneyCollected >= 350) {
+            baseDelay = 1050;
+        } else if (this.moneyCollected >= 200) {
+            baseDelay = 1200;
+        } else if (this.moneyCollected >= 100) {
+            baseDelay = 1350;
+        }
+
+        const delay = baseDelay + Math.random() * 350;
         this.spawnTimer = setTimeout(() => {
-            this.spawnShrimp();
+            this.spawnWave();
             this.scheduleSpawn();
         }, delay);
     },
 
-    spawnShrimp() {
+    spawnWave() { // SHRIMP OVERHAUL
+        if (!this.active) return;
+
+        const maxCap = 8; // Screen cap to avoid overwhelming clusters
+        const activeCount = this.shrimps.filter(s => !s.falling).length;
+        const availableSlots = maxCap - activeCount;
+        if (availableSlots <= 0) return;
+
+        let burstCount = 1;
+        const score = this.moneyCollected;
+        const roll = Math.random();
+
+        // 500+: Chaos mode (up to 4-5)
+        if (score >= 500) {
+            if (roll < 0.25) burstCount = 4;
+            else if (roll < 0.65) burstCount = 3;
+            else burstCount = 2;
+        }
+        // 250 - 499: Maximum 3 shrimp (very manageable)
+        else if (score >= 250) {
+            if (roll < 0.35) burstCount = 3;
+            else if (roll < 0.75) burstCount = 2;
+            else burstCount = 1;
+        }
+        // 100 - 249: Maximum 2 shrimp
+        else if (score >= 100) {
+            burstCount = roll < 0.50 ? 2 : 1;
+        }
+        // 0 - 99: Strictly 1 shrimp
+        else {
+            burstCount = 1;
+        }
+
+        const countToSpawn = Math.min(burstCount, availableSlots);
+
+        for (let i = 0; i < countToSpawn; i++) {
+            // Slower staggered release so you have ample time to react to each target
+            setTimeout(() => {
+                if (this.active) this.spawnShrimp();
+            }, i * 220);
+        }
+    },
+
+
+    spawnShrimp() { // SHRIMP OVERHAUL
         const canvas = document.getElementById("minigameCanvas");
         if (!canvas) return;
 
@@ -123,14 +174,21 @@ const MINIGAME = {
         const canvasHeight = canvas.clientHeight || window.innerHeight;
 
         const id = this.nextId++;
-        const left = Math.random() * Math.max(100, canvasWidth - 100);
+        const left = Math.random() * Math.max(100, canvasWidth - 120);
 
-        // Calculate speed with a slow progressive ramp (+15% speed increase per 60 seconds elapsed)
+        // Very gentle, linear speed progression:
+        // $0   = 1.0x
+        // $250 = ~1.17x (completely playable)
+        // $500 = ~1.35x
+        // >$500 = begins exponential ramp
+        let multiplier = 1.0 + (this.moneyCollected * 0.0007);
+        if (this.moneyCollected > 500) {
+            multiplier *= Math.pow(1.003, this.moneyCollected - 500);
+        }
+
         const baseSpeed = config.speedMin + Math.random() * (config.speedMax - config.speedMin);
-        const speedMultiplier = 1 + (this.timeElapsed / 60) * 0.15; // Change this to 0.1 for a slower ramp and 0.2 for a faster ramp
-        const speed = baseSpeed * speedMultiplier;
+        const speed = baseSpeed * multiplier;
 
-        // Create DOM element
         const element = document.createElement("div");
         element.className = `minigame-shrimp ${config.class}`;
         element.id = `minishrimp-${id}`;
@@ -168,7 +226,6 @@ const MINIGAME = {
             color: config.color
         };
 
-        // Event listener for click directly on the element
         element.addEventListener("click", (e) => {
             e.stopPropagation();
             this.clickShrimp(shrimpObj);
@@ -177,40 +234,75 @@ const MINIGAME = {
         this.shrimps.push(shrimpObj);
     },
 
+
     clickShrimp(s) {
         if (s.falling || !this.active) return;
 
         s.hp--;
-
-        // Play hit animation
         s.element.classList.remove("hit-flash");
-        void s.element.offsetWidth; // trigger reflow
+        void s.element.offsetWidth;
         s.element.classList.add("hit-flash");
 
         if (s.hp <= 0) {
-            // Initiate Fall sequence
             s.falling = true;
             s.element.classList.add("falling");
 
-            // Swap sprite to Fall image
             s.img.src = `${s.prefix}Fall.png`;
             s.img.onerror = () => {
                 s.img.style.display = "none";
                 const fb = s.element.querySelector(".css-shrimp");
-                if (fb) {
-                    fb.style.transform = "scale(1.3) rotate(180deg)"; // flips CSS fallback upside down
-                }
+                if (fb) fb.style.transform = "scale(1.3) rotate(180deg)";
             };
 
-            playKeepSound(); // Replaces the money sound to play only the keep (bubble) sound on defeat
+            playKeepSound();
 
             this.moneyCollected += s.reward;
+            this.checkSpeedMilestones(); // <-- Checks for 20 / 50 / 70 thresholds
             this.updateHeaderUI();
         } else {
-            // Feedback sound for bulky taps
-            playKeepSound(); // Plays only the keep (bubble) sound on non-lethal taps
+            playKeepSound();
         }
     },
+
+    saveHighScore() { // SHRIMP OVERHAUL
+        if (!game) return;
+        if (this.moneyCollected > (game.minigame1HighScore || 0)) {
+            game.minigame1HighScore = this.moneyCollected;
+        }
+        saveGame(); // Commit to localStorage immediately
+    },
+
+    checkSpeedMilestones() { // SHRIMP OVERHAUL
+        if (this.moneyCollected >= 500 && this.currentSpeedTier < 500) {
+            this.currentSpeedTier = 500;
+            this.showSpeedBanner();
+        } else if (this.moneyCollected >= 350 && this.currentSpeedTier < 350) {
+            this.currentSpeedTier = 350;
+            this.showSpeedBanner();
+        } else if (this.moneyCollected >= 200 && this.currentSpeedTier < 200) {
+            this.currentSpeedTier = 200;
+            this.showSpeedBanner();
+        } else if (this.moneyCollected >= 100 && this.currentSpeedTier < 100) {
+            this.currentSpeedTier = 100;
+            this.showSpeedBanner();
+        }
+    },
+
+    showSpeedBanner() { // SHRIMP OVERHAUL
+        const canvas = document.getElementById("minigameCanvas");
+        if (!canvas) return;
+
+        const existing = canvas.querySelector(".minigame-speed-warning");
+        if (existing) existing.remove();
+
+        const banner = document.createElement("div");
+        banner.className = "minigame-speed-warning";
+        banner.innerHTML = `<img src="emoji/lightning.png" alt="Speed Warning" class="ui-emoji"> THEY ARE ESCAPING FASTER!`;
+        canvas.appendChild(banner);
+
+        setTimeout(() => banner.remove(), 2500);
+    },
+
 
     tick() {
         if (!this.active) return;
@@ -276,7 +368,7 @@ const MINIGAME = {
         if (moneyEl) moneyEl.textContent = `Earned: $${this.moneyCollected}`;
     },
 
-    finishGame() {
+    finishGame() { // SHRIMP OVERHAUL
         if (!this.active) return;
 
         this.active = false; // release the active state lock
@@ -287,7 +379,7 @@ const MINIGAME = {
 
         // Credit earned money to wallet balance
         game.money += this.moneyCollected;
-
+        this.saveHighScore();
 
         const modal = document.getElementById("minigameOverModal");
         const title = document.getElementById("minigameOverTitle");
@@ -306,7 +398,7 @@ const MINIGAME = {
         playSellSound();
     },
 
-    gameOver() {
+    gameOver() { // SHRIMP OVERHAUL
         this.active = false; // release the active state lock
 
         if (this.spawnTimer) clearTimeout(this.spawnTimer);
@@ -314,7 +406,7 @@ const MINIGAME = {
 
         // Credit money directly to wallet balance
         game.money += this.moneyCollected;
-
+        this.saveHighScore();
 
         const modal = document.getElementById("minigameOverModal");
         const title = document.getElementById("minigameOverTitle");

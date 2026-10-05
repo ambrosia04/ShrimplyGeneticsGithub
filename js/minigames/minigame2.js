@@ -12,8 +12,9 @@ const MINIGAME2 = {
     animFrameId: null,
     nextId: 1,
     timeElapsed: 0,
+    currentSpeedTier: 0, // SHRIMP OVERHAUL
 
-    start(mode) {
+    start(mode) { // SHRIMP OVERHAUL
         this.active = true;
         this.mode = mode;
         this.strikes = 0;
@@ -21,15 +22,15 @@ const MINIGAME2 = {
         this.shrimps = [];
         this.nextId = 1;
         this.timeElapsed = 0;
+        this.currentSpeedTier = 0; // <-- ADDED: Reset milestone tracking
 
-        // Transition screens
         document.getElementById("minigame2Selection").classList.add("hidden");
         document.getElementById("minigame2Game").classList.remove("hidden");
         document.getElementById("minigame2OverModal").classList.add("hidden");
 
         const canvas = document.getElementById("minigame2Canvas");
         if (canvas) {
-            canvas.querySelectorAll(".minigame-shrimp").forEach(el => el.remove());
+            canvas.querySelectorAll(".minigame-shrimp, .minigame-speed-warning").forEach(el => el.remove());
         }
 
         this.updateHeaderUI();
@@ -38,6 +39,7 @@ const MINIGAME2 = {
     },
 
     stop() {
+        this.saveHighScore(); 
         this.active = false;
         if (this.spawnTimer) clearTimeout(this.spawnTimer);
         if (this.animFrameId) cancelAnimationFrame(this.animFrameId);
@@ -51,18 +53,18 @@ const MINIGAME2 = {
         document.getElementById("minigame2Selection").classList.remove("hidden");
         document.getElementById("minigame2Game").classList.add("hidden");
 
-        // Resume standard time loops
         game.lastRealTime = Date.now();
         render();
     },
 
-    finishGame() {
+    finishGame() { // SHRIMP OVERHAUL
         if (!this.active) return;
 
         if (this.spawnTimer) clearTimeout(this.spawnTimer);
         if (this.animFrameId) cancelAnimationFrame(this.animFrameId);
 
         game.money += this.moneyCollected;
+        this.saveHighScore();
 
         const modal = document.getElementById("minigame2OverModal");
         const title = document.getElementById("minigame2OverTitle");
@@ -90,7 +92,15 @@ const MINIGAME2 = {
         }, delay);
     },
 
-    spawnShrimp() {
+    saveHighScore() {
+        if (!game) return;
+        if (this.moneyCollected > (game.minigame2HighScore || 0)) {
+            game.minigame2HighScore = this.moneyCollected;
+        }
+        saveGame();
+    },
+
+    spawnShrimp() { // SHRIMP OVERHAUL
         const canvas = document.getElementById("minigame2Canvas");
         if (!canvas) return;
 
@@ -98,7 +108,6 @@ const MINIGAME2 = {
         const activeCount = this.shrimps.filter(s => !s.clicked).length;
         if (activeCount >= limit) return;
 
-        // Setup species pools based on mode
         let pool = [];
         if (this.mode === "easy") {
             pool = ["redCherry", "yellow", "orange", "shoko", "sakuraRedA"];
@@ -113,17 +122,25 @@ const MINIGAME2 = {
         const species = pool[Math.floor(Math.random() * pool.length)];
         const data = SHRRIMP_SAFE(species);
 
-        const direction = Math.random() < 0.5 ? 1 : -1; // 1 = Left to Right, -1 = Right to Left
+        const direction = Math.random() < 0.5 ? 1 : -1;
         const canvasWidth = canvas.clientWidth || window.innerWidth;
         const canvasHeight = canvas.clientHeight || window.innerHeight;
 
         const startLeft = direction === 1 ? -150 : canvasWidth + 150;
         const targetHeight = Math.random() * (canvasHeight - 160) + 60;
 
-        // Progressive speed scales up with running session duration
-        const speedMultiplier = 1 + (this.timeElapsed / 60) * 0.5;
+        // Exponential Speed Multiplier based on score thresholds
+        let multiplier = 1.0;
+        if (this.moneyCollected >= 70) {
+            multiplier = 1.8 * Math.pow(1.015, this.moneyCollected - 70);
+        } else if (this.moneyCollected >= 50) {
+            multiplier = 1.45 * Math.pow(1.012, this.moneyCollected - 50);
+        } else if (this.moneyCollected >= 20) {
+            multiplier = 1.2 * Math.pow(1.01, this.moneyCollected - 20);
+        }
+
         const baseSpeed = this.mode === "easy" ? (1.0 + Math.random() * 1.5) : (2.2 + Math.random() * 2.2);
-        const finalSpeed = baseSpeed * speedMultiplier;
+        const finalSpeed = baseSpeed * multiplier;
 
         let attachment = "yellow_circles";
         let isParasite = false;
@@ -152,15 +169,13 @@ const MINIGAME2 = {
 
         const id = this.nextId++;
 
-        // Create DOM element
         const element = document.createElement("div");
         element.className = "minigame-shrimp walking";
         element.id = `scan-shrimp-${id}`;
         element.style.left = `${startLeft}px`;
         element.style.top = `${targetHeight}px`;
-        element.dataset.frame = "1"; // Initialize frame attribute
+        element.dataset.frame = "1";
 
-        // Apply scaling classes (Basic is 1.5x larger, uncommon/rare in Hard remains at 1x)
         if (this.mode === "easy") {
             element.classList.add("basic");
         } else {
@@ -170,7 +185,6 @@ const MINIGAME2 = {
         const bodyWrapper = document.createElement("div");
         bodyWrapper.className = "shrimp-body-wrapper";
 
-        // Face forward in the direction of movement (and apply the 1.5x size scale in Easy mode)
         const scaleFactor = (this.mode === "easy") ? 1.5 : 1.0;
         const finalXScale = direction * scaleFactor;
         bodyWrapper.style.transform = `scaleX(${finalXScale}) scaleY(${scaleFactor})`;
@@ -188,7 +202,6 @@ const MINIGAME2 = {
         };
         bodyWrapper.appendChild(img);
 
-        // Generate the identical nested structures inside the body wrapper so they flip & layer properly
         if (attachment === "yellow_circles") {
             const attachDiv = document.createElement("div");
             attachDiv.className = "egg-cluster yellow-eggs";
@@ -207,7 +220,7 @@ const MINIGAME2 = {
                 attachDiv.appendChild(egg);
             }
             bodyWrapper.appendChild(attachDiv);
-        } else if (attachment === "green_triangles") {
+        } else if (attachment === "green_triangles" || attachment === "yellow_eyes") {
             const attachDiv = document.createElement("div");
             attachDiv.className = "clado-cluster";
             for (let i = 0; i < 4; i++) {
@@ -259,7 +272,7 @@ const MINIGAME2 = {
         playKeepSound(); // Diagnostic bubble tap feedback sound
     },
 
-    tick() {
+    tick() { // SHRIMP OVERHAUL
         if (!this.active) return;
 
         this.timeElapsed += 16.67 / 1000;
@@ -270,7 +283,6 @@ const MINIGAME2 = {
             const s = this.shrimps[i];
 
             if (s.clicked) {
-                // Rise upwards out of screen
                 s.top -= 6;
                 s.element.style.top = `${s.top}px`;
 
@@ -280,12 +292,13 @@ const MINIGAME2 = {
 
                     if (s.isParasite) {
                         this.moneyCollected += s.reward;
+                        this.checkSpeedMilestones(); // <-- Added
                         this.updateHeaderUI();
-                        addLog(`🔬 Cull Success! Removed infected ${SHRIMP[s.species].name}.`);
+                        addLog(`Cull Success! Removed infected ${SHRIMP[s.species].name}.`);
                     } else {
                         this.strikes++;
                         this.updateHeaderUI();
-                        addLog(`⚠️ Cull Error! Removed a healthy egg-bearing ${SHRIMP[s.species].name}.`);
+                        addLog(`Cull Error! Removed a healthy egg-bearing ${SHRIMP[s.species].name}.`);
 
                         if (this.strikes >= 3) {
                             this.gameOver();
@@ -294,20 +307,17 @@ const MINIGAME2 = {
                     }
                 }
             } else {
-                // Walk horizontally across screen
                 s.left += s.speed * s.direction;
                 s.element.style.left = `${s.left}px`;
 
-                // Leg swap animation
                 s.animTimer += 16.67;
                 if (s.animTimer >= 250) {
                     s.animTimer = 0;
                     s.frame = s.frame === 1 ? 2 : 1;
                     s.img.src = `${s.prefix}${s.frame}.png`;
-                    s.element.dataset.frame = s.frame; // Keeps walking frames synchronized with the attachments
+                    s.element.dataset.frame = s.frame;
                 }
 
-                // Check bounds exit
                 const leftBoundary = -150;
                 const rightBoundary = canvasWidth + 150;
 
@@ -321,6 +331,34 @@ const MINIGAME2 = {
         this.animFrameId = requestAnimationFrame(() => this.tick());
     },
 
+    checkSpeedMilestones() { // SHRIMP OVERHAUL
+        if (this.moneyCollected >= 70 && this.currentSpeedTier < 70) {
+            this.currentSpeedTier = 70;
+            this.showSpeedBanner();
+        } else if (this.moneyCollected >= 50 && this.currentSpeedTier < 50) {
+            this.currentSpeedTier = 50;
+            this.showSpeedBanner();
+        } else if (this.moneyCollected >= 20 && this.currentSpeedTier < 20) {
+            this.currentSpeedTier = 20;
+            this.showSpeedBanner();
+        }
+    },
+
+    showSpeedBanner() { // SHRIMP OVERHAUL
+        const canvas = document.getElementById("minigame2Canvas");
+        if (!canvas) return;
+
+        const existing = canvas.querySelector(".minigame-speed-warning");
+        if (existing) existing.remove();
+
+        const banner = document.createElement("div");
+        banner.className = "minigame-speed-warning";
+        banner.innerHTML = `<img src="emoji/lightning.png" alt="Speed Warning" class="ui-emoji"> THEY ARE MOVING FASTER!`;
+        canvas.appendChild(banner);
+
+        setTimeout(() => banner.remove(), 2500);
+    },
+
     updateHeaderUI() {
         const strikesEl = document.getElementById("minigame2Strikes");
         const moneyEl = document.getElementById("minigame2Money");
@@ -329,11 +367,12 @@ const MINIGAME2 = {
         if (moneyEl) moneyEl.textContent = `Earned: $${this.moneyCollected}`;
     },
 
-    gameOver() {
+    gameOver() { // SHRIMP OVERHAUL
         if (this.spawnTimer) clearTimeout(this.spawnTimer);
         if (this.animFrameId) cancelAnimationFrame(this.animFrameId);
 
         game.money += this.moneyCollected;
+        this.saveHighScore();
 
         const modal = document.getElementById("minigame2OverModal");
         const title = document.getElementById("minigame2OverTitle");
