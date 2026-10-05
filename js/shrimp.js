@@ -698,7 +698,7 @@ const SHRIMP = {
     },
 
     chocolateFire: {
-        name: "Chocolate",
+        name: "Chocolate Fire",
         hint_text: "Keep melting the chocolate down until it tempers.",
         rarity: "rare",
         family: "shoko",
