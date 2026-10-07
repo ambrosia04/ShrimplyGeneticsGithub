@@ -2811,13 +2811,13 @@ function inheritGenes(mother, father, species) {
   if (isHarlequinPair && Math.random() < 0.1) {
     // 10% chance when both parents are Harlequin
     addLog(
-      "✨ Extraordinary! An ethereal Galaxy Sulawesi was born from Harlequin Sulawesi parents!",
+      "Extraordinary! An ethereal Galaxy Sulawesi was born from Harlequin Sulawesi parents!",
     );
     return { allele1: "galaxySulawesi", allele2: "galaxySulawesi" };
   } else if (hasHarlequinParent && Math.random() < 0.05) {
     // 5% chance when one parent is Harlequin
     addLog(
-      "✨ Extraordinary! A rare mutation occurred: A Galaxy Sulawesi was born!",
+      "Extraordinary! A rare mutation occurred: A Galaxy Sulawesi was born!",
     );
     return { allele1: "galaxySulawesi", allele2: "galaxySulawesi" };
   }
@@ -2981,7 +2981,7 @@ function inheritGenes(mother, father, species) {
         addLog(
           `An ancestral throwback occurred! A wild Bee offspring was born.`,
         );
-        return { allele1: "wildBee", allele2: "wildCaridinaCantonensis" };
+        return { allele1: "wildCrystalBlack", allele2: "wildCaridinaCantonensis" };
       } else if (family === "sulawesi") {
         addLog(
           `An ancestral throwback occurred! A wild Sulawesi offspring was born.`,
@@ -5323,6 +5323,7 @@ function showCullModal(female) {
       !game.discoveredAlleles.includes(baby.hiddenGenes.allele1) ||
       !game.discoveredAlleles.includes(baby.hiddenGenes.allele2),
   );
+
   // Check for tracked target alleles & target shrimp in this clutch
   const trackedAllelesPresent = new Set();
   if (game.trackedAlleles && game.trackedAlleles.length > 0) {
@@ -5380,7 +5381,7 @@ function showCullModal(female) {
     content.appendChild(targetNotice);
   }
 
-  // ✨ New Variant / Allele Banner (Matching Green accent background)
+  // New Variant / Allele Banner
   if (hasNewShrimp || hasNewAllele) {
     const noticeBox = document.createElement("div");
     noticeBox.style.margin = "3px 0 4px 0";
@@ -5392,7 +5393,7 @@ function showCullModal(female) {
     noticeBox.style.fontSize = "11px";
     noticeBox.style.fontWeight = "bold";
 
-    let noticeText = "✨ ";
+    let noticeText = "" + icon("dna") + " ";
     if (hasNewShrimp && hasNewAllele) {
       noticeText +=
         "<strong>New Variant & Allele detected!</strong> Keep them to expand collection & genetics.";
@@ -5407,7 +5408,7 @@ function showCullModal(female) {
     content.appendChild(noticeBox);
   }
 
-  // Ensure cullFilters state exists and retains selections
+  // Ensure cullFilters state exists
   if (!FOOD_PREP.cullFilters) {
     FOOD_PREP.cullFilters = {
       allele: "all",
@@ -5420,11 +5421,11 @@ function showCullModal(female) {
     FOOD_PREP.cullFilters.targetTank = female.tank || "tank1";
   }
 
+  // Collect from ALL remaining offspring so dropdowns never break or vanish
   const presentAlleles = new Set();
   const presentTypes = new Set();
   const presentGenders = new Set();
   female.pendingBabies.forEach((baby) => {
-    if (!matchesCullFilters(baby)) return;
     if (baby.hiddenGenes) {
       if (baby.hiddenGenes.allele1)
         presentAlleles.add(baby.hiddenGenes.allele1);
@@ -5435,6 +5436,7 @@ function showCullModal(female) {
     if (baby.sex) presentGenders.add(baby.sex);
   });
 
+  // Auto-reset filters if the selected item was completely sold/removed
   if (
     FOOD_PREP.cullFilters.allele !== "all" &&
     !presentAlleles.has(FOOD_PREP.cullFilters.allele)
@@ -5655,7 +5657,6 @@ function showCullModal(female) {
 
     row.appendChild(buttonsDiv);
 
-    // SHRIMP OVERHAUL
     const mediaDiv = document.createElement("div");
     mediaDiv.className = "cull-media";
 
@@ -5692,7 +5693,6 @@ function showCullModal(female) {
 
     row.appendChild(infoDiv);
 
-    //SHRIMP OVERHAUL
     const isNewShrimp = !game.discovered.includes(baby.species);
     const isNewAllele =
       !game.discoveredAlleles.includes(baby.hiddenGenes.allele1) ||
@@ -6285,14 +6285,14 @@ function isAmanoUnlocked() {
 }
 
 function isSulawesiUnlocked() {
-  return !!game && game.tankUpgradeLevel >= 10; //SHRIMP OVERHAUL
+  return !!game && game.tankUpgradeLevel >= 9; //SHRIMP OVERHAUL
 }
 
 //SHRIMP OVERHAUL
 function isGlassLaceUnlocked() {
   if (!game) return false;
-  const has10Tanks = (game.tankUpgradeLevel || 0) >= 10;
-  const hasMaxFavorites = (game.favoritesTankLevel || 0) >= 10;
+  const has10Tanks = (game.tankUpgradeLevel || 0) >= 9;
+  const hasMaxFavorites = (game.favoritesTankLevel || 0) >= 9;
   return has10Tanks && hasMaxFavorites;
 }
 
@@ -6307,7 +6307,7 @@ function isScudUnlocked() {
 }
 
 function isRedCrawfishUnlocked() {
-  return !!game && (game.favoritesTankLevel || 0) >= 10;
+  return !!game && (game.favoritesTankLevel || 0) >= 9;
 }
 
 function isRedNoseUnlocked() {
