@@ -2547,9 +2547,17 @@ function determinePhenotype(a1, a2) {
   if (f1 === "babaulti" || f2 === "babaulti") return "babaultiWild";
   if (f1 === "palmata" || f2 === "palmata") return "wildPalmata";
   if (f1 === "sulawesi" || f2 === "sulawesi") return "wildSulawesi";
+  if (f1 === "malawa" || f2 === "malawa") return "malawaShrimp";
+  if (f1 === "lace" || f2 === "lace") return "glassLaceShrimp";
+  if (f1 === "bamboo" || f2 === "bamboo") return "bambooShrimp";
+  if (f1 === "crawfish" || f2 === "crawfish") return "redCrawfish";
+  if (f1 === "scud" || f2 === "scud") return "legendaryScud";
+  if (f1 === "rednose" || f2 === "rednose") return "redNose";
+  if (f1 === "vampire" || f2 === "vampire") return "vampireShrimp";
+  if (f1 === "amano" || f2 === "amano") return "amanoShrimp";
 
   // Caridina complex fallback to Wild Cantonensis
-  const caridinaFamilies = ["cantonensis", "tiger", "bee", "tibee"];
+  const caridinaFamilies = ["cantonensis", "tiger", "bee", "tibee", "boa", "raccoon"];
   if (caridinaFamilies.includes(f1) || caridinaFamilies.includes(f2)) {
     return "wildCaridinaCantonensis";
   }
