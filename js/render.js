@@ -203,18 +203,8 @@ function renderHeader() {
         tankDropdown.dataset.currentTank = currentTank;
       }
 
-      // Only sync if the active aquarium changed in game state
-      if (tankDropdown.dataset.currentTank !== currentTank) {
-        tankDropdown.dataset.currentTank = currentTank;
-        tankDropdown.value = currentTank;
-      }
-
-      // Only update the value if the user is not actively clicking/interacting with it
-      if (
-        document.activeElement !== tankDropdown &&
-        !tankDropdown.matches(":active") &&
-        tankDropdown.value !== currentTank
-      ) {
+      // Always sync dropdown value to current tank when not actively opened
+      if (document.activeElement !== tankDropdown && tankDropdown.value !== currentTank) {
         tankDropdown.value = currentTank;
       }
     }

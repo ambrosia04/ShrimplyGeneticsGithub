@@ -3182,6 +3182,7 @@ window.addEventListener("focus", () => {
 });
 
 let lastAutosaveTimestamp = Date.now();
+let lastUiRenderTimestamp = 0;
 
 function isGamePaused() {
   // ONLY pause time if the player is on the Title Screen / Main Menu
@@ -3197,7 +3198,7 @@ function gameLoop() {
     const deltaSeconds = (now - game.lastRealTime) / 1000;
 
     if (deltaSeconds > 0) {
-      // Track real active playtime (ticks 1s per 1s, unaffected by game speed multipliers)
+      // Track real active playtime
       const activeDelta = Math.min(deltaSeconds, 3);
       game.realPlaytimeSeconds = (game.realPlaytimeSeconds || 0) + activeDelta;
 
@@ -3215,7 +3216,11 @@ function gameLoop() {
       lastAutosaveTimestamp = now;
     }
 
-    render();
+    // Throttle full UI re-renders to 10 FPS (every 100ms) to prevent Chromium dropdown lockup
+    if (now - lastUiRenderTimestamp >= 100) {
+      render();
+      lastUiRenderTimestamp = now;
+    }
   } else {
     game.lastRealTime = now;
   }
