@@ -187,7 +187,7 @@ const SHRIMP = {
         color: "#6b2e6b",
         image: "purple",
         parents: ["sakuraRedA"],
-        children: []
+        children: ["purpleZebra"]
     },
 
     sakuraRedS: {
@@ -239,7 +239,7 @@ const SHRIMP = {
         color: "#d52828",
         image: "fireredpainted",
         parents: ["fireRed"],
-        children: []
+        children: ["darkBlueCherry"]
     },
 
     fireRedTaiwan: {
@@ -790,7 +790,8 @@ const SHRIMP = {
         parents: ["wildDavidi"],
         children: [
             "blackRose",
-            "carbonRili"
+            "carbonRili",
+            "blueVelvet"
         ]
     },
 
@@ -841,7 +842,9 @@ const SHRIMP = {
         image: "bluecarbonrilis",
         parents: ["carbonRiliA"],
         children: [
-            "blueDream"
+            "blueDream",
+            "blueVelvet",
+            "skyBlueVelvet"
         ]
     },
 
@@ -1021,7 +1024,7 @@ const SHRIMP = {
         color: "#a73729",
         image: "kanoko",
         parents: ["sakuraRedA", "fireRed"],
-        children: []
+        children: ["crystalRed"]
     },
 
     amanoShrimp: {
@@ -1174,7 +1177,7 @@ const SHRIMP = {
         color: "#a04000",
         image: "tiger",
         parents: ["wildCaridinaCantonensis"],
-        children: []
+        children: ["blackTiger", "blondeBlueTiger"]
     },
     blackTiger: {
         name: "Black Tiger",
