@@ -545,7 +545,7 @@ function loadGame() {
       }
     }
 
-    // Convert legacy plant arrays to per-tank plant mapping
+    // Convert legacy plant arrays to per-tank plant mapping FIRST
     if (Array.isArray(game.plants)) {
       const oldPlants = [...game.plants];
       game.plants = { tank1: oldPlants };
@@ -573,7 +573,6 @@ function loadGame() {
       ) {
         s.saddle = true;
       }
-      // Ensure no existing female zombies have saddles
       if (s.species === "zombieShrimp" && s.sex === "female") {
         s.saddle = false;
       }
@@ -2272,36 +2271,77 @@ function isShortcutsBlocked() {
    GAME TIME & BACKGROUND CATCHUP ENGINE
 ========================================================= */
 
+let isSimulatingOffline = false;
+
 function applyOfflineProgress() {
   if (!game || !game.lastRealTime) return;
 
   const now = Date.now();
   let elapsedSeconds = (now - game.lastRealTime) / 1000;
+  if (isNaN(elapsedSeconds) || elapsedSeconds <= 0) {
+    game.lastRealTime = now;
+    return;
+  }
+
   // Cap offline time at 7 days max
   elapsedSeconds = Math.min(elapsedSeconds, 7 * 24 * 60 * 60);
-
-  if (elapsedSeconds <= 0) return;
 
   // Convert to in-game minutes including current speed multiplier
   const totalInGameMinutes = (elapsedSeconds / 60) * GAME.speed;
 
-  // Step in small 1-minute slices so breeding checks and growth trigger accurately
-  const stepSize = 1; // 1 in-game minute per step
-  let remainingMinutes = totalInGameMinutes;
+  // Active biological simulation cap:
+  // After ~2880 in-game minutes (48 hours), all shrimp have matured to adults
+  // and all eligible females are pregnant/ready to birth. Beyond this, tanks cannot
+  // progress further without player interaction (culling offspring).
+  const maxSimulationMinutes = Math.min(totalInGameMinutes, 2880);
 
-  while (remainingMinutes > 0) {
-    const chunk = Math.min(remainingMinutes, stepSize);
-    advanceGameMinuteFraction(chunk);
-    remainingMinutes -= chunk;
+  isSimulatingOffline = true;
+  try {
+    let remainingMinutes = maxSimulationMinutes;
+    const stepSize = 1;
+
+    while (remainingMinutes > 0) {
+      const chunk = Math.min(remainingMinutes, stepSize);
+      advanceGameMinuteFraction(chunk, true); // true = fast-forward (skips N^2 physics)
+      remainingMinutes -= chunk;
+    }
+
+    // Apply any overflow time for passive income and clock in O(1) time
+    const overflowMinutes = totalInGameMinutes - maxSimulationMinutes;
+    if (overflowMinutes > 0) {
+      game.minutes += overflowMinutes;
+
+      const adultBambooCount = countLiveShrimp("bambooShrimp", null, true);
+      if (adultBambooCount > 0) {
+        game.money += 1 * overflowMinutes * adultBambooCount;
+      }
+
+      const currentDay = Math.floor(game.minutes / GAME.dayLengthMinutes);
+      if (currentDay > game.lastDailyPayment) {
+        const daysPassed = currentDay - game.lastDailyPayment;
+        game.money += daysPassed * 5;
+        game.lastDailyPayment = currentDay;
+      }
+    }
+  } finally {
+    isSimulatingOffline = false;
   }
 
-  game.lastRealTime = now;
+  game.lastRealTime = Date.now();
   if (elapsedSeconds >= 60) {
     addLog(
       `Your aquariums processed ${formatDuration(elapsedSeconds / 60)} of growth.`,
     );
   }
 }
+
+function handleCatchupProgress() {
+  if (!game || isGamePaused() || !game.lastRealTime) return;
+  applyOfflineProgress();
+  game.lastRealTime = Date.now();
+  render();
+}
+
 
 /* =========================================================
    SHRIMP CREATION
@@ -3204,6 +3244,7 @@ function gameLoop() {
 
       if (deltaSeconds > 3) {
         applyOfflineProgress();
+        game.lastRealTime = Date.now();
       } else {
         advanceGameMinuteFraction((deltaSeconds / 60) * GAME.speed);
         game.lastRealTime = now;
@@ -3264,6 +3305,26 @@ function advanceGameMinuteFraction(minutes, isFastForward = false) {
       }
     }
 
+    if (shrimp.resting) {
+      shrimp.restRemaining -= minutes;
+      if (shrimp.restRemaining <= 0) {
+        shrimp.resting = false;
+        if (shrimp.sex === "female" && shrimp.species !== "galaxySulawesi") {
+          shrimp.saddle = true;
+        }
+        addLog(
+          `${displayName(shrimp)} has finished resting and is saddled again.`,
+        );
+      }
+    }
+
+    if (!isFastForward) {
+      updateShrimpMovement(shrimp, minutes);
+    }
+  }
+
+  // Marimo drift runs once per tick, not per shrimp, and only when not fast-forwarding
+  if (!isFastForward) {
     const currentActiveTank = game.activeAquarium || "tank1";
     const marimoCount = countPlants("marimo", currentActiveTank);
     if (marimoCount > 0) {
@@ -3301,23 +3362,6 @@ function advanceGameMinuteFraction(minutes, isFastForward = false) {
         }
       }
     }
-
-    if (shrimp.resting) {
-      shrimp.restRemaining -= minutes;
-      if (shrimp.restRemaining <= 0) {
-        shrimp.resting = false;
-        if (shrimp.sex === "female" && shrimp.species !== "galaxySulawesi") {
-          shrimp.saddle = true;
-        }
-        addLog(
-          `${displayName(shrimp)} has finished resting and is saddled again.`,
-        );
-      }
-    }
-
-    if (!isFastForward) {
-      updateShrimpMovement(shrimp, minutes);
-    }
   }
 
   if (game.minutes - game.lastBreedingCheck >= GAME.breedingInterval / 60) {
@@ -3334,7 +3378,7 @@ function advanceGameMinuteFraction(minutes, isFastForward = false) {
   }
 
   game.shrimp = game.shrimp.filter((shrimp) => !shrimp.dead);
-  game.selectedForSaleIds = game.selectedForSaleIds.filter((id) =>
+  game.selectedForSaleIds = (game.selectedForSaleIds || []).filter((id) =>
     game.shrimp.some((s) => s.id === id),
   );
 }
@@ -6500,6 +6544,7 @@ function zoomShrimpImage(img) {
 
 function addLog(message) {
   if (!game) return;
+  if (typeof isSimulatingOffline !== "undefined" && isSimulatingOffline) return;
   if (!game.logs) game.logs = [];
 
   game.logs.unshift({ time: game.minutes, message });
@@ -8025,8 +8070,12 @@ function importSaveFile(event) {
       renderCollection();
       renderShop();
 
-      addLog("📁 Save file loaded successfully!");
+      addLog("Save file loaded successfully!");
       alert("Save file loaded successfully!");
+      if (game) {
+        game.lastRealTime = Date.now();
+      }
+
     } catch (err) {
       console.error(err);
       alert(

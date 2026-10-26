@@ -28,6 +28,7 @@ const soundTimestamps = {};
  * @param {string|null} [tank=null] - Optional tank identifier to filter sound to current active tank only
  */
 function playSound(key, debounceMs = 0, tank = null) {
+    if (typeof isSimulatingOffline !== "undefined" && isSimulatingOffline) return;
     if (typeof game !== "undefined" && game && game.sfxMuted) return;
 
     // If a tank was passed, only play if the player is currently viewing this tank
